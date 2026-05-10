@@ -228,6 +228,24 @@
         });
     }
 
+    function ensureMobileHeaderBurger() {
+        document.querySelectorAll(".header-row").forEach((row) => {
+            if (row.querySelector(".header-drawer-burger")) {
+                return;
+            }
+            const auth = row.querySelector(".auth-block");
+            if (!auth) {
+                return;
+            }
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "drawer-menu-toggle header-drawer-burger";
+            btn.setAttribute("aria-label", "Открыть меню");
+            btn.innerHTML = "<span></span><span></span><span></span>";
+            row.insertBefore(btn, auth);
+        });
+    }
+
     function ensureHeaderControls() {
         const authBlocks = document.querySelectorAll(".auth-block");
         authBlocks.forEach((authBlock) => {
@@ -396,6 +414,7 @@
 
     function initSharedDrawers() {
         ensureDrawerMarkup();
+        ensureMobileHeaderBurger();
         ensureHeaderControls();
         bindDrawerAuthActions();
         bindDrawerEvents();

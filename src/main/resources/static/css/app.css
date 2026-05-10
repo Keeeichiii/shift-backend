@@ -42,13 +42,10 @@ body {
 }
 
 .site-header .container {
-    width: 100%;
+    width: calc(100vw - 18px);
     max-width: none;
     margin-left: 0;
-    margin-right: 0;
-    padding-left: clamp(12px, 3.5vw, 18px);
-    padding-right: clamp(12px, 3.5vw, 18px);
-    box-sizing: border-box;
+    margin-right: 18px;
 }
 
 .header-row {
@@ -152,7 +149,7 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Компактная шапка на мобилке: только бренд + этот бургер */
+/* Бургер вставляется скриптом; на десктопе не показывается (мобильные стили в mobile-header.css) */
 .header-drawer-burger {
     display: none;
     flex-shrink: 0;
@@ -170,12 +167,6 @@ body {
 
 .nav-backdrop.is-visible {
     display: block;
-}
-
-@media (max-width: 780px) {
-    body.nav-open {
-        overflow: hidden;
-    }
 }
 
 .section {
@@ -761,65 +752,61 @@ h1 {
 }
 
 @media (max-width: 780px) {
+    .site-header .container {
+        width: calc(100vw - 10px);
+        margin-right: 10px;
+    }
+
     .header-row,
     .inner-header .header-row {
-        grid-template-columns: minmax(0, 1fr) auto;
-        grid-template-areas: "brand burger";
-        align-items: center;
-        column-gap: 12px;
-        row-gap: 0;
+        grid-template-columns: auto auto 1fr auto;
+    }
+
+    .logo {
+        order: 3;
     }
 
     .brand-anchor {
-        grid-area: brand;
+        order: 1;
         gap: 10px;
-        margin-left: 0;
-        min-width: 0;
-        max-width: 100%;
+        margin-left: 2px;
     }
 
     .brand-icon {
         width: 44px;
         height: 44px;
-        flex-shrink: 0;
     }
 
     .brand-name {
-        font-size: clamp(1.05rem, 4.2vw, 22px);
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 24px;
     }
 
-    #menuToggle,
+    .auth-block {
+        order: 4;
+        gap: 6px;
+    }
+
     .menu-toggle {
-        display: none !important;
-    }
-
-    .logo {
-        display: none !important;
+        display: inline-block;
+        order: 2;
     }
 
     .menu-left,
     .menu-right {
-        display: none !important;
+        display: none;
+        position: absolute;
+        left: 4vw;
+        right: 4vw;
+        top: 76px;
+        background: #111;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 12px;
     }
 
-    .auth-block {
-        display: none !important;
-    }
-
-    .header-drawer-burger {
-        grid-area: burger;
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-        justify-self: end;
-    }
-
-    .btn-small {
-        padding: 8px 10px;
-        font-size: 12px;
+    .menu-left.open,
+    .menu-right.open {
+        display: grid;
     }
 
     .hero-copy {
@@ -921,11 +908,6 @@ h1 {
         text-align: center;
         box-sizing: border-box;
         margin-top: 16px;
-    }
-
-    .auth-block {
-        flex-wrap: wrap;
-        justify-content: flex-end;
     }
 }
 
@@ -1241,59 +1223,3 @@ body.drawer-open {
     font-size: 14px;
 }
 
-@media (max-width: 780px) {
-    .auth-block {
-        flex-wrap: wrap;
-        justify-content: flex-end;
-    }
-
-    .btn-support {
-        order: 10;
-    }
-
-    .drawer-menu-toggle {
-        width: 44px;
-        height: 44px;
-        border-radius: 14px;
-    }
-
-    .drawer {
-        top: 4px;
-        right: 4px;
-        bottom: 4px;
-        width: calc(100vw - 8px);
-    }
-
-    .drawer__inner {
-        padding: 22px 18px 20px;
-        border-radius: 24px;
-    }
-
-    .drawer-close {
-        width: 50px;
-        height: 50px;
-        border-radius: 16px;
-        font-size: 24px;
-    }
-
-    .drawer-menu__link {
-        font-size: clamp(1.35rem, 6vw, 2rem);
-    }
-
-    .support-card {
-        grid-template-columns: 54px 1fr;
-        padding: 14px 14px;
-        min-height: 76px;
-    }
-
-    .support-card__icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
-        font-size: 14px;
-    }
-
-    .support-card__value {
-        font-size: clamp(1rem, 4.8vw, 1.35rem);
-    }
-}
