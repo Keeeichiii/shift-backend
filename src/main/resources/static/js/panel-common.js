@@ -187,21 +187,11 @@ async function performLogout() {
 }
 
 function setupPageHeader(user) {
-    const menuToggle = document.getElementById("menuToggle");
-    const menuLeft = document.getElementById("menuLeft");
-    const menuRight = document.getElementById("menuRight");
     const userLabel = document.getElementById("pageUserLabel");
     const roleLabel = document.getElementById("pageRoleLabel");
     const logoutButton = document.getElementById("pageLogoutBtn");
     const panelLink = document.getElementById("panelLink");
     const loginButton = ensureGuestLoginButton();
-
-    if (menuToggle && menuLeft && menuRight) {
-        menuToggle.addEventListener("click", () => {
-            menuLeft.classList.toggle("open");
-            menuRight.classList.toggle("open");
-        });
-    }
 
     if (userLabel) {
         userLabel.textContent = user.username || user.email || "Пользователь";

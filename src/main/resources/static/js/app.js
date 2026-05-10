@@ -1,6 +1,3 @@
-const menuToggle = document.getElementById("menuToggle");
-const menuLeft = document.getElementById("menuLeft");
-const menuRight = document.getElementById("menuRight");
 const loginModal = document.getElementById("loginModal");
 const registerModal = document.getElementById("registerModal");
 const openLogin = document.getElementById("openLogin");
@@ -56,13 +53,6 @@ function maybeOpenRegisterFromQuery() {
     }
     openModal(registerModal);
     window.history.replaceState({}, "", window.location.pathname + window.location.hash);
-}
-
-if (menuToggle && menuLeft && menuRight) {
-    menuToggle.addEventListener("click", () => {
-        menuLeft.classList.toggle("open");
-        menuRight.classList.toggle("open");
-    });
 }
 
 function setButtonBusy(button, busy, busyText) {
