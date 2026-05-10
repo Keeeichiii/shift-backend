@@ -8,7 +8,13 @@
     <changeSet id="create_enum_and_domain_types" author="ea.novak">
         <comment>Создание enum типов и geo доменов</comment>
         <sql splitStatements="false"><![CDATA[
-            CREATE EXTENSION IF NOT EXISTS postgis;
+            DO $$
+            BEGIN
+                CREATE EXTENSION IF NOT EXISTS postgis;
+            EXCEPTION WHEN OTHERS THEN
+                -- Образ БД без PostGIS (например managed Postgres на Railway): ниже создаются geo_* на polygon/point.
+                NULL;
+            END $$;
 
             DO $$
             BEGIN
