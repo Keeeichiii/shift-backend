@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create_table_user_wallets" author="ea.novak">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="true">
+                SELECT (
+                           CASE
+                               WHEN NOT EXISTS (
+                                   SELECT 1
+                                   FROM information_schema.tables
+                                   WHERE table_schema = 'public'
+                                     AND table_name = 'user_wallets'
+                               )
+                                   THEN 'true'
+                               ELSE 'false'
+                               END
+                           );
+            </sqlCheck>
+        </preConditions>
+        <comment>Создание таблицы кошельков</comment>
+
+        <createTable tableName="user_wallets">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" unique="true" referencedTableName="users" referencedColumnNames="id" foreignKeyName="fk_user_wallets_user" deleteCascade="true"/>
+            </column>
+            <column name="balance" type="decimal(12,2)" defaultValueNumeric="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency_code" type="varchar(3)" defaultValue="BYN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updated_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql dbms="postgresql"><![CDATA[
+ALTER TABLE user_wallets ADD CONSTRAINT chk_wallet_balance_non_negative CHECK (balance >= 0);
+]]></sql>
+
+        <rollback>
+            <dropTable tableName="user_wallets"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

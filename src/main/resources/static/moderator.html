@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель модератора</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/panels.css">
+</head>
+<body class="panel-page">
+<header class="site-header panel-header inner-header">
+    <div class="container header-row" id="top">
+        <a class="brand-anchor" href="/index.html" aria-label="Главная">
+            <span class="brand-icon">
+                <img src="images/site/logo.png" alt="Логотип FredAvto">
+            </span>
+            <span class="brand-name">FredAvto</span>
+        </a>
+        <button id="menuToggle" class="menu-toggle" type="button" aria-label="Открыть меню">Меню</button>
+        <nav id="menuLeft" class="menu menu-left">
+            <a href="/index.html#hero">Главная</a>
+            <a href="/map.html">Карта</a>
+            <a href="/account.html">Личный кабинет</a>
+        </nav>
+        <a class="logo" href="/index.html">Каршеринг</a>
+        <nav id="menuRight" class="menu menu-right">
+            <a id="panelLink" href="/moderator.html">Панель модератора</a>
+            <a href="/index.html#contacts">Контакты</a>
+            <a href="/services.html">Услуги</a>
+        </nav>
+        <div class="auth-block auth-block_panel">
+            <span id="pageUserLabel" class="auth-user-label">Модератор</span>
+            <button id="pageLogoutBtn" class="btn btn-small" type="button">Выйти</button>
+        </div>
+    </div>
+</header>
+
+<main class="panel-shell">
+    <div class="container">
+        <div class="panel-topbar">
+            <div>
+                <p class="panel-kicker">Панель модератора</p>
+                <h1>Проверка пользователей</h1>
+                <p class="panel-intro">Модератор проверяет документы, срок действия водительских прав и отсутствие активного лишения прав, после чего одобряет или отклоняет пользователя.</p>
+            </div>
+        </div>
+
+        <div class="panel-tabs" data-panel-tabs="moderator">
+            <button class="panel-tab is-active" type="button" data-panel-target="moderator-license-section">Одобрение данных водительских прав</button>
+            <button class="panel-tab" type="button" data-panel-target="moderator-vehicles-section">Создание карточки машины</button>
+            <button class="panel-tab" type="button" data-panel-target="moderator-news-section">Новости</button>
+            <button class="panel-tab" type="button" data-panel-target="moderator-support-section">Сообщения</button>
+        </div>
+
+        <div id="pageState" class="page-state hidden"></div>
+
+        <div id="pageContent" class="panel-grid">
+            <section id="moderator-license-section" class="panel-section">
+                <section class="panel-grid stats-grid">
+                    <article class="stat-card">
+                        <span>Кандидаты</span>
+                        <strong id="candidateCountValue">0</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Готовы к одобрению</span>
+                        <strong id="readyCountValue">0</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Уже одобрены</span>
+                        <strong id="approvedCountValue">0</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Отклонены</span>
+                        <strong id="rejectedCountValue">0</strong>
+                    </article>
+                </section>
+
+                <div id="moderatorFlash" class="panel-inline-status hidden"></div>
+
+                <section class="panel-card">
+                    <h2>Очередь модерации</h2>
+                    <div id="reviewList" class="review-list"></div>
+                </section>
+            </section>
+
+            <section id="moderator-vehicles-section" class="panel-section hidden">
+                <section class="panel-grid profile-grid">
+                    <article class="panel-card panel-card_light">
+                        <h2 id="moderatorVehicleCardFormTitle">Создать карточку машины</h2>
+                        <form id="moderatorVehicleCardForm" class="panel-form">
+                            <input id="moderatorVehicleCardId" name="cardId" type="hidden">
+                            <div class="field"><label for="moderatorCardTitle">Название</label><input id="moderatorCardTitle" name="title" type="text" required></div>
+                            <div class="field"><label for="moderatorCardSlug">Slug</label><input id="moderatorCardSlug" name="slug" type="text" placeholder="ford-mustang-wrapped" required></div>
+                            <div class="field">
+                                <label for="moderatorCardCategory">Категория</label>
+                                <select id="moderatorCardCategory" name="category">
+                                    <option value="standard">Стандарт</option>
+                                    <option value="crossover">Кроссовер</option>
+                                    <option value="premium">Премиум</option>
+                                    <option value="minivan">Минивэн 7 мест</option>
+                                    <option value="exclusive">Эксклюзив</option>
+                                    <option value="electric">Электро</option>
+                                    <option value="cabriolet">Кабриолет</option>
+                                    <option value="offroad">Внедорожник</option>
+                                    <option value="cargo">Грузовой</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="moderatorCardWrapped">Оклейка</label>
+                                <select id="moderatorCardWrapped" name="wrapped">
+                                    <option value="true">С оклейкой</option>
+                                    <option value="false">Без оклейки</option>
+                                </select>
+                            </div>
+                            <div class="field-wide">
+                                <label for="moderatorCardImageUploadBtn">Фото машины</label>
+                                <input id="moderatorCardImagePath" name="imagePath" type="hidden" value="" required>
+                                <input id="moderatorCardImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden">
+                                <div class="vehicle-card-upload-row">
+                                    <button id="moderatorCardImageUploadBtn" class="btn btn-small" type="button">Загрузить фото</button>
+                                    <span id="moderatorCardImageUploadHint" class="status-text"></span>
+                                </div>
+                                <p id="moderatorCardImageFolderHint" class="panel-muted panel-muted_tight"></p>
+                                <img id="moderatorCardImagePreview" class="vehicle-card-form-preview hidden" alt="Превью фото">
+                            </div>
+                            <div class="field"><label for="moderatorCardPrice">Цена за минуту</label><input id="moderatorCardPrice" name="pricePerMinute" type="number" min="0.01" step="0.01" required></div>
+                            <div class="field"><label for="moderatorCardBadge">Бейдж</label><input id="moderatorCardBadge" name="badge" type="text" placeholder="%"></div>
+                            <div class="field"><label for="moderatorCardTransmission">Коробка</label><input id="moderatorCardTransmission" name="transmission" type="text" placeholder="Автомат"></div>
+                            <div class="field"><label for="moderatorCardFuelType">Топливо</label><input id="moderatorCardFuelType" name="fuelType" type="text" placeholder="Бензин"></div>
+                            <div class="field"><label for="moderatorCardEngine">Двигатель</label><input id="moderatorCardEngine" name="engine" type="text" placeholder="1.6L"></div>
+                            <div class="field"><label for="moderatorCardCharging">Зарядка</label><input id="moderatorCardCharging" name="charging" type="text" placeholder="Беспроводная зарядка для смартфона"></div>
+                            <div class="field"><label for="moderatorCardBooster">Бустер</label><input id="moderatorCardBooster" name="booster" type="text" placeholder="1"></div>
+                            <div class="field"><label for="moderatorCardPhoneHolder">Держатель для телефона</label><input id="moderatorCardPhoneHolder" name="phoneHolder" type="text" placeholder="Есть"></div>
+                            <div class="field-wide"><label for="moderatorCardShortDescription">Короткое описание</label><textarea id="moderatorCardShortDescription" name="shortDescription"></textarea></div>
+                            <div class="field-wide"><label for="moderatorCardDetailDescription">Описание страницы машины</label><textarea id="moderatorCardDetailDescription" name="detailDescription"></textarea></div>
+                            <div class="field-wide"><label for="moderatorCardConditions">Условия (по одному на строку)</label><textarea id="moderatorCardConditions" name="conditionsText"></textarea></div>
+                            <div class="field-wide"><label for="moderatorCardFeatures">Особенности (по одной на строку)</label><textarea id="moderatorCardFeatures" name="featuresText"></textarea></div>
+                            <div class="field-wide"><label for="moderatorCardMinutePackages">Минутные тарифы (по одному на строку)</label><textarea id="moderatorCardMinutePackages" name="minutePackagesText"></textarea></div>
+                            <div class="field-wide"><label for="moderatorCardHourPackages">Часовые тарифы (по одному на строку)</label><textarea id="moderatorCardHourPackages" name="hourPackagesText"></textarea></div>
+                            <div class="field-wide"><label for="moderatorCardDayPackages">Суточные тарифы (по одному на строку)</label><textarea id="moderatorCardDayPackages" name="dayPackagesText"></textarea></div>
+                            <div class="field-wide">
+                                <div class="panel-actions">
+                                    <button id="moderatorVehicleCardSubmit" class="btn" type="submit">Создать карточку</button>
+                                    <button id="moderatorVehicleCardCancel" class="btn btn-ghost hidden" type="button">Отменить редактирование</button>
+                                    <span id="moderatorVehicleCardStatus" class="status-text"></span>
+                                </div>
+                            </div>
+                        </form>
+                    </article>
+                    <article class="panel-card">
+                        <h2>Карточки машин</h2>
+                        <div id="moderatorVehicleCardList" class="vehicle-card-list"></div>
+                    </article>
+                </section>
+            </section>
+
+            <section id="moderator-news-section" class="panel-section hidden">
+                <section class="panel-grid profile-grid">
+                    <article class="panel-card panel-card_light">
+                        <h2 id="moderatorNewsFormTitle">Создать новость</h2>
+                        <form id="moderatorNewsForm" class="panel-form">
+                            <input id="moderatorNewsId" name="newsId" type="hidden">
+                            <div class="field"><label for="moderatorNewsTitle">Заголовок</label><input id="moderatorNewsTitle" name="title" type="text" required></div>
+                            <div class="field"><label for="moderatorNewsSlug">Slug</label><input id="moderatorNewsSlug" name="slug" type="text" placeholder="novaya-novost" required></div>
+                            <div class="field">
+                                <label for="moderatorNewsPublished">Статус</label>
+                                <select id="moderatorNewsPublished" name="published">
+                                    <option value="true">Опубликовано</option>
+                                    <option value="false">Черновик</option>
+                                </select>
+                            </div>
+                            <div class="field-wide"><label for="moderatorNewsSummary">Краткое описание</label><textarea id="moderatorNewsSummary" name="summary" rows="3" required></textarea></div>
+                            <div class="field-wide"><label for="moderatorNewsContent">Текст новости</label><textarea id="moderatorNewsContent" name="content" rows="10" required></textarea></div>
+                            <div class="field-wide">
+                                <div class="panel-actions">
+                                    <button id="moderatorNewsSubmit" class="btn" type="submit">Создать новость</button>
+                                    <button id="moderatorNewsCancel" class="btn btn-ghost hidden" type="button">Отменить редактирование</button>
+                                    <span id="moderatorNewsStatus" class="status-text"></span>
+                                </div>
+                            </div>
+                        </form>
+                    </article>
+                    <article class="panel-card">
+                        <h2>Список новостей</h2>
+                        <div id="moderatorNewsList" class="support-message-list"></div>
+                    </article>
+                </section>
+            </section>
+
+            <section id="moderator-support-section" class="panel-section hidden">
+                <section class="panel-card">
+                    <h2>Сообщения из формы техподдержки</h2>
+                    <div id="moderatorSupportRequestList" class="support-message-list"></div>
+                </section>
+            </section>
+        </div>
+    </div>
+</main>
+
+<script src="js/panel-common.js"></script>
+<script src="js/shared-drawers.js"></script>
+<script src="js/vehicle-card-panel.js"></script>
+<script src="js/news-panel.js"></script>
+<script src="js/moderator.js"></script>
+</body>
+</html>

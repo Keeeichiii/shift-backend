@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create_table_user_connections" author="ea.novak">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="true">
+                SELECT (
+                           CASE
+                               WHEN NOT EXISTS (
+                                   SELECT 1
+                                   FROM information_schema.tables
+                                   WHERE table_schema = 'public'
+                                     AND table_name = 'user_connections'
+                               )
+                                   THEN 'true'
+                               ELSE 'false'
+                               END
+                           );
+            </sqlCheck>
+        </preConditions>
+        <comment>Создание таблицы связей пользователей</comment>
+
+        <createTable tableName="user_connections">
+            <column name="requester_id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user_connections" referencedTableName="users" referencedColumnNames="id" foreignKeyName="fk_user_connections_requester" deleteCascade="true"/>
+            </column>
+            <column name="addressee_id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user_connections" referencedTableName="users" referencedColumnNames="id" foreignKeyName="fk_user_connections_addressee" deleteCascade="true"/>
+            </column>
+            <column name="status" type="connection_status" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql dbms="postgresql"><![CDATA[
+ALTER TABLE user_connections ADD CONSTRAINT chk_user_connections_not_self CHECK (requester_id <> addressee_id);
+]]></sql>
+        <createIndex indexName="idx_user_connections_addressee_status" tableName="user_connections">
+            <column name="addressee_id"/>
+            <column name="status"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="user_connections"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

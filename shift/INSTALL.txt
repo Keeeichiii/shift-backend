@@ -1,0 +1,73 @@
+================================================================================
+  Shift-backend — установка и запуск (Docker)
+================================================================================
+
+ЧТО НУЖНО
+---------
+  • Установленный Docker (Desktop на Windows/macOS или Engine на Linux).
+  • Эта папка shift: файл shift-app.tar, каталог docker с compose.image.yaml,
+    файл START.html (подсказка в браузере).
+
+
+WINDOWS — ПОДСИСТЕМА LINUX (WSL 2)
+-----------------------------------
+  Docker Desktop на Windows обычно использует WSL 2. Выполните в PowerShell
+  (при необходимости — «Запуск от имени администратора»). После первых шагов
+  может понадобиться перезагрузка компьютера — сделайте её, затем продолжайте.
+
+    wsl --install
+    wsl --update
+    wsl --shutdown
+    wsl --install -d Ubuntu
+
+  Дождитесь установки дистрибутива Ubuntu, при первом запуске задайте имя
+  пользователя и пароль в окне Ubuntu (это пароль Linux, не Windows).
+
+
+БЫСТРЫЙ СТАРТ НА НОВОМ КОМПЬЮТЕРЕ
+---------------------------------
+  1) Установите Docker и запустите его.
+
+  2) Откройте терминал в каталоге, где лежит shift-app.tar (например папка shift).
+
+     Windows (PowerShell):
+       cd C:\путь\shift
+       docker load -i .\shift-app.tar
+
+     macOS / Linux:
+       cd ~/путь/shift
+       docker load -i ./shift-app.tar
+
+  3) Запуск приложения и базы:
+
+     Windows:
+       cd .\docker
+       docker compose -f compose.image.yaml up -d
+
+     macOS / Linux:
+       cd docker
+       docker compose -f compose.image.yaml up -d
+
+  4) Браузер: http://localhost:8090
+
+
+ОСТАНОВКА
+---------
+  В каталоге docker:
+
+    docker compose -f compose.image.yaml down
+
+  Данные базы сохраняются в томах Docker. Чтобы удалить и тома: down -v
+
+
+ПОРТ 8090 ЗАНЯТ
+---------------
+  Откройте docker/compose.image.yaml, в сервисе app замените строку портов
+  на например "8091:8090", перезапустите compose. Сайт: http://localhost:8091
+
+
+ЛОГИ
+----
+  docker compose -f compose.image.yaml logs app --tail 80
+
+================================================================================

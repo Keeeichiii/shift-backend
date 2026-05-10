@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Инновационная платформа каршеринга</title>
+    <meta name="description" content="Инновационная веб-платформа для краткосрочной аренды автомобилей.">
+    <link rel="stylesheet" href="css/app.css">
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossorigin=""
+    >
+</head>
+<body>
+<header class="site-header">
+    <div class="container header-row" id="top">
+        <a class="brand-anchor" href="#top" aria-label="Главная">
+            <span class="brand-icon">
+                <img src="images/site/logo.png" alt="Логотип FredAvto">
+            </span>
+            <span class="brand-name">FredAvto</span>
+        </a>
+        <button id="menuToggle" class="menu-toggle" type="button" aria-label="Открыть меню">Меню</button>
+        <nav id="menuLeft" class="menu menu-left">
+            <a href="#hero">Главная</a>
+            <a href="/map.html">Карта</a>
+            <a href="/account.html">Личный кабинет</a>
+        </nav>
+        <a class="logo" href="#top">Каршеринг</a>
+        <nav id="menuRight" class="menu menu-right">
+            <a id="panelLink" href="#contacts" class="hidden">Панель администратора</a>
+            <a href="#contacts">Контакты</a>
+            <a href="/services.html">Услуги</a>
+        </nav>
+        <div class="auth-block">
+            <span id="currentUserLabel" class="auth-user-label hidden"></span>
+            <button id="openLogin" class="btn btn-small" type="button">Войти</button>
+            <button id="openRegister" class="btn btn-small btn-secondary" type="button">Регистрация</button>
+            <button id="logoutBtn" class="btn btn-small hidden" type="button">Выйти</button>
+        </div>
+    </div>
+</header>
+
+<main>
+    <section id="hero" class="section hero">
+        <div class="container hero-layout">
+            <div class="hero-copy">
+                <h1>Каршеринг: новый уровень мобильности</h1>
+                <p class="lead">
+                    Каршеринг по городу: нашёл машину, оформил поездку и поехал. Для части авто доступно долгое бронирование по отдельному тарифу.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn" href="/map.html">Найти автомобиль</a>
+                </div>
+            </div>
+            <div class="hero-stage" aria-hidden="true">
+                <img class="hero-stage__image" src="images/site/hero-car.png" alt="">
+                <div class="hero-stage__overlay"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title section-title_center">Тарифы</h2>
+            <p class="section-sub section-sub_center">Ориентиры по текущему каталогу: у каждой машины в&nbsp;<a href="/services.html">услугах</a> своя минута и пакеты; ниже — диапазоны по всем моделям.</p>
+            <div class="pricing-table">
+                <article class="pricing-row">
+                    <div>
+                        <h3>Поминутная ставка</h3>
+                        <p>Минута движения по тарифу выбранного авто (от эконом-класса до эксклюзива)</p>
+                    </div>
+                    <strong>0,39–2,49&nbsp;BYN / мин</strong>
+                </article>
+                <article class="pricing-row">
+                    <div>
+                        <h3>Пакеты на часы</h3>
+                        <p>В карточке машины — готовые пакеты на 3&nbsp;ч и 6&nbsp;ч (как в каталоге FredAvto)</p>
+                    </div>
+                    <strong>3&nbsp;ч: 19–89&nbsp;BYN<br>6&nbsp;ч: 29–159&nbsp;BYN</strong>
+                </article>
+                <article class="pricing-row">
+                    <div>
+                        <h3>Сутки и несколько суток</h3>
+                        <p>Пакеты «1 сутки» и «3 суток» в карточках автомобилей</p>
+                    </div>
+                    <strong>1&nbsp;сутки: 49–299&nbsp;BYN</strong>
+                </article>
+                <article class="pricing-row">
+                    <div>
+                        <h3>Дополнительные опции</h3>
+                        <p>Расширьте возможности аренды с дополнительными услугами</p>
+                    </div>
+                    <strong>по запросу</strong>
+                </article>
+                <article class="pricing-row">
+                    <div>
+                        <h3>Скидки и акции</h3>
+                        <p>Участвуйте в акциях и получайте выгодные предложения</p>
+                    </div>
+                    <strong>по сезону</strong>
+                </article>
+                <article class="pricing-row">
+                    <div>
+                        <h3>Семейный тариф</h3>
+                        <p>Специальные условия для семейных поездок и расширенного бронирования</p>
+                    </div>
+                    <strong>по запросу</strong>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="section section-light">
+        <div class="container">
+            <h2 class="section-title section-title_center">Преимущества</h2>
+            <p class="section-sub section-sub_center">Удобный поиск и оформление поездки.</p>
+            <div class="feature-list">
+                <article class="feature-item">
+                    <span class="feature-icon"></span>
+                    <div>
+                        <h3>Удобство использования</h3>
+                        <p>Понятный интерфейс поиска и аренды.</p>
+                    </div>
+                </article>
+                <article class="feature-item">
+                    <span class="feature-icon"></span>
+                    <div>
+                        <h3>Доступность</h3>
+                        <p>Аренда в удобное время по городу.</p>
+                    </div>
+                </article>
+                <article class="feature-item">
+                    <span class="feature-icon"></span>
+                    <div>
+                        <h3>Экономия времени</h3>
+                        <p>Меньше времени на оформление.</p>
+                    </div>
+                </article>
+                <article class="feature-item">
+                    <span class="feature-icon"></span>
+                    <div>
+                        <h3>Экономия денег</h3>
+                        <p>Гибкие тарифы без своей машины.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="map" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title section-title_center">Подбор и бронирование</h2>
+            <p class="section-sub section-sub_center">Фильтры по классу и тарифу, бронирование в несколько шагов.</p>
+            <div id="booking" class="booking-grid">
+                <article class="booking-card">
+                    <div class="booking-card__media booking-card__media_route"></div>
+                    <div class="booking-card__body">
+                        <h3>Зоны завершения аренды</h3>
+                        <p>Бесплатные и платные зоны завершения.</p>
+                    </div>
+                </article>
+                <article class="booking-card">
+                    <div class="booking-card__media booking-card__media_search"></div>
+                    <div class="booking-card__body">
+                        <h3>Поиск по параметрам</h3>
+                        <p>По классу, тарифу и сроку.</p>
+                    </div>
+                </article>
+                <article class="booking-card">
+                    <div class="booking-card__media booking-card__media_booking"></div>
+                    <div class="booking-card__body">
+                        <h3>Долгое бронирование</h3>
+                        <p>Для части авто — отдельный тариф.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="account" class="section section-light">
+        <div class="container">
+            <div class="account-shell">
+                <div class="account-copy">
+                    <h2 class="section-title">Личный кабинет</h2>
+                    <p class="section-sub">
+                        Профиль, документы, поездки и бронирование в одном месте.
+                    </p>
+                    <div class="account-points">
+                        <div class="account-point"><strong>Регистрация</strong><span>Вход и проверка данных.</span></div>
+                        <div class="account-point"><strong>Бронирование</strong><span>Выбор авто и активная заявка.</span></div>
+                        <div class="account-point"><strong>История</strong><span>Поездки и платежи.</span></div>
+                    </div>
+                </div>
+                <div class="account-preview">
+                    <div class="account-preview__window">
+                        <div class="account-preview__bar"></div>
+                        <div class="account-preview__grid">
+                            <div class="account-preview__card"></div>
+                            <div class="account-preview__card"></div>
+                            <div class="account-preview__card wide"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contacts" class="section section-dark section-contacts">
+        <div class="container">
+            <div class="contacts-layout">
+                <div class="contacts-copy">
+                    <h2 class="section-title">Контакты</h2>
+                    <p>Телефон: <a href="tel:+375298234465">+375 (29) 823-44-65</a></p>
+                    <p>Электронная почта: <a href="mailto:renassannn@gmail.com">renassannn@gmail.com</a></p>
+                    <p>Телеграмм: <a href="https://t.me/riiizus" target="_blank" rel="noreferrer">https://t.me/riiizus</a></p>
+                </div>
+                <div class="contact-map">
+                    <div id="pickupMap" class="contact-map__canvas" aria-label="Карта выдачи"></div>
+                    <div class="contact-map__popup">
+                        <strong>Карта выдачи</strong>
+                        <span>Зона получения авто</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="container footer__inner">
+        <p class="footer__brand">FredAvto</p>
+        <div class="footer__meta">
+            <p>ООО "Рога и Копыта"</p>
+            <p>г. Гродно, ул. Курчатова, д. 8, корп. 1, каб. 45б</p>
+        </div>
+    </div>
+</footer>
+
+<div id="loginModal" class="modal hidden">
+    <div class="modal-card">
+        <button id="closeLogin" class="close-btn" type="button">×</button>
+        <h3>Вход</h3>
+        <form id="loginForm" class="form">
+            <input name="email" type="email" placeholder="Email" required>
+            <input name="password" type="password" placeholder="Пароль" required>
+            <button class="btn" type="submit">Войти</button>
+        </form>
+        <p id="loginStatus" class="auth-status"></p>
+    </div>
+</div>
+
+<div id="registerModal" class="modal hidden">
+    <div class="modal-card">
+        <button id="closeRegister" class="close-btn" type="button">×</button>
+        <h3>Регистрация</h3>
+        <form id="registerForm" class="form">
+            <input name="username" type="text" placeholder="Логин" required>
+            <input name="email" type="email" placeholder="Email" required>
+            <input name="password" type="password" placeholder="Пароль" required>
+            <input name="firstName" type="text" placeholder="Имя" required>
+            <input name="lastName" type="text" placeholder="Фамилия" required>
+            <button class="btn" type="submit">Зарегистрироваться</button>
+        </form>
+        <p id="registerStatus" class="auth-status"></p>
+    </div>
+</div>
+
+<script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+></script>
+<script src="js/app.js"></script>
+<script src="js/shared-drawers.js"></script>
+<script src="js/index-map-preview.js"></script>
+</body>
+</html>

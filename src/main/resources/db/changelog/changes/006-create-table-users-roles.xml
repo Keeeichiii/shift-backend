@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create_table_users_roles" author="ea.novak">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="true">
+                SELECT (
+                           CASE
+                               WHEN NOT EXISTS (
+                                   SELECT 1
+                                   FROM information_schema.tables
+                                   WHERE table_schema = 'public'
+                                     AND table_name = 'users_roles'
+                               )
+                                   THEN 'true'
+                               ELSE 'false'
+                               END
+                           );
+            </sqlCheck>
+        </preConditions>
+        <comment>Создание таблицы ролей пользователей</comment>
+
+        <createTable tableName="users_roles">
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users_roles" referencedTableName="users" referencedColumnNames="id" foreignKeyName="fk_users_roles_user" deleteCascade="true"/>
+            </column>
+            <column name="role_id" type="int">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users_roles" referencedTableName="roles" referencedColumnNames="id" foreignKeyName="fk_users_roles_role" deleteCascade="true"/>
+            </column>
+            <column name="assigned_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="users_roles"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

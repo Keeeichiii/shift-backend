@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карточка машины | FredAvto</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/panels.css">
+    <link rel="stylesheet" href="css/catalog.css">
+</head>
+<body class="panel-page car-detail-page">
+<header class="site-header panel-header inner-header">
+    <div class="container header-row" id="top">
+        <a class="brand-anchor" href="/index.html" aria-label="Главная">
+            <span class="brand-icon">
+                <img src="images/site/logo.png" alt="Логотип FredAvto">
+            </span>
+            <span class="brand-name">FredAvto</span>
+        </a>
+        <button id="menuToggle" class="menu-toggle" type="button" aria-label="Открыть меню">Меню</button>
+        <nav id="menuLeft" class="menu menu-left">
+            <a href="/index.html#hero">Главная</a>
+            <a href="/map.html">Карта</a>
+            <a href="/account.html">Личный кабинет</a>
+        </nav>
+        <a class="logo" href="/index.html">Каршеринг</a>
+        <nav id="menuRight" class="menu menu-right">
+            <a id="panelLink" href="/index.html#contacts" class="hidden">Панель</a>
+            <a href="/index.html#contacts">Контакты</a>
+            <a href="/services.html">Услуги</a>
+        </nav>
+        <div class="auth-block auth-block_panel">
+            <span id="pageUserLabel" class="auth-user-label hidden"></span>
+            <button id="pageLogoutBtn" class="btn btn-small hidden" type="button">Выйти</button>
+        </div>
+    </div>
+</header>
+
+<main class="car-detail-main">
+    <div class="container">
+        <section class="car-detail-shell">
+            <div id="vehiclePageState" class="page-state hidden"></div>
+            <div id="vehiclePageContent">
+                <p class="catalog-breadcrumbs" id="vehicleBreadcrumbs"></p>
+
+                <div class="car-hero">
+                    <div class="car-gallery">
+                        <img id="vehicleHeroImage" class="car-gallery__hero" src="" alt="">
+                    </div>
+
+                    <div class="car-summary">
+                        <p id="vehicleEyebrow" class="car-summary__eyebrow"></p>
+                        <h1 id="vehicleTitle" class="car-detail-title"></h1>
+                        <p id="vehicleSubtitle" class="car-summary__subtitle"></p>
+
+                        <div id="vehicleTags" class="car-tags"></div>
+
+                        <div class="car-price-box">
+                            <strong id="vehiclePrice"></strong>
+                            <p id="vehiclePriceHint"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="car-section">
+                    <h2 class="car-section-title-tariffs">Тарифы</h2>
+                    <div class="car-rate-tabs" role="tablist" aria-label="Тарифы по длительности">
+                        <button type="button" class="car-rate-tab is-active" role="tab" aria-selected="true" data-rate="minutes" id="tab-rate-minutes">Минуты</button>
+                        <button type="button" class="car-rate-tab" role="tab" aria-selected="false" data-rate="hours" id="tab-rate-hours">Часы</button>
+                        <button type="button" class="car-rate-tab" role="tab" aria-selected="false" data-rate="days" id="tab-rate-days">Сутки</button>
+                    </div>
+
+                    <div class="car-rate-layout">
+                        <div class="car-rate-panels">
+                            <article class="car-rate-card car-rate-panel is-active" data-rate-panel="minutes" role="tabpanel" aria-labelledby="tab-rate-minutes">
+                                <h3>Минуты</h3>
+                                <p>Базовый режим аренды для городских поездок и быстрых бронирований.</p>
+                                <ul id="vehicleMinutePackages"></ul>
+                            </article>
+
+                            <article class="car-rate-card car-rate-panel" data-rate-panel="hours" role="tabpanel" aria-labelledby="tab-rate-hours" hidden>
+                                <h3>Часы</h3>
+                                <p>Пакеты на несколько часов для встреч, выездов и аренды на половину дня.</p>
+                                <ul id="vehicleHourPackages"></ul>
+                            </article>
+
+                            <article class="car-rate-card car-rate-panel" data-rate-panel="days" role="tabpanel" aria-labelledby="tab-rate-days" hidden>
+                                <h3>Сутки</h3>
+                                <p>Подходит для более длинных маршрутов, выходных и долгого бронирования.</p>
+                                <ul id="vehicleDayPackages"></ul>
+                            </article>
+                        </div>
+
+                        <article class="car-rate-card car-rate-card--description">
+                            <h3>Описание</h3>
+                            <p id="vehicleDetailDescription" class="car-description-text"></p>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="car-section car-columns">
+                    <article class="car-info-card">
+                        <h3>Условия</h3>
+                        <ul id="vehicleConditions" class="car-feature-list"></ul>
+                    </article>
+                </section>
+
+                <section class="car-section car-specs-section">
+                    <h2>Характеристики</h2>
+                    <p class="car-specs-caption">Основные</p>
+                    <div class="car-specs-grid">
+                        <article class="car-spec-item">
+                            <img src="/images/site/gearbox-icon.png" class="spec-icon-tone" alt="" loading="lazy">
+                            <h3>Коробка</h3>
+                            <p id="vehicleSpecGearbox">—</p>
+                        </article>
+                        <article class="car-spec-item">
+                            <img src="/images/site/engine-icon.png" alt="" loading="lazy">
+                            <h3>Двигатель</h3>
+                            <p id="vehicleSpecEngine">—</p>
+                        </article>
+                        <article class="car-spec-item">
+                            <img src="/images/site/charging-icon.png" class="spec-icon-tone" alt="" loading="lazy">
+                            <h3>Зарядка</h3>
+                            <p id="vehicleSpecCharging">—</p>
+                        </article>
+                        <article class="car-spec-item">
+                            <img src="/images/site/booster-icon.png" class="spec-icon-tone" alt="" loading="lazy">
+                            <h3>Бустер</h3>
+                            <p id="vehicleSpecBooster">—</p>
+                        </article>
+                        <article class="car-spec-item">
+                            <img src="/images/site/phone-holder-icon.png" class="spec-icon-tone" alt="" loading="lazy">
+                            <h3>Держатель для телефона</h3>
+                            <p id="vehicleSpecPhoneHolder">—</p>
+                        </article>
+                    </div>
+
+                    <p class="car-specs-caption">Особенности</p>
+                    <ul id="vehicleFeatures" class="car-feature-list car-feature-list_columns"></ul>
+                </section>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script src="js/panel-common.js"></script>
+<script src="js/shared-drawers.js"></script>
+<script src="js/vehicle-detail.js"></script>
+</body>
+</html>

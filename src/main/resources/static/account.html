@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/panels.css">
+</head>
+<body class="panel-page">
+<header class="site-header panel-header inner-header">
+    <div class="container header-row" id="top">
+        <a class="brand-anchor" href="/index.html" aria-label="Главная">
+            <span class="brand-icon">
+                <img src="images/site/logo.png" alt="Логотип FredAvto">
+            </span>
+            <span class="brand-name">FredAvto</span>
+        </a>
+        <button id="menuToggle" class="menu-toggle" type="button" aria-label="Открыть меню">Меню</button>
+        <nav id="menuLeft" class="menu menu-left">
+            <a href="/index.html#hero">Главная</a>
+            <a href="/map.html">Карта</a>
+            <a href="/account.html">Личный кабинет</a>
+        </nav>
+        <a class="logo" href="/index.html">Каршеринг</a>
+        <nav id="menuRight" class="menu menu-right">
+            <a id="panelLink" href="/index.html#contacts" class="hidden">Панель</a>
+            <a href="/index.html#contacts">Контакты</a>
+            <a href="/services.html">Услуги</a>
+        </nav>
+        <div class="auth-block auth-block_panel">
+            <span id="pageUserLabel" class="auth-user-label">Пользователь</span>
+            <button id="pageLogoutBtn" class="btn btn-small" type="button">Выйти</button>
+        </div>
+    </div>
+</header>
+
+<main class="panel-shell">
+    <div class="container">
+        <div class="panel-topbar">
+            <div>
+                <p class="panel-kicker">Кабинет пользователя</p>
+                <h1>Управление профилем и поездками</h1>
+                <p class="panel-intro">Документы, профиль и поездки.</p>
+            </div>
+        </div>
+
+        <div id="pageState" class="page-state hidden"></div>
+
+        <div id="pageContent" class="panel-grid">
+            <section class="panel-grid stats-grid">
+                <article class="stat-card">
+                    <span>Статус документов</span>
+                    <strong id="docStatusValue">-</strong>
+                </article>
+                <article class="stat-card">
+                    <span>Права действуют до</span>
+                    <strong id="licenseValue">-</strong>
+                </article>
+                <article class="stat-card">
+                    <span>Лишение прав до</span>
+                    <strong id="banValue">-</strong>
+                </article>
+                <article class="stat-card">
+                    <span>Количество поездок</span>
+                    <strong id="tripCount">0</strong>
+                </article>
+            </section>
+
+            <section id="accountBanner" class="panel-banner panel-banner_pending">
+                <div>
+                    <strong id="accountBannerTitle">Профиль ожидает проверки</strong>
+                    <p id="accountBannerText">После проверки модератором здесь появится актуальный статус доступа к аренде.</p>
+                </div>
+            </section>
+
+            <section id="rentAccessBlock" class="rent-access-card rent-access_pending" aria-live="polite">
+                <div class="rent-access-heading">
+                    <span class="rent-access-label">Доступ к аренде</span>
+                    <span id="rentAccessStatus" class="rent-access-status">—</span>
+                </div>
+                <p id="rentAccessHint" class="rent-access-hint">Загрузка статуса…</p>
+            </section>
+
+            <section class="panel-grid profile-grid">
+                <article class="panel-card">
+                    <h2>Профиль</h2>
+                    <div id="accountInfo" class="info-grid"></div>
+                </article>
+                <article class="panel-card">
+                    <h2>Основные данные</h2>
+                    <div id="accountIdentity" class="info-grid"></div>
+                </article>
+                <article class="panel-card panel-card_light">
+                    <h2>Редактирование</h2>
+                    <form id="profileForm" class="panel-form">
+                        <div class="field"><label for="firstName">Имя</label><input id="firstName" name="firstName" type="text"></div>
+                        <div class="field"><label for="lastName">Фамилия</label><input id="lastName" name="lastName" type="text"></div>
+                        <div class="field"><label for="profileName">Имя профиля</label><input id="profileName" name="profileName" type="text"></div>
+                        <div class="field"><label for="phone">Телефон</label><input id="phone" name="phone" type="text"></div>
+                        <div class="field-wide"><label for="avatarUrl">Ссылка на аватар</label><input id="avatarUrl" name="avatarUrl" type="text"></div>
+                        <div class="field-wide"><label for="bio">О себе</label><textarea id="bio" name="bio" rows="4"></textarea></div>
+                        <div class="field-wide">
+                            <div class="panel-actions">
+                                <button class="btn" type="submit">Сохранить</button>
+                                <span id="profileStatus" class="status-text"></span>
+                            </div>
+                        </div>
+                    </form>
+                </article>
+            </section>
+
+            <section class="panel-grid profile-grid">
+                <article class="panel-card panel-card_light">
+                    <h2>Права для проверки</h2>
+                    <p class="upload-copy">Загрузите обе стороны прав и разворот паспорта — данные проверит модератор.</p>
+                    <form id="licenseUploadForm" class="panel-form">
+                        <div class="field"><label for="licenseFrontFile">Лицевая сторона</label><input id="licenseFrontFile" name="licenseFrontFile" type="file" accept="image/*" required></div>
+                        <div class="field"><label for="licenseBackFile">Обратная сторона</label><input id="licenseBackFile" name="licenseBackFile" type="file" accept="image/*" required></div>
+                        <div class="field"><label for="passportMainFile">Главная страница паспорта</label><input id="passportMainFile" name="passportMainFile" type="file" accept="image/*" required></div>
+                        <div class="field-wide">
+                            <div class="panel-actions">
+                                <button class="btn" type="submit">Отправить на модерацию</button>
+                                <span id="licenseUploadStatus" class="status-text"></span>
+                            </div>
+                        </div>
+                    </form>
+                </article>
+                <article class="panel-card">
+                    <h2>Загруженные документы</h2>
+                    <div id="licensePreview" class="license-preview-grid"></div>
+                </article>
+            </section>
+
+            <section class="panel-card">
+                <h2>Мои поездки</h2>
+                <div id="tripList" class="trip-list"></div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<script src="js/panel-common.js"></script>
+<script src="js/shared-drawers.js"></script>
+<script src="js/account.js"></script>
+</body>
+</html>

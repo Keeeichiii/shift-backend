@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create_table_brands" author="ea.novak">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="true">
+                SELECT (
+                           CASE
+                               WHEN NOT EXISTS (
+                                   SELECT 1
+                                   FROM information_schema.tables
+                                   WHERE table_schema = 'public'
+                                     AND table_name = 'brands'
+                               )
+                                   THEN 'true'
+                               ELSE 'false'
+                               END
+                           );
+            </sqlCheck>
+        </preConditions>
+        <comment>Создание таблицы брендов</comment>
+
+        <createTable tableName="brands">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(45)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="brands"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

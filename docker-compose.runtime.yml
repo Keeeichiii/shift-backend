@@ -1,0 +1,5 @@
+# Запуск без сборки: только образ + compose из docker/compose.image.yaml
+# Требуется Docker Compose с поддержкой include.
+
+include:
+  - ./docker/compose.image.yaml

@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create_table_trips" author="ea.novak">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="true">
+                SELECT (
+                           CASE
+                               WHEN NOT EXISTS (
+                                   SELECT 1
+                                   FROM information_schema.tables
+                                   WHERE table_schema = 'public'
+                                     AND table_name = 'trips'
+                               )
+                                   THEN 'true'
+                               ELSE 'false'
+                               END
+                           );
+            </sqlCheck>
+        </preConditions>
+        <comment>Создание таблицы поездок</comment>
+
+        <createTable tableName="trips">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" referencedTableName="users" referencedColumnNames="id" foreignKeyName="fk_trips_user" deleteCascade="true"/>
+            </column>
+            <column name="vehicle_id" type="bigint">
+                <constraints nullable="false" referencedTableName="vehicles" referencedColumnNames="id" foreignKeyName="fk_trips_vehicle"/>
+            </column>
+            <column name="status" type="trip_status" defaultValue="RESERVED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="timestamp with time zone"/>
+            <column name="end_time" type="timestamp with time zone"/>
+            <column name="total_minutes" type="int" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parking_minutes" type="int" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="distance_meters" type="int" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_location" type="geo_point"/>
+            <column name="end_location" type="geo_point"/>
+        </createTable>
+        <sql dbms="postgresql"><![CDATA[
+ALTER TABLE trips ADD CONSTRAINT chk_trip_time_order CHECK (end_time IS NULL OR start_time IS NULL OR end_time >= start_time);
+ALTER TABLE trips ADD CONSTRAINT chk_trip_total_minutes CHECK (total_minutes >= 0);
+ALTER TABLE trips ADD CONSTRAINT chk_trip_parking_minutes CHECK (parking_minutes >= 0);
+ALTER TABLE trips ADD CONSTRAINT chk_trip_distance_meters CHECK (distance_meters >= 0);
+]]></sql>
+        <createIndex indexName="idx_trips_user_status" tableName="trips">
+            <column name="user_id"/>
+            <column name="status"/>
+        </createIndex>
+        <sql splitStatements="false"><![CDATA[
+            DO $$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'postgis') THEN
+                    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_trips_start_location') THEN
+                        CREATE INDEX idx_trips_start_location ON trips USING GIST (start_location);
+                    END IF;
+                END IF;
+            END $$;
+        ]]></sql>
+
+        <rollback>
+            <dropTable tableName="trips"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

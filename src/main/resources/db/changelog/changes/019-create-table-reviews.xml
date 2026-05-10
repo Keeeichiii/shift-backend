@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create_table_reviews" author="ea.novak">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="true">
+                SELECT (
+                           CASE
+                               WHEN NOT EXISTS (
+                                   SELECT 1
+                                   FROM information_schema.tables
+                                   WHERE table_schema = 'public'
+                                     AND table_name = 'reviews'
+                               )
+                                   THEN 'true'
+                               ELSE 'false'
+                               END
+                           );
+            </sqlCheck>
+        </preConditions>
+        <comment>Создание таблицы отзывов</comment>
+
+        <createTable tableName="reviews">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" referencedTableName="users" referencedColumnNames="id" foreignKeyName="fk_reviews_user" deleteCascade="true"/>
+            </column>
+            <column name="vehicle_id" type="bigint">
+                <constraints nullable="false" referencedTableName="vehicles" referencedColumnNames="id" foreignKeyName="fk_reviews_vehicle" deleteCascade="true"/>
+            </column>
+            <column name="rating" type="smallint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="text" type="varchar(300)"/>
+            <column name="date_posted" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql dbms="postgresql"><![CDATA[
+ALTER TABLE reviews ADD CONSTRAINT chk_reviews_rating CHECK (rating >= 1 AND rating <= 5);
+]]></sql>
+        <createIndex indexName="uq_reviews_user_vehicle" tableName="reviews" unique="true">
+            <column name="user_id"/>
+            <column name="vehicle_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="reviews"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

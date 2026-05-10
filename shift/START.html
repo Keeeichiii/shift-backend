@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shift-backend — установка (Docker)</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --accent: #3d8bfd;
+      --border: #2a3548;
+      --ok: #3ecf8e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      font-size: 16px;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 650;
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    .lead { color: var(--muted); margin: 0 0 1.75rem; font-size: 1rem; }
+    h2 {
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 2rem 0 0.75rem;
+      font-weight: 600;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      margin: 0.75rem 0;
+    }
+    .card strong { color: var(--ok); font-weight: 600; }
+    pre, code {
+      font-family: ui-monospace, "Cascadia Code", "Consolas", monospace;
+      font-size: 0.88rem;
+    }
+    pre {
+      margin: 0.6rem 0 0;
+      padding: 1rem 1.1rem;
+      background: #0b0f14;
+      border-radius: 8px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    code { color: #9cc4ff; }
+    ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+    li { margin: 0.35rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      margin-top: 0.5rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.55rem 0.65rem;
+      text-align: left;
+    }
+    th { background: #141c28; color: var(--muted); font-weight: 600; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding: 0.5rem 0 0.5rem 1rem;
+      margin: 1rem 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Установка и запуск (Docker)</h1>
+    <p class="lead">Папка <strong>shift</strong>: образ <code>shift-app.tar</code>, каталог <code>docker/</code> с Compose. Текстовая инструкция: <strong>INSTALL.txt</strong>. Эта страница открывается в браузере на Windows, macOS и Linux.</p>
+
+    <h2>Состав папки</h2>
+    <div class="card">
+      <ul>
+        <li><code>shift-app.tar</code> — сохранённый образ приложения (загрузка через <code>docker load</code>).</li>
+        <li><code>docker/compose.image.yaml</code> — запуск образа <code>shift-backend:local</code> и PostGIS.</li>
+        <li><code>INSTALL.txt</code> — те же шаги простым текстом.</li>
+      </ul>
+      <p class="note">Исходников и сборки образа в этот набор не входят — используется готовый <code>shift-app.tar</code>.</p>
+    </div>
+
+    <h2>1. Установите Docker</h2>
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>Платформа</th><th>Ссылка</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Windows</td><td><a href="https://docs.docker.com/desktop/setup/install/windows-install/">Docker Desktop</a></td></tr>
+          <tr><td>macOS</td><td><a href="https://docs.docker.com/desktop/setup/install/mac-install/">Docker Desktop</a></td></tr>
+          <tr><td>Linux</td><td><a href="https://docs.docker.com/engine/install/">Docker Engine + Compose</a></td></tr>
+        </tbody>
+      </table>
+      <p style="margin:0.75rem 0 0; color:var(--muted); font-size:0.92rem;">Запустите Docker и дождитесь состояния «Running».</p>
+    </div>
+
+    <h2>Windows: подсистема Linux (WSL&nbsp;2)</h2>
+    <div class="card">
+      <p style="margin:0 0 0.5rem;">Для <strong>Docker Desktop</strong> на Windows обычно нужен WSL&nbsp;2. Команды в <strong>PowerShell</strong> (при необходимости — «Запуск от имени администратора»). После <code>wsl --install</code> или обновления компьютер может попросить <strong>перезагрузку</strong> — выполните её и продолжайте.</p>
+      <pre><code>wsl --install
+wsl --update
+wsl --shutdown
+wsl --install -d Ubuntu</code></pre>
+      <p style="margin:0.75rem 0 0; color:var(--muted); font-size:0.92rem;">Дождитесь установки Ubuntu; при первом запуске задайте пользователя и пароль Linux (это не пароль Windows).</p>
+    </div>
+
+    <h2>2. Загрузка образа и запуск</h2>
+    <div class="card">
+      <p style="margin:0 0 0.5rem;">На целевом компьютере (путь к папке <code>shift</code> подставьте свой):</p>
+      <pre><code># Windows PowerShell
+cd C:\shift
+docker load -i .\shift-app.tar
+
+cd .\docker
+docker compose -f compose.image.yaml up -d</code></pre>
+      <pre><code># macOS / Linux
+cd ~/shift
+docker load -i ./shift-app.tar
+
+cd docker
+docker compose -f compose.image.yaml up -d</code></pre>
+      <p style="margin:1rem 0 0;"><strong>Сайт:</strong> <a href="http://localhost:8090">http://localhost:8090</a></p>
+    </div>
+
+    <h2>3. Остановка и логи</h2>
+    <div class="card">
+      <pre><code>cd …/shift/docker
+docker compose -f compose.image.yaml down
+docker compose -f compose.image.yaml logs app --tail 50</code></pre>
+      <p style="margin:0.75rem 0 0; color:var(--muted); font-size:0.92rem;">Тома с данными БД сохраняются, пока не выполнить <code>down -v</code>.</p>
+    </div>
+
+    <h2>Если порт 8090 занят</h2>
+    <div class="card">
+      <p style="margin:0;">В <code>docker/compose.image.yaml</code> для сервиса <code>app</code> замените проброс портов на, например, <code>"8091:8090"</code> и откройте <a href="http://localhost:8091">http://localhost:8091</a>.</p>
+    </div>
+
+    <footer>
+      <code>START.html</code> и <code>INSTALL.txt</code> — UTF-8.
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="fix_seed_vehicle_card_images_001" author="cursor">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="vehicle_cards"/>
+        </preConditions>
+
+        <update tableName="vehicle_cards">
+            <column name="image_path" value="/images/site/car-placeholder.svg"/>
+            <where>
+                slug in (
+                    'volkswagen-polo-sedan-wrapped',
+                    'ford-mustang-wrapped',
+                    'toyota-rav4-city',
+                    'bmw-530i-business',
+                    'kia-carnival-family',
+                    'porsche-911-icon',
+                    'tesla-model-3-electric',
+                    'mini-cooper-cabrio-sun',
+                    'toyota-land-cruiser-trail',
+                    'ford-transit-cargo'
+                )
+                and (image_path is null or image_path not like '/uploads/vehicle-cards/%')
+            </where>
+        </update>
+
+        <rollback>
+            <update tableName="vehicle_cards">
+                <column name="image_path" value="/images/site/car-placeholder.svg"/>
+                <where>
+                    slug in (
+                        'volkswagen-polo-sedan-wrapped',
+                        'ford-mustang-wrapped',
+                        'toyota-rav4-city',
+                        'bmw-530i-business',
+                        'kia-carnival-family',
+                        'porsche-911-icon',
+                        'tesla-model-3-electric',
+                        'mini-cooper-cabrio-sun',
+                        'toyota-land-cruiser-trail',
+                        'ford-transit-cargo'
+                    )
+                </where>
+            </update>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

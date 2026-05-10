@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create_table_vehicle_categories" author="ea.novak">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="true">
+                SELECT (
+                           CASE
+                               WHEN NOT EXISTS (
+                                   SELECT 1
+                                   FROM information_schema.tables
+                                   WHERE table_schema = 'public'
+                                     AND table_name = 'vehicle_categories'
+                               )
+                                   THEN 'true'
+                               ELSE 'false'
+                               END
+                           );
+            </sqlCheck>
+        </preConditions>
+        <comment>Создание таблицы категорий автомобилей</comment>
+
+        <createTable tableName="vehicle_categories">
+            <column name="vehicle_id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_vehicle_categories" referencedTableName="vehicles" referencedColumnNames="id" foreignKeyName="fk_vehicle_categories_vehicle" deleteCascade="true"/>
+            </column>
+            <column name="category_id" type="int">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_vehicle_categories" referencedTableName="categories" referencedColumnNames="id" foreignKeyName="fk_vehicle_categories_category" deleteCascade="true"/>
+            </column>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="vehicle_categories"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

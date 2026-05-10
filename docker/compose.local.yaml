@@ -1,0 +1,56 @@
+# Локальная сборка образа shift-backend:local из корня репозитория.
+# Родитель каталога docker/ — проект с pom.xml, src/, Dockerfile.
+#
+# Из корня репозитория:
+#   docker compose -f docker/compose.local.yaml build
+#   docker compose -f docker/compose.local.yaml up --build -d
+#
+# Из каталога docker/:
+#   docker compose -f compose.local.yaml build
+#
+# Образ: shift-backend:local → docker save shift-backend:local -o shift/shift-app.tar
+
+name: shift
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: shift_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-1221}
+    ports:
+      - "5432:5432"
+    volumes:
+      - shift_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d shift_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: shift-backend:local
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8090:8090"
+    environment:
+      SERVER_PORT: "8090"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/shift_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-1221}
+      APP_VEHICLE_CARD_UPLOAD_DIR: /data/vehicle-card-uploads
+      APP_VEHICLE_CARD_BUNDLED_CARS_ROOT: /app/static-images/cars
+    volumes:
+      - shift_uploads:/data/vehicle-card-uploads
+
+volumes:
+  shift_pgdata:
+  shift_uploads:

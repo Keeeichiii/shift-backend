@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обращение в техподдержку | FredAvto</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/panels.css">
+</head>
+<body class="panel-page">
+<header class="site-header panel-header inner-header">
+    <div class="container header-row" id="top">
+        <a class="brand-anchor" href="/index.html" aria-label="Главная">
+            <span class="brand-icon">
+                <img src="images/site/logo.png" alt="Логотип FredAvto">
+            </span>
+            <span class="brand-name">FredAvto</span>
+        </a>
+        <button id="menuToggle" class="menu-toggle" type="button" aria-label="Открыть меню">Меню</button>
+        <nav id="menuLeft" class="menu menu-left">
+            <a href="/index.html#hero">Главная</a>
+            <a href="/map.html">Карта</a>
+            <a href="/account.html">Личный кабинет</a>
+        </nav>
+        <a class="logo" href="/index.html">Каршеринг</a>
+        <nav id="menuRight" class="menu menu-right">
+            <a id="panelLink" href="/index.html#contacts" class="hidden">Панель</a>
+            <a href="/index.html#contacts">Контакты</a>
+            <a href="/services.html">Услуги</a>
+        </nav>
+        <div class="auth-block auth-block_panel">
+            <span id="pageUserLabel" class="auth-user-label hidden"></span>
+            <button id="pageLogoutBtn" class="btn btn-small hidden" type="button">Выйти</button>
+        </div>
+    </div>
+</header>
+
+<main class="panel-shell support-page-shell">
+    <div class="container">
+        <div class="panel-topbar">
+            <div>
+                <p class="panel-kicker">Техподдержка</p>
+                <h1>Заполнить обращение</h1>
+                <p class="panel-intro">Форма после входа в аккаунт.</p>
+            </div>
+        </div>
+
+        <div id="pageState" class="page-state hidden"></div>
+
+        <div id="pageContent" class="panel-grid support-page-grid">
+            <section class="panel-card">
+                <h2>Каналы связи</h2>
+                <div class="support-page-links">
+                    <a class="support-card support-card_page" href="tel:+375298234465">
+                        <span class="support-card__icon support-card__icon_image">
+                            <img src="images/site/support-phone.png" alt="Телефон">
+                        </span>
+                        <span class="support-card__content">
+                            <span class="support-card__title">Телефон</span>
+                            <strong class="support-card__value">+375 (29) 823-44-65</strong>
+                        </span>
+                    </a>
+                    <a class="support-card support-card_page" href="https://t.me/riiizus" target="_blank" rel="noreferrer">
+                        <span class="support-card__icon support-card__icon_image">
+                            <img src="images/site/support-telegram.png" alt="Telegram">
+                        </span>
+                        <span class="support-card__content">
+                            <span class="support-card__title">Telegram</span>
+                            <strong class="support-card__value">@riiizus</strong>
+                        </span>
+                    </a>
+                    <a class="support-card support-card_page" href="viber://chat?number=%2B375298234465">
+                        <span class="support-card__icon support-card__icon_image">
+                            <img src="images/site/support-viber.png" alt="Viber">
+                        </span>
+                        <span class="support-card__content">
+                            <span class="support-card__title">Viber</span>
+                            <strong class="support-card__value">+375 (29) 823-44-65</strong>
+                        </span>
+                    </a>
+                    <a class="support-card support-card_page" href="https://wa.me/375298234465" target="_blank" rel="noreferrer">
+                        <span class="support-card__icon support-card__icon_image">
+                            <img src="images/site/support-whatsapp.png" alt="WhatsApp">
+                        </span>
+                        <span class="support-card__content">
+                            <span class="support-card__title">WhatsApp</span>
+                            <strong class="support-card__value">+375 (29) 823-44-65</strong>
+                        </span>
+                    </a>
+                </div>
+            </section>
+
+            <section class="panel-card panel-card_light support-form-card">
+                <div class="support-form-card__head">
+                    <span class="support-card__icon support-card__icon_image support-card__icon_image_large">
+                        <img src="images/site/support-form.png" alt="Форма обращения">
+                    </span>
+                    <div>
+                        <h2>Форма обращения</h2>
+                        <p id="supportPageHint" class="upload-copy">Проверка входа…</p>
+                    </div>
+                </div>
+
+                <button id="supportPageLoginBtn" class="btn btn-small btn-secondary hidden" type="button">Войти</button>
+
+                <form id="supportPageForm" class="panel-form hidden">
+                    <div class="field">
+                        <label for="supportPageContactChannel">Куда удобнее ответить</label>
+                        <select id="supportPageContactChannel" name="contactChannel" required>
+                            <option value="phone">Телефон</option>
+                            <option value="telegram">Telegram</option>
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="email">Email</option>
+                        </select>
+                    </div>
+                    <div class="field-wide">
+                        <label for="supportPageSubject">Тема</label>
+                        <input id="supportPageSubject" name="subject" type="text" maxlength="160" required>
+                    </div>
+                    <div class="field-wide">
+                        <label for="supportPageMessage">Сообщение</label>
+                        <textarea id="supportPageMessage" name="message" rows="8" maxlength="4000" required></textarea>
+                    </div>
+                    <div class="field-wide">
+                        <div class="panel-actions">
+                            <button id="supportPageSubmit" class="btn" type="submit">Отправить обращение</button>
+                            <span id="supportPageStatus" class="status-text"></span>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</main>
+
+<script src="js/panel-common.js"></script>
+<script src="js/shared-drawers.js"></script>
+<script src="js/support-page.js"></script>
+</body>
+</html>

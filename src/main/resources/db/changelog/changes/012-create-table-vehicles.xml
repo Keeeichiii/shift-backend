@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create_table_vehicles" author="ea.novak">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="true">
+                SELECT (
+                           CASE
+                               WHEN NOT EXISTS (
+                                   SELECT 1
+                                   FROM information_schema.tables
+                                   WHERE table_schema = 'public'
+                                     AND table_name = 'vehicles'
+                               )
+                                   THEN 'true'
+                               ELSE 'false'
+                               END
+                           );
+            </sqlCheck>
+        </preConditions>
+        <comment>Создание таблицы автомобилей</comment>
+
+        <createTable tableName="vehicles">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="brand_id" type="int">
+                <constraints nullable="false" referencedTableName="brands" referencedColumnNames="id" foreignKeyName="fk_vehicles_brand"/>
+            </column>
+            <column name="fleet_partner_id" type="int">
+                <constraints referencedTableName="fleet_partners" referencedColumnNames="id" foreignKeyName="fk_vehicles_fleet_partner"/>
+            </column>
+            <column name="vin" type="varchar(17)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="license_plate" type="varchar(20)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="telematics_device_id" type="varchar(100)">
+                <constraints unique="true"/>
+            </column>
+            <column name="release_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="base_rate_per_min" type="decimal(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parking_rate_per_min" type="decimal(10,2)" defaultValueNumeric="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(300)"/>
+            <column name="average_rating" type="decimal(3,2)" defaultValueNumeric="5.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="vehicle_status" defaultValue="AVAILABLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fuel_or_battery_level" type="smallint"/>
+            <column name="current_location" type="geo_point"/>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql dbms="postgresql"><![CDATA[
+ALTER TABLE vehicles ADD CONSTRAINT chk_vehicles_base_rate_positive CHECK (base_rate_per_min > 0);
+ALTER TABLE vehicles ADD CONSTRAINT chk_vehicles_parking_rate_non_negative CHECK (parking_rate_per_min >= 0);
+ALTER TABLE vehicles ADD CONSTRAINT chk_vehicles_average_rating CHECK (average_rating >= 0 AND average_rating <= 5);
+ALTER TABLE vehicles ADD CONSTRAINT chk_vehicles_fuel_or_battery_level CHECK (fuel_or_battery_level IS NULL OR (fuel_or_battery_level >= 0 AND fuel_or_battery_level <= 100));
+]]></sql>
+        <createIndex indexName="idx_vehicles_status" tableName="vehicles">
+            <column name="status"/>
+        </createIndex>
+        <sql splitStatements="false"><![CDATA[
+            DO $$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'postgis') THEN
+                    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_vehicles_location') THEN
+                        CREATE INDEX idx_vehicles_location ON vehicles USING GIST (current_location);
+                    END IF;
+                END IF;
+            END $$;
+        ]]></sql>
+
+        <rollback>
+            <dropTable tableName="vehicles"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="set_seed_vehicle_card_image_paths_001" author="cursor">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="vehicle_cards"/>
+        </preConditions>
+
+        <sql>
+            UPDATE vehicle_cards
+            SET image_path = CASE slug
+                WHEN 'volkswagen-polo-sedan-wrapped' THEN '/images/cars/стандарт/volkswagen-polo-sedan.png'
+                WHEN 'ford-mustang-wrapped' THEN '/images/cars/премиум/ford-mustang.png'
+                WHEN 'toyota-rav4-city' THEN '/images/cars/кроссовер/Toyota RAV4.png'
+                WHEN 'bmw-530i-business' THEN '/images/cars/премиум/BMW 530i.png'
+                WHEN 'kia-carnival-family' THEN '/images/cars/минивэн 7 мест/Kia Carnival.png'
+                WHEN 'porsche-911-icon' THEN '/images/cars/эксклюзив/Porsche 911.png'
+                WHEN 'tesla-model-3-electric' THEN '/images/cars/электро/Tesla Model 3.png'
+                WHEN 'mini-cooper-cabrio-sun' THEN '/images/cars/кабриолет/Mini Cooper Cabrio.png'
+                WHEN 'toyota-land-cruiser-trail' THEN '/images/cars/внедорожник/Toyota Land Cruiser.png'
+                WHEN 'ford-transit-cargo' THEN '/images/cars/грузовой/Ford Transit.png'
+                ELSE image_path
+            END
+            WHERE slug IN (
+                'volkswagen-polo-sedan-wrapped',
+                'ford-mustang-wrapped',
+                'toyota-rav4-city',
+                'bmw-530i-business',
+                'kia-carnival-family',
+                'porsche-911-icon',
+                'tesla-model-3-electric',
+                'mini-cooper-cabrio-sun',
+                'toyota-land-cruiser-trail',
+                'ford-transit-cargo'
+            )
+            AND (image_path IS NULL OR image_path NOT LIKE '/uploads/vehicle-cards/%');
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

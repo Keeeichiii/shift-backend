@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create_enum_and_domain_types" author="ea.novak">
+        <comment>Создание enum типов и geo доменов</comment>
+        <sql splitStatements="false"><![CDATA[
+            CREATE EXTENSION IF NOT EXISTS postgis;
+
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'geo_polygon') THEN
+                    IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'postgis') THEN
+                        EXECUTE 'CREATE DOMAIN geo_polygon AS geometry(Polygon, 4326)';
+                    ELSE
+                        EXECUTE 'CREATE DOMAIN geo_polygon AS polygon';
+                    END IF;
+                END IF;
+            END $$;
+
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'geo_point') THEN
+                    IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'postgis') THEN
+                        EXECUTE 'CREATE DOMAIN geo_point AS geography(Point, 4326)';
+                    ELSE
+                        EXECUTE 'CREATE DOMAIN geo_point AS point';
+                    END IF;
+                END IF;
+            END $$;
+
+            DO $$ BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'connection_status') THEN
+                    CREATE TYPE connection_status AS ENUM ('PENDING', 'ACCEPTED', 'BLOCKED');
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'document_status') THEN
+                    CREATE TYPE document_status AS ENUM ('PENDING', 'VERIFIED', 'REJECTED', 'EXPIRED');
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'transaction_status') THEN
+                    CREATE TYPE transaction_status AS ENUM ('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED');
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'transaction_kind') THEN
+                    CREATE TYPE transaction_kind AS ENUM ('TOP_UP', 'TRIP_PAYMENT', 'SUBSCRIPTION', 'FINE', 'REFUND');
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'vehicle_status') THEN
+                    CREATE TYPE vehicle_status AS ENUM ('AVAILABLE', 'IN_USE', 'BOOKED', 'MAINTENANCE', 'UNAVAILABLE');
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'trip_status') THEN
+                    CREATE TYPE trip_status AS ENUM ('RESERVED', 'ACTIVE', 'PAUSED', 'COMPLETED', 'CANCELED');
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'zone_type') THEN
+                    CREATE TYPE zone_type AS ENUM ('PARKING', 'RESTRICTED', 'SERVICE');
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'damage_severity') THEN
+                    CREATE TYPE damage_severity AS ENUM ('MINOR', 'MAJOR', 'CRITICAL');
+                END IF;
+            END $$;
+        ]]></sql>
+    </changeSet>
+
+</databaseChangeLog>
+
+

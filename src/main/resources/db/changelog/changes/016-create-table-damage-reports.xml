@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create_table_damage_reports" author="ea.novak">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="true">
+                SELECT (
+                           CASE
+                               WHEN NOT EXISTS (
+                                   SELECT 1
+                                   FROM information_schema.tables
+                                   WHERE table_schema = 'public'
+                                     AND table_name = 'damage_reports'
+                               )
+                                   THEN 'true'
+                               ELSE 'false'
+                               END
+                           );
+            </sqlCheck>
+        </preConditions>
+        <comment>Создание таблицы отчетов о повреждениях</comment>
+
+        <createTable tableName="damage_reports">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="vehicle_id" type="bigint">
+                <constraints nullable="false" referencedTableName="vehicles" referencedColumnNames="id" foreignKeyName="fk_damage_reports_vehicle"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" referencedTableName="users" referencedColumnNames="id" foreignKeyName="fk_damage_reports_user"/>
+            </column>
+            <column name="trip_id" type="bigint"/>
+            <column name="photo_url" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text"/>
+            <column name="severity" type="damage_severity" defaultValue="MINOR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reported_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="damage_reports"
+                baseColumnNames="trip_id"
+                referencedTableName="trips"
+                referencedColumnNames="id"
+                constraintName="fk_damage_reports_trip"
+                onDelete="SET NULL"/>
+
+        <rollback>
+            <dropTable tableName="damage_reports"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

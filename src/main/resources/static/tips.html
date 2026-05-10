@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подсказки | FredAvto</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/panels.css">
+</head>
+<body class="panel-page">
+<header class="site-header panel-header inner-header">
+    <div class="container header-row" id="top">
+        <a class="brand-anchor" href="/index.html" aria-label="Главная">
+            <span class="brand-icon">
+                <img src="images/site/logo.png" alt="Логотип FredAvto">
+            </span>
+            <span class="brand-name">FredAvto</span>
+        </a>
+        <button id="menuToggle" class="menu-toggle" type="button" aria-label="Открыть меню">Меню</button>
+        <nav id="menuLeft" class="menu menu-left">
+            <a href="/index.html#hero">Главная</a>
+            <a href="/map.html">Карта</a>
+            <a href="/account.html">Личный кабинет</a>
+        </nav>
+        <a class="logo" href="/index.html">Каршеринг</a>
+        <nav id="menuRight" class="menu menu-right">
+            <a id="panelLink" href="/index.html#contacts" class="hidden">Панель</a>
+            <a href="/index.html#contacts">Контакты</a>
+            <a href="/services.html">Услуги</a>
+        </nav>
+        <div class="auth-block auth-block_panel">
+            <span id="pageUserLabel" class="auth-user-label hidden"></span>
+            <button id="pageLogoutBtn" class="btn btn-small hidden" type="button">Выйти</button>
+        </div>
+    </div>
+</header>
+
+<main class="panel-shell info-page-shell">
+    <div class="container">
+        <div class="panel-topbar">
+            <div>
+                <p class="panel-kicker">Подсказки</p>
+                <h1>Как зарегистрироваться и пользоваться сервисом</h1>
+                <p class="panel-intro">Регистрация, сайт, телефон в машине и аренда.</p>
+            </div>
+        </div>
+
+        <div class="info-accordion">
+            <article class="accordion-card">
+                <button class="accordion-toggle" type="button" aria-expanded="false">
+                    <span>Как зарегистрироваться</span>
+                    <span class="accordion-toggle__icon"></span>
+                </button>
+                <div class="accordion-content hidden">
+                    <div class="accordion-content__body">
+                        <ol>
+                            <li>Откройте главную страницу и нажмите кнопку <strong>Регистрация</strong>.</li>
+                            <li>Заполните имя, фамилию, email, телефон и пароль.</li>
+                            <li>После регистрации войдите в аккаунт и перейдите в <strong>Личный кабинет</strong>.</li>
+                            <li>Загрузите фото водительского удостоверения с двух сторон и главную страницу паспорта.</li>
+                            <li>Дождитесь проверки модератором и внесения данных прав администратором.</li>
+                        </ol>
+                    </div>
+                </div>
+            </article>
+
+            <article class="accordion-card">
+                <button class="accordion-toggle" type="button" aria-expanded="false">
+                    <span>Как пользоваться сайтом</span>
+                    <span class="accordion-toggle__icon"></span>
+                </button>
+                <div class="accordion-content hidden">
+                    <div class="accordion-content__body">
+                        <ol>
+                            <li>На странице <strong>Карта</strong> смотрите зону завершения аренды и ориентируйтесь по району выдачи.</li>
+                            <li>Во вкладке <strong>Услуги</strong> выбирайте подходящий автомобиль и открывайте его карточку.</li>
+                            <li>В <strong>Личном кабинете</strong> проверяйте статус документов, историю поездок и данные профиля.</li>
+                            <li>Через меню <strong>Техподдержка</strong> можно быстро перейти к контактам и отправить обращение.</li>
+                        </ol>
+                    </div>
+                </div>
+            </article>
+
+            <article class="accordion-card">
+                <button class="accordion-toggle" type="button" aria-expanded="false">
+                    <span>Bluetooth, CarPlay и Android Auto</span>
+                    <span class="accordion-toggle__icon"></span>
+                </button>
+                <div class="accordion-content hidden">
+                    <div class="accordion-content__body">
+                        <p><strong>Bluetooth:</strong> включите Bluetooth на телефоне, найдите автомобиль в списке устройств мультимедиа и подтвердите сопряжение кодом на экране.</p>
+                        <p><strong>Apple CarPlay:</strong> подключите iPhone кабелем USB или, если автомобиль поддерживает, по беспроводному соединению. Разрешите CarPlay на телефоне и на экране машины.</p>
+                        <p><strong>Android Auto:</strong> подключите телефон по USB или Wi‑Fi, разрешите доступ Android Auto и дождитесь загрузки интерфейса на экране автомобиля.</p>
+                        <p>Если система не подключается, попробуйте перезапустить мультимедиа, отключить и заново включить Bluetooth/Wi‑Fi на телефоне или использовать другой кабель.</p>
+                    </div>
+                </div>
+            </article>
+
+            <article class="accordion-card">
+                <button class="accordion-toggle" type="button" aria-expanded="false">
+                    <span>Полезные советы перед поездкой</span>
+                    <span class="accordion-toggle__icon"></span>
+                </button>
+                <div class="accordion-content hidden">
+                    <div class="accordion-content__body">
+                        <ul>
+                            <li>Перед началом аренды осмотрите салон и кузов автомобиля.</li>
+                            <li>Убедитесь, что документы и топливная карта находятся в бардачке.</li>
+                            <li>Проверьте уровень топлива и заряд телефона до начала маршрута.</li>
+                            <li>Если возникла ошибка в работе сайта или автомобиля, сразу создайте обращение в техподдержку.</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</main>
+
+<script src="js/panel-common.js"></script>
+<script src="js/shared-drawers.js"></script>
+<script src="js/info-pages.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="update_license_flow_for_users" author="ea.novak">
+        <preConditions onFail="MARK_RAN">
+            <or>
+                <not>
+                    <columnExists tableName="users" columnName="license_front_image"/>
+                </not>
+                <not>
+                    <columnExists tableName="users" columnName="license_back_image"/>
+                </not>
+                <not>
+                    <columnExists tableName="users" columnName="license_submitted_at"/>
+                </not>
+            </or>
+        </preConditions>
+
+        <comment>Обновление пользовательского сценария загрузки и проверки водительских прав</comment>
+
+        <dropNotNullConstraint tableName="users" columnName="driver_license" columnDataType="varchar(50)"/>
+        <dropNotNullConstraint tableName="users" columnName="license_expires_at" columnDataType="date"/>
+
+        <addColumn tableName="users">
+            <column name="license_front_image" type="text"/>
+            <column name="license_back_image" type="text"/>
+            <column name="license_submitted_at" type="timestamp with time zone"/>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="users" columnName="license_submitted_at"/>
+            <dropColumn tableName="users" columnName="license_back_image"/>
+            <dropColumn tableName="users" columnName="license_front_image"/>
+            <addNotNullConstraint tableName="users" columnName="driver_license" columnDataType="varchar(50)"/>
+            <addNotNullConstraint tableName="users" columnName="license_expires_at" columnDataType="date"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

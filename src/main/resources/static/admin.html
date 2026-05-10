@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель администратора</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/panels.css">
+</head>
+<body class="panel-page">
+<header class="site-header panel-header inner-header">
+    <div class="container header-row" id="top">
+        <a class="brand-anchor" href="/index.html" aria-label="Главная">
+            <span class="brand-icon">
+                <img src="images/site/logo.png" alt="Логотип FredAvto">
+            </span>
+            <span class="brand-name">FredAvto</span>
+        </a>
+        <button id="menuToggle" class="menu-toggle" type="button" aria-label="Открыть меню">Меню</button>
+        <nav id="menuLeft" class="menu menu-left">
+            <a href="/index.html#hero">Главная</a>
+            <a href="/map.html">Карта</a>
+            <a href="/account.html">Личный кабинет</a>
+        </nav>
+        <a class="logo" href="/index.html">Каршеринг</a>
+        <nav id="menuRight" class="menu menu-right">
+            <a id="panelLink" href="/admin.html">Панель администратора</a>
+            <a href="/index.html#contacts">Контакты</a>
+            <a href="/services.html">Услуги</a>
+        </nav>
+        <div class="auth-block auth-block_panel">
+            <span id="pageUserLabel" class="auth-user-label">Администратор</span>
+            <button id="pageLogoutBtn" class="btn btn-small" type="button">Выйти</button>
+        </div>
+    </div>
+</header>
+
+<main class="panel-shell">
+    <div class="container">
+        <div class="panel-topbar">
+            <div>
+                <p class="panel-kicker">Панель администратора</p>
+                <h1>Обзор пользователей и модерации</h1>
+                <p class="panel-intro">Администратор видит общую статистику по пользователям, активность и текущий статус проверки документов.</p>
+            </div>
+        </div>
+
+        <div class="panel-tabs" data-panel-tabs="admin">
+            <button class="panel-tab is-active" type="button" data-panel-target="admin-users-section">Пользователи</button>
+            <button class="panel-tab" type="button" data-panel-target="admin-license-section">Одобрение данных водительских прав</button>
+            <button class="panel-tab" type="button" data-panel-target="admin-vehicles-section">Создание карточки машины</button>
+            <button class="panel-tab" type="button" data-panel-target="admin-news-section">Новости</button>
+            <button class="panel-tab" type="button" data-panel-target="admin-support-section">Сообщения</button>
+        </div>
+
+        <div id="pageState" class="page-state hidden"></div>
+
+        <div id="pageContent" class="panel-grid">
+            <section id="admin-users-section" class="panel-section">
+                <section class="panel-grid stats-grid">
+                    <article class="stat-card">
+                        <span>Всего пользователей</span>
+                        <strong id="totalUsersValue">0</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Активные</span>
+                        <strong id="activeUsersValue">0</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Ждут модерации</span>
+                        <strong id="pendingUsersValue">0</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Одобрены</span>
+                        <strong id="approvedUsersValue">0</strong>
+                    </article>
+                </section>
+
+                <section class="panel-card">
+                    <h2>Пользователи</h2>
+                    <div id="adminUserList" class="admin-user-list"></div>
+                </section>
+            </section>
+
+            <section id="admin-license-section" class="panel-section hidden">
+                <section class="panel-grid profile-grid">
+                    <article class="panel-card panel-card_light">
+                        <h2>Данные водительских прав</h2>
+                        <form id="adminLicenseForm" class="panel-form">
+                            <div class="field"><label for="adminSelectedUser">Пользователь</label><input id="adminSelectedUser" type="text" readonly></div>
+                            <div class="field"><label for="adminDriverLicense">Номер прав</label><input id="adminDriverLicense" name="driverLicense" type="text"></div>
+                            <div class="field"><label for="adminLicenseExpiresAt">Права действуют до</label><input id="adminLicenseExpiresAt" name="licenseExpiresAt" type="date"></div>
+                            <div class="field"><label for="adminDrivingBanUntil">Лишение прав до</label><input id="adminDrivingBanUntil" name="drivingBanUntil" type="date"></div>
+                            <div class="field">
+                                <label for="adminDocStatus">Статус документов</label>
+                                <select id="adminDocStatus" name="docStatus">
+                                    <option value="PENDING">PENDING</option>
+                                    <option value="VERIFIED">VERIFIED</option>
+                                    <option value="REJECTED">REJECTED</option>
+                                    <option value="EXPIRED">EXPIRED</option>
+                                </select>
+                            </div>
+                            <div class="field-wide">
+                                <div class="panel-actions">
+                                    <button class="btn" type="submit">Сохранить данные</button>
+                                    <span id="adminSaveStatus" class="status-text"></span>
+                                </div>
+                            </div>
+                        </form>
+                    </article>
+                    <article class="panel-card">
+                        <h2>Загруженные документы</h2>
+                        <div id="adminLicensePreview" class="license-preview-grid"></div>
+                    </article>
+                </section>
+            </section>
+
+            <section id="admin-vehicles-section" class="panel-section hidden">
+                <section class="panel-grid profile-grid">
+                    <article class="panel-card panel-card_light">
+                        <h2 id="adminVehicleCardFormTitle">Создать карточку машины</h2>
+                        <form id="adminVehicleCardForm" class="panel-form">
+                            <input id="adminVehicleCardId" name="cardId" type="hidden">
+                            <div class="field"><label for="adminCardTitle">Название</label><input id="adminCardTitle" name="title" type="text" required></div>
+                            <div class="field"><label for="adminCardSlug">Slug</label><input id="adminCardSlug" name="slug" type="text" placeholder="ford-mustang-wrapped" required></div>
+                            <div class="field">
+                                <label for="adminCardCategory">Категория</label>
+                                <select id="adminCardCategory" name="category">
+                                    <option value="standard">Стандарт</option>
+                                    <option value="crossover">Кроссовер</option>
+                                    <option value="premium">Премиум</option>
+                                    <option value="minivan">Минивэн 7 мест</option>
+                                    <option value="exclusive">Эксклюзив</option>
+                                    <option value="electric">Электро</option>
+                                    <option value="cabriolet">Кабриолет</option>
+                                    <option value="offroad">Внедорожник</option>
+                                    <option value="cargo">Грузовой</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="adminCardWrapped">Оклейка</label>
+                                <select id="adminCardWrapped" name="wrapped">
+                                    <option value="true">С оклейкой</option>
+                                    <option value="false">Без оклейки</option>
+                                </select>
+                            </div>
+                            <div class="field-wide">
+                                <label for="adminCardImageUploadBtn">Фото машины</label>
+                                <input id="adminCardImagePath" name="imagePath" type="hidden" value="" required>
+                                <input id="adminCardImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden">
+                                <div class="vehicle-card-upload-row">
+                                    <button id="adminCardImageUploadBtn" class="btn btn-small" type="button">Загрузить фото</button>
+                                    <span id="adminCardImageUploadHint" class="status-text"></span>
+                                </div>
+                                <p id="adminCardImageFolderHint" class="panel-muted panel-muted_tight"></p>
+                                <img id="adminCardImagePreview" class="vehicle-card-form-preview hidden" alt="Превью фото">
+                            </div>
+                            <div class="field"><label for="adminCardPrice">Цена за минуту</label><input id="adminCardPrice" name="pricePerMinute" type="number" min="0.01" step="0.01" required></div>
+                            <div class="field"><label for="adminCardBadge">Бейдж</label><input id="adminCardBadge" name="badge" type="text" placeholder="%"></div>
+                            <div class="field"><label for="adminCardTransmission">Коробка</label><input id="adminCardTransmission" name="transmission" type="text" placeholder="Автомат"></div>
+                            <div class="field"><label for="adminCardFuelType">Топливо</label><input id="adminCardFuelType" name="fuelType" type="text" placeholder="Бензин"></div>
+                            <div class="field"><label for="adminCardEngine">Двигатель</label><input id="adminCardEngine" name="engine" type="text" placeholder="1.6L"></div>
+                            <div class="field"><label for="adminCardCharging">Зарядка</label><input id="adminCardCharging" name="charging" type="text" placeholder="Беспроводная зарядка для смартфона"></div>
+                            <div class="field"><label for="adminCardBooster">Бустер</label><input id="adminCardBooster" name="booster" type="text" placeholder="1"></div>
+                            <div class="field"><label for="adminCardPhoneHolder">Держатель для телефона</label><input id="adminCardPhoneHolder" name="phoneHolder" type="text" placeholder="Есть"></div>
+                            <div class="field-wide"><label for="adminCardShortDescription">Короткое описание</label><textarea id="adminCardShortDescription" name="shortDescription"></textarea></div>
+                            <div class="field-wide"><label for="adminCardDetailDescription">Описание страницы машины</label><textarea id="adminCardDetailDescription" name="detailDescription"></textarea></div>
+                            <div class="field-wide"><label for="adminCardConditions">Условия (по одному на строку)</label><textarea id="adminCardConditions" name="conditionsText"></textarea></div>
+                            <div class="field-wide"><label for="adminCardFeatures">Особенности (по одной на строку)</label><textarea id="adminCardFeatures" name="featuresText"></textarea></div>
+                            <div class="field-wide"><label for="adminCardMinutePackages">Минутные тарифы (по одному на строку)</label><textarea id="adminCardMinutePackages" name="minutePackagesText"></textarea></div>
+                            <div class="field-wide"><label for="adminCardHourPackages">Часовые тарифы (по одному на строку)</label><textarea id="adminCardHourPackages" name="hourPackagesText"></textarea></div>
+                            <div class="field-wide"><label for="adminCardDayPackages">Суточные тарифы (по одному на строку)</label><textarea id="adminCardDayPackages" name="dayPackagesText"></textarea></div>
+                            <div class="field-wide">
+                                <div class="panel-actions">
+                                    <button id="adminVehicleCardSubmit" class="btn" type="submit">Создать карточку</button>
+                                    <button id="adminVehicleCardCancel" class="btn btn-ghost hidden" type="button">Отменить редактирование</button>
+                                    <span id="adminVehicleCardStatus" class="status-text"></span>
+                                </div>
+                            </div>
+                        </form>
+                    </article>
+                    <article class="panel-card">
+                        <h2>Карточки машин</h2>
+                        <div id="adminVehicleCardList" class="vehicle-card-list"></div>
+                    </article>
+                </section>
+            </section>
+
+            <section id="admin-news-section" class="panel-section hidden">
+                <section class="panel-grid profile-grid">
+                    <article class="panel-card panel-card_light">
+                        <h2 id="adminNewsFormTitle">Создать новость</h2>
+                        <form id="adminNewsForm" class="panel-form">
+                            <input id="adminNewsId" name="newsId" type="hidden">
+                            <div class="field"><label for="adminNewsTitle">Заголовок</label><input id="adminNewsTitle" name="title" type="text" required></div>
+                            <div class="field"><label for="adminNewsSlug">Slug</label><input id="adminNewsSlug" name="slug" type="text" placeholder="novaya-novost" required></div>
+                            <div class="field">
+                                <label for="adminNewsPublished">Статус</label>
+                                <select id="adminNewsPublished" name="published">
+                                    <option value="true">Опубликовано</option>
+                                    <option value="false">Черновик</option>
+                                </select>
+                            </div>
+                            <div class="field-wide"><label for="adminNewsSummary">Краткое описание</label><textarea id="adminNewsSummary" name="summary" rows="3" required></textarea></div>
+                            <div class="field-wide"><label for="adminNewsContent">Текст новости</label><textarea id="adminNewsContent" name="content" rows="10" required></textarea></div>
+                            <div class="field-wide">
+                                <div class="panel-actions">
+                                    <button id="adminNewsSubmit" class="btn" type="submit">Создать новость</button>
+                                    <button id="adminNewsCancel" class="btn btn-ghost hidden" type="button">Отменить редактирование</button>
+                                    <span id="adminNewsStatus" class="status-text"></span>
+                                </div>
+                            </div>
+                        </form>
+                    </article>
+                    <article class="panel-card">
+                        <h2>Список новостей</h2>
+                        <div id="adminNewsList" class="support-message-list"></div>
+                    </article>
+                </section>
+            </section>
+
+            <section id="admin-support-section" class="panel-section hidden">
+                <section class="panel-card">
+                    <h2>Сообщения из формы техподдержки</h2>
+                    <div id="adminSupportRequestList" class="support-message-list"></div>
+                </section>
+            </section>
+        </div>
+    </div>
+</main>
+
+<script src="js/panel-common.js"></script>
+<script src="js/shared-drawers.js"></script>
+<script src="js/vehicle-card-panel.js"></script>
+<script src="js/news-panel.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

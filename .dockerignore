@@ -1,0 +1,10 @@
+target/
+.git
+.gitignore
+.idea
+*.iml
+.env
+.cursor
+**/terminals
+**/.cursor
+*.log

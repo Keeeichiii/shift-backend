@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Car placeholder">
+  <g fill="none" stroke="#2cff1f" stroke-width="20" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M250 425h700l-42-104a76 76 0 0 0-70-48H362a76 76 0 0 0-70 48z"/>
+    <circle cx="390" cy="480" r="56"/>
+    <circle cx="810" cy="480" r="56"/>
+    <path d="M430 312h340"/>
+  </g>
+  <text x="600" y="210" text-anchor="middle" fill="#f4f6f8" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="800">
+    FREDAVTO
+  </text>
+  <text x="600" y="270" text-anchor="middle" fill="#d8dce0" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="600">
+    Vehicle image is loading
+  </text>
+</svg>

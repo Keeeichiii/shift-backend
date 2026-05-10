@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Услуги и тарифы | FredAvto</title>
+    <meta name="description" content="Каталог машин и тарифы FredAvto.">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/panels.css">
+    <link rel="stylesheet" href="css/catalog.css">
+</head>
+<body class="panel-page cars-catalog-page">
+<header class="site-header panel-header inner-header">
+    <div class="container header-row" id="top">
+        <a class="brand-anchor" href="/index.html" aria-label="Главная">
+            <span class="brand-icon">
+                <img src="images/site/logo.png" alt="Логотип FredAvto">
+            </span>
+            <span class="brand-name">FredAvto</span>
+        </a>
+        <button id="menuToggle" class="menu-toggle" type="button" aria-label="Открыть меню">Меню</button>
+        <nav id="menuLeft" class="menu menu-left">
+            <a href="/index.html#hero">Главная</a>
+            <a href="/map.html">Карта</a>
+            <a href="/account.html">Личный кабинет</a>
+        </nav>
+        <a class="logo" href="/index.html">Каршеринг</a>
+        <nav id="menuRight" class="menu menu-right">
+            <a id="panelLink" href="/index.html#contacts" class="hidden">Панель</a>
+            <a href="/index.html#contacts">Контакты</a>
+            <a href="/services.html">Услуги</a>
+        </nav>
+        <div class="auth-block auth-block_panel">
+            <span id="pageUserLabel" class="auth-user-label hidden"></span>
+            <button id="pageLogoutBtn" class="btn btn-small hidden" type="button">Выйти</button>
+        </div>
+    </div>
+</header>
+
+<main class="catalog-main">
+    <div class="container">
+        <section class="catalog-shell">
+            <h1 class="catalog-title">Тарифы</h1>
+
+            <div class="catalog-filter-block">
+                <span class="catalog-filter-label">Тип машины</span>
+                <div class="catalog-tabs">
+                    <button class="catalog-tab is-active" type="button" data-filter-group="type" data-filter-value="all">Все типы</button>
+                    <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="standard">Стандарт</button>
+                    <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="crossover">Кроссовер</button>
+                    <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="premium">Премиум</button>
+                    <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="minivan">Минивэн 7 мест</button>
+                    <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="exclusive">Эксклюзив</button>
+                    <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="electric">Электро</button>
+                    <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="cabriolet">Кабриолет</button>
+                    <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="offroad">Внедорожник</button>
+                    <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="cargo">Грузовой</button>
+                </div>
+            </div>
+
+            <div class="catalog-filter-block">
+                <span class="catalog-filter-label">Оклейка</span>
+                <div class="catalog-subtabs">
+                    <button class="catalog-subtab is-active" type="button" data-filter-group="wrap" data-filter-value="all">Все</button>
+                    <button class="catalog-subtab" type="button" data-filter-group="wrap" data-filter-value="wrapped">С оклейкой</button>
+                    <button class="catalog-subtab" type="button" data-filter-group="wrap" data-filter-value="plain">Без оклейки</button>
+                </div>
+            </div>
+
+            <div id="catalogGrid" class="catalog-grid"></div>
+
+            <div id="catalogEmpty" class="catalog-empty hidden">
+                Нет машин по фильтрам — сбросьте тип или оклейку.
+            </div>
+        </section>
+    </div>
+</main>
+
+<script src="js/panel-common.js"></script>
+<script src="js/shared-drawers.js"></script>
+<script src="js/services.js"></script>
+</body>
+</html>

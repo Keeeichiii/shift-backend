@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create_table_transaction_items" author="ea.novak">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="true">
+                SELECT (
+                           CASE
+                               WHEN NOT EXISTS (
+                                   SELECT 1
+                                   FROM information_schema.tables
+                                   WHERE table_schema = 'public'
+                                     AND table_name = 'transaction_items'
+                               )
+                                   THEN 'true'
+                               ELSE 'false'
+                               END
+                           );
+            </sqlCheck>
+        </preConditions>
+        <comment>Создание таблицы элементов транзакций</comment>
+
+        <createTable tableName="transaction_items">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="transaction_id" type="bigint">
+                <constraints nullable="false" referencedTableName="transactions" referencedColumnNames="id" foreignKeyName="fk_transaction_items_transaction" deleteCascade="true"/>
+            </column>
+            <column name="trip_id" type="bigint"/>
+            <column name="price_paid" type="decimal(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="int" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql dbms="postgresql"><![CDATA[
+ALTER TABLE transaction_items ADD CONSTRAINT chk_transaction_items_price_non_negative CHECK (price_paid >= 0);
+ALTER TABLE transaction_items ADD CONSTRAINT chk_transaction_items_quantity_positive CHECK (quantity > 0);
+]]></sql>
+        <addForeignKeyConstraint
+                baseTableName="transaction_items"
+                baseColumnNames="trip_id"
+                referencedTableName="trips"
+                referencedColumnNames="id"
+                constraintName="fk_transaction_items_trip"
+                onDelete="SET NULL"/>
+
+        <rollback>
+            <dropTable tableName="transaction_items"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

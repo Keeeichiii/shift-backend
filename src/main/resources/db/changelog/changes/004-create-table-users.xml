@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create_table_users" author="ea.novak">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="true">
+                SELECT (
+                           CASE
+                               WHEN NOT EXISTS (
+                                   SELECT 1
+                                   FROM information_schema.tables
+                                   WHERE table_schema = 'public'
+                                     AND table_name = 'users'
+                               )
+                                   THEN 'true'
+                               ELSE 'false'
+                               END
+                           );
+            </sqlCheck>
+        </preConditions>
+        <comment>Создание таблицы пользователей</comment>
+
+        <createTable tableName="users">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="region_id" type="int">
+                <constraints referencedTableName="regions" referencedColumnNames="id" foreignKeyName="fk_users_region"/>
+            </column>
+            <column name="username" type="varchar(45)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="registration_date" type="date" defaultValueComputed="CURRENT_DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="varchar(45)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="varchar(45)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="personal_id_number" type="varchar(14)">
+                <constraints unique="true"/>
+            </column>
+            <column name="driver_license" type="varchar(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="license_expires_at" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="doc_status" type="document_status" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="profile_name" type="varchar(45)"/>
+            <column name="avatar_url" type="varchar(255)"/>
+            <column name="bio" type="varchar(300)"/>
+            <column name="last_activity" type="timestamp with time zone"/>
+            <column name="phone" type="varchar(30)">
+                <constraints unique="true"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql dbms="postgresql"><![CDATA[
+ALTER TABLE users ADD CONSTRAINT chk_users_username_not_blank CHECK (length(trim(username)) > 0);
+ALTER TABLE users ADD CONSTRAINT chk_users_license_expiry CHECK (license_expires_at >= registration_date);
+]]></sql>
+        <createIndex indexName="idx_users_phone" tableName="users">
+            <column name="phone"/>
+        </createIndex>
+        <createIndex indexName="idx_users_personal_id" tableName="users">
+            <column name="personal_id_number"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="users"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

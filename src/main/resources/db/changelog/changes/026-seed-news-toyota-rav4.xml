@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="seed_news_toyota_rav4_001" author="cursor">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="news_posts"/>
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM news_posts WHERE slug = 'novyi-avtomobil-toyota-rav4'
+            </sqlCheck>
+        </preConditions>
+
+        <insert tableName="news_posts">
+            <column name="title" value="В автопарке появился новый Toyota RAV4"/>
+            <column name="slug" value="novyi-avtomobil-toyota-rav4"/>
+            <column name="summary" value="Добавили в парк новый Toyota RAV4: комфортный кроссовер для города и дальних поездок."/>
+            <column name="content" value="В FredAvto появился новый Toyota RAV4. Модель уже доступна в каталоге и подходит как для ежедневных поездок по городу, так и для более длинных маршрутов. В карточке автомобиля доступны подробные условия, тарифы и характеристики."/>
+            <column name="published" valueBoolean="true"/>
+        </insert>
+
+        <rollback>
+            <delete tableName="news_posts">
+                <where>slug = 'novyi-avtomobil-toyota-rav4'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
