@@ -1167,10 +1167,6 @@
 }
 
 @media (max-width: 780px) {
-    .inner-header .header-row {
-        grid-template-columns: auto auto 1fr auto;
-    }
-
     .panel-topbar {
         flex-direction: column;
     }

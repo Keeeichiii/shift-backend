@@ -1,12 +1,18 @@
 (function () {
+    const DRAWER_MAIN_LINKS = [
+        {label: "Главная", href: "/index.html#hero"},
+        {label: "Карта зон", href: "/map.html"},
+        {label: "Личный кабинет", href: "/account.html"},
+        {label: "Услуги и тарифы", href: "/services.html"},
+        {label: "Контакты", href: "/index.html#contacts"}
+    ];
+
     const MENU_ITEMS = [
         {label: "ТАРИФЫ", href: "/index.html#pricing"},
         {label: "ЗОНЫ ЗАВЕРШЕНИЯ", href: "/map.html"},
         {label: "ПОДСКАЗКИ", href: "/tips.html"},
         {label: "ПРАВИЛА ЗАПРАВКИ", href: "/fueling.html"},
-        {label: "НОВОСТИ", href: "/news.html"},
-        {label: "КОНТАКТЫ", href: "/index.html#contacts"},
-        {label: "УСЛУГИ", href: "/services.html"}
+        {label: "НОВОСТИ", href: "/news.html"}
     ];
 
     const SUPPORT_CONTACTS = [
@@ -56,6 +62,10 @@
             return;
         }
 
+        const primaryMarkup = DRAWER_MAIN_LINKS.map((item) => `
+            <a class="drawer-menu__link drawer-menu__link_primary" href="${item.href}">${escapeHtml(item.label)}</a>
+        `).join("");
+
         const menuItemsMarkup = MENU_ITEMS.map((item) => `
             <a class="drawer-menu__link" href="${item.href}">${escapeHtml(item.label)}</a>
         `).join("");
@@ -82,11 +92,29 @@
                             <img src="/images/site/logo.png" alt="Логотип FredAvto">
                             <span>FredAvto</span>
                         </a>
-                        <button class="drawer-close" type="button" data-close-drawer="menu" aria-label="Закрыть меню">x</button>
+                        <button class="drawer-close" type="button" data-close-drawer="menu" aria-label="Закрыть меню">×</button>
                     </div>
-                    <nav class="drawer-menu__list">
+                    <nav class="drawer-menu__list drawer-menu__list_primary" aria-label="Основное меню">
+                        ${primaryMarkup}
+                        <a id="drawerPanelNav" class="drawer-menu__link drawer-menu__link_primary hidden" href="#">Панель</a>
+                    </nav>
+                    <p class="drawer-nav-section__title">Ещё на сайте</p>
+                    <nav class="drawer-menu__list drawer-menu__list_secondary" aria-label="Дополнительно">
                         ${menuItemsMarkup}
                     </nav>
+                    <div class="drawer-auth-panel">
+                        <div id="drawerAuthGuest" class="drawer-auth-guest">
+                            <button type="button" class="btn drawer-mirror-login">Войти</button>
+                            <button type="button" class="btn btn-secondary drawer-mirror-register">Регистрация</button>
+                        </div>
+                        <div id="drawerAuthUser" class="drawer-auth-user hidden">
+                            <p id="drawerUserLabel" class="drawer-auth-user-label"></p>
+                            <button type="button" class="btn btn-small drawer-mirror-logout">Выйти</button>
+                        </div>
+                        <button type="button" class="btn btn-small btn-support drawer-open-support-in-menu" data-open-support-from-menu>
+                            Техподдержка
+                        </button>
+                    </div>
                     <button class="drawer-app-button" type="button">Скачать приложение</button>
                 </div>
             </aside>
@@ -95,7 +123,7 @@
                 <div class="drawer__inner">
                     <div class="drawer__header">
                         <h2 class="drawer-title">ТЕХПОДДЕРЖКА</h2>
-                        <button class="drawer-close" type="button" data-close-drawer="support" aria-label="Закрыть техподдержку">x</button>
+                        <button class="drawer-close" type="button" data-close-drawer="support" aria-label="Закрыть техподдержку">×</button>
                     </div>
                     <div class="support-stack">
                         ${supportCardsMarkup}
@@ -118,6 +146,86 @@
         `;
 
         document.body.insertAdjacentHTML("beforeend", markup);
+    }
+
+    function syncDrawerPanelLink() {
+        const src = document.getElementById("panelLink");
+        const dst = document.getElementById("drawerPanelNav");
+        if (!dst) {
+            return;
+        }
+        if (!src || src.classList.contains("hidden")) {
+            dst.classList.add("hidden");
+            dst.setAttribute("href", "#");
+            dst.textContent = "Панель";
+        } else {
+            dst.classList.remove("hidden");
+            dst.href = src.getAttribute("href") || "#";
+            dst.textContent = src.textContent || "Панель";
+        }
+    }
+
+    function headerShowsLoggedIn() {
+        const lo = document.getElementById("logoutBtn");
+        if (lo && !lo.classList.contains("hidden")) {
+            return true;
+        }
+        const pl = document.getElementById("pageLogoutBtn");
+        return !!(pl && !pl.classList.contains("hidden"));
+    }
+
+    function syncDrawerAuthVisibility() {
+        const guest = document.getElementById("drawerAuthGuest");
+        const userBox = document.getElementById("drawerAuthUser");
+        if (!guest || !userBox) {
+            return;
+        }
+        if (headerShowsLoggedIn()) {
+            guest.classList.add("hidden");
+            userBox.classList.remove("hidden");
+            const dl = document.getElementById("drawerUserLabel");
+            const ul = document.getElementById("currentUserLabel") || document.getElementById("pageUserLabel");
+            if (dl && ul) {
+                dl.textContent = ul.textContent || "Пользователь";
+            }
+        } else {
+            guest.classList.remove("hidden");
+            userBox.classList.add("hidden");
+        }
+    }
+
+    function bindDrawerAuthActions() {
+        document.querySelector(".drawer-mirror-login")?.addEventListener("click", () => {
+            closeActiveDrawer();
+            window.setTimeout(() => {
+                const t = document.getElementById("openLogin");
+                if (t) {
+                    t.click();
+                } else {
+                    window.location.href = "/index.html";
+                }
+            }, 240);
+        });
+
+        document.querySelector(".drawer-mirror-register")?.addEventListener("click", () => {
+            closeActiveDrawer();
+            window.setTimeout(() => {
+                const t = document.getElementById("openRegister");
+                if (t) {
+                    t.click();
+                } else {
+                    window.location.href = "/index.html?register=1";
+                }
+            }, 240);
+        });
+
+        document.querySelector(".drawer-mirror-logout")?.addEventListener("click", () => {
+            const t = document.getElementById("logoutBtn") || document.getElementById("pageLogoutBtn");
+            if (t) {
+                closeActiveDrawer();
+                window.setTimeout(() => t.click(), 200);
+            }
+        });
     }
 
     function ensureHeaderControls() {
@@ -166,6 +274,8 @@
             });
             drawer.setAttribute("aria-hidden", "false");
             document.body.classList.add("drawer-open");
+            syncDrawerAuthVisibility();
+            syncDrawerPanelLink();
             return;
         }
 
@@ -208,6 +318,13 @@
 
     function bindDrawerEvents() {
         document.addEventListener("click", (event) => {
+            if (event.target.closest("[data-open-support-from-menu]")) {
+                event.preventDefault();
+                setDrawerOpen("menu", false);
+                window.setTimeout(() => setDrawerOpen("support", true), 220);
+                return;
+            }
+
             const menuToggle = event.target.closest(".drawer-menu-toggle");
             const supportToggle = event.target.closest(".support-drawer-toggle");
             const closeButton = event.target.closest("[data-close-drawer]");
@@ -248,9 +365,14 @@
             });
         }
 
-        document.querySelectorAll(".drawer-menu__link").forEach((link) => {
-            link.addEventListener("click", () => closeActiveDrawer());
-        });
+        const menuDrawer = document.getElementById("menuDrawer");
+        if (menuDrawer) {
+            menuDrawer.addEventListener("click", (e) => {
+                if (e.target.closest(".drawer-menu__link")) {
+                    closeActiveDrawer();
+                }
+            });
+        }
     }
 
     async function loadDrawerUser() {
@@ -260,20 +382,26 @@
             currentUser = null;
         }
         syncSupportFormState();
+        syncDrawerAuthVisibility();
     }
 
     function initFromAuthEvent() {
         window.addEventListener("auth-state-changed", (event) => {
             currentUser = event.detail ? event.detail.user || null : null;
             syncSupportFormState();
+            syncDrawerPanelLink();
+            syncDrawerAuthVisibility();
         });
     }
 
     function initSharedDrawers() {
         ensureDrawerMarkup();
         ensureHeaderControls();
+        bindDrawerAuthActions();
         bindDrawerEvents();
         initFromAuthEvent();
+        syncDrawerPanelLink();
+        syncDrawerAuthVisibility();
         loadDrawerUser();
     }
 

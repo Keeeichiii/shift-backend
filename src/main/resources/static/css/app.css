@@ -152,6 +152,12 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
+/* Компактная шапка на мобилке: только бренд + этот бургер */
+.header-drawer-burger {
+    display: none;
+    flex-shrink: 0;
+}
+
 .nav-backdrop {
     display: none;
     position: fixed;
@@ -757,13 +763,11 @@ h1 {
 @media (max-width: 780px) {
     .header-row,
     .inner-header .header-row {
-        grid-template-columns: auto auto minmax(0, 1fr) auto;
-        grid-template-areas:
-            "brand toggle logo auth"
-            "navleft navleft navleft navleft"
-            "navright navright navright navright";
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas: "brand burger";
         align-items: center;
-        row-gap: 10px;
+        column-gap: 12px;
+        row-gap: 0;
     }
 
     .brand-anchor {
@@ -771,73 +775,46 @@ h1 {
         gap: 10px;
         margin-left: 0;
         min-width: 0;
+        max-width: 100%;
     }
 
     .brand-icon {
         width: 44px;
         height: 44px;
+        flex-shrink: 0;
     }
 
     .brand-name {
-        font-size: clamp(1.15rem, 4.5vw, 24px);
+        font-size: clamp(1.05rem, 4.2vw, 22px);
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
+    #menuToggle,
     .menu-toggle {
-        grid-area: toggle;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        display: none !important;
     }
 
     .logo {
-        grid-area: logo;
-        justify-self: center;
-        font-size: clamp(0.85rem, 3.2vw, 18px);
-        text-align: center;
-        min-width: 0;
-    }
-
-    .auth-block {
-        grid-area: auth;
-        justify-self: end;
-        gap: 6px;
-        min-width: 0;
+        display: none !important;
     }
 
     .menu-left,
     .menu-right {
-        display: none;
-        position: static;
-        left: auto;
-        right: auto;
-        top: auto;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 4px;
-        padding: 12px 14px;
-        background: #141414;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 12px;
-        justify-self: stretch;
+        display: none !important;
     }
 
-    .menu-left.open {
-        display: flex;
-        grid-area: navleft;
+    .auth-block {
+        display: none !important;
     }
 
-    .menu-right.open {
-        display: flex;
-        grid-area: navright;
-    }
-
-    .menu a {
-        padding: 10px 6px;
-        border-radius: 8px;
-    }
-
-    .menu a:active {
-        background: rgba(255, 255, 255, 0.06);
+    .header-drawer-burger {
+        grid-area: burger;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        justify-self: end;
     }
 
     .btn-small {
@@ -1092,6 +1069,77 @@ body.drawer-open {
 
 .drawer-menu__link:hover {
     color: #1b6b1f;
+}
+
+.drawer-menu__link_primary {
+    font-size: clamp(1.2rem, 4.2vw, 1.65rem);
+    font-weight: 600;
+}
+
+.drawer-menu__list_secondary .drawer-menu__link {
+    font-size: clamp(1.05rem, 3.5vw, 1.35rem);
+}
+
+.drawer-nav-section__title {
+    margin: 20px 0 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #5c6658;
+    text-transform: uppercase;
+}
+
+.drawer-auth-panel {
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 2px solid rgba(36, 39, 43, 0.1);
+    display: grid;
+    gap: 12px;
+}
+
+.drawer-auth-guest {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.drawer-auth-guest .btn {
+    margin: 0;
+    text-align: center;
+    padding: 12px 10px;
+    border-radius: 14px;
+    font-size: 14px;
+}
+
+.drawer-auth-guest .btn-secondary {
+    border: 2px solid #232323;
+    color: #111;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: none;
+}
+
+.drawer-auth-user {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.drawer-auth-user-label {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    flex: 1 1 120px;
+    min-width: 0;
+    word-break: break-word;
+}
+
+.drawer-open-support-in-menu {
+    width: 100%;
+    margin-top: 2px;
+    justify-content: center;
 }
 
 .drawer-app-button {
