@@ -15,16 +15,17 @@ import org.springframework.core.env.MapPropertySource;
 
 /**
  * Railway / Heroku передают {@code DATABASE_URL} как {@code postgresql://user:pass@host:port/db}.
- * Spring DataSource ожидает JDBC URL и отдельные учётные данные — преобразуем, если задан только
- * {@code DATABASE_URL} и нет {@code SPRING_DATASOURCE_URL}.
- * <p>Порядок {@link Ordered#LOWEST_PRECEDENCE}: выполняться после
- * {@code ConfigDataEnvironmentPostProcessor}, иначе {@code application.properties} снова окажется
- * выше в цепочке и перекроет {@code spring.datasource.url} дефолтом localhost.
+ * Преобразуем в {@code SPRING_DATASOURCE_URL} / USERNAME / PASSWORD, чтобы в
+ * {@code application.properties} сработали плейсхолдеры {@code ${SPRING_DATASOURCE_*:...}}.
+ * <p>Не кладём {@code spring.datasource.url} в отдельный {@link MapPropertySource}: иначе тот же ключ
+ * из {@code application.properties} может выиграть по приоритету, и снова подставится localhost.
  */
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
 	private static final String PROP_SPRING_DATASOURCE_URL = "SPRING_DATASOURCE_URL";
+	private static final String PROP_SPRING_DATASOURCE_USERNAME = "SPRING_DATASOURCE_USERNAME";
+	private static final String PROP_SPRING_DATASOURCE_PASSWORD = "SPRING_DATASOURCE_PASSWORD";
 	private static final String PROP_DATABASE_URL = "DATABASE_URL";
 
 	@Override
@@ -74,9 +75,9 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
 				jdbc.append('?').append(query);
 			}
 			Map<String, Object> map = new HashMap<>();
-			map.put("spring.datasource.url", jdbc.toString());
-			map.put("spring.datasource.username", user);
-			map.put("spring.datasource.password", password);
+			map.put(PROP_SPRING_DATASOURCE_URL, jdbc.toString());
+			map.put(PROP_SPRING_DATASOURCE_USERNAME, user);
+			map.put(PROP_SPRING_DATASOURCE_PASSWORD, password);
 			environment.getPropertySources().addFirst(new MapPropertySource("databaseUrlDerived", map));
 		} catch (IllegalArgumentException ignored) {
 			// оставляем дефолты из application.properties
