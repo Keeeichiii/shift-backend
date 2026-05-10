@@ -3,10 +3,13 @@ package shift.shift_backend;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import shift.shift_backend.config.DatabaseUrlBootstrap;
+
 @SpringBootApplication
 public class ShiftBackendApplication {
 
 	public static void main(String[] args) {
+		DatabaseUrlBootstrap.applyFromEnvironment();
 		String envPort = System.getenv("SERVER_PORT");
 		if (envPort != null && !envPort.isBlank()) {
 			System.err.println("[shift-backend] SERVER_PORT=" + envPort
