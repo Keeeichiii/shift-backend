@@ -17,8 +17,11 @@ import org.springframework.core.env.MapPropertySource;
  * Railway / Heroku передают {@code DATABASE_URL} как {@code postgresql://user:pass@host:port/db}.
  * Spring DataSource ожидает JDBC URL и отдельные учётные данные — преобразуем, если задан только
  * {@code DATABASE_URL} и нет {@code SPRING_DATASOURCE_URL}.
+ * <p>Порядок {@link Ordered#LOWEST_PRECEDENCE}: выполняться после
+ * {@code ConfigDataEnvironmentPostProcessor}, иначе {@code application.properties} снова окажется
+ * выше в цепочке и перекроет {@code spring.datasource.url} дефолтом localhost.
  */
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.LOWEST_PRECEDENCE)
 public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
 	private static final String PROP_SPRING_DATASOURCE_URL = "SPRING_DATASOURCE_URL";
