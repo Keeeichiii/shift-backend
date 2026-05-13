@@ -18,7 +18,8 @@ public final class VehicleCardCategoryUploadDirs {
 			Map.entry("electric", "электро"),
 			Map.entry("cabriolet", "кабриолет"),
 			Map.entry("offroad", "внедорожник"),
-			Map.entry("cargo", "грузовой")
+			Map.entry("cargo", "грузовой"),
+			Map.entry("long_booking", "долгое бронирование")
 	);
 
 	private VehicleCardCategoryUploadDirs() {

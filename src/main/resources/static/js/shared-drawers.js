@@ -184,9 +184,15 @@
             guest.classList.add("hidden");
             userBox.classList.remove("hidden");
             const dl = document.getElementById("drawerUserLabel");
-            const ul = document.getElementById("currentUserLabel") || document.getElementById("pageUserLabel");
-            if (dl && ul) {
-                dl.textContent = ul.textContent || "Пользователь";
+            if (dl) {
+                const ul = document.getElementById("currentUserLabel") || document.getElementById("pageUserLabel");
+                if (ul) {
+                    dl.textContent = ul.textContent || "Пользователь";
+                } else if (currentUser) {
+                    dl.textContent = currentUser.username || currentUser.email || "Пользователь";
+                } else {
+                    dl.textContent = "Пользователь";
+                }
             }
         } else {
             guest.classList.remove("hidden");
@@ -242,36 +248,7 @@
             btn.className = "drawer-menu-toggle header-drawer-burger";
             btn.setAttribute("aria-label", "Открыть меню");
             btn.innerHTML = "<span></span><span></span><span></span>";
-            row.insertBefore(btn, auth);
-        });
-    }
-
-    function ensureHeaderControls() {
-        const authBlocks = document.querySelectorAll(".auth-block");
-        authBlocks.forEach((authBlock) => {
-            if (authBlock.querySelector(".support-drawer-toggle")) {
-                return;
-            }
-
-            const supportButton = document.createElement("button");
-            supportButton.type = "button";
-            supportButton.className = "btn btn-small btn-support support-drawer-toggle";
-            supportButton.textContent = "Техподдержка";
-            supportButton.setAttribute("aria-label", "Открыть техподдержку");
-
-            const drawerMenuButton = document.createElement("button");
-            drawerMenuButton.type = "button";
-            drawerMenuButton.className = "drawer-menu-toggle";
-            drawerMenuButton.setAttribute("aria-label", "Открыть боковое меню");
-            drawerMenuButton.innerHTML = "<span></span><span></span><span></span>";
-
-            const logoutButton = authBlock.querySelector("#logoutBtn, #pageLogoutBtn");
-            if (logoutButton && logoutButton.nextSibling) {
-                authBlock.insertBefore(supportButton, logoutButton.nextSibling);
-                authBlock.insertBefore(drawerMenuButton, supportButton.nextSibling);
-            } else {
-                authBlock.append(supportButton, drawerMenuButton);
-            }
+            auth.insertAdjacentElement("afterend", btn);
         });
     }
 
@@ -415,7 +392,6 @@
     function initSharedDrawers() {
         ensureDrawerMarkup();
         ensureMobileHeaderBurger();
-        ensureHeaderControls();
         bindDrawerAuthActions();
         bindDrawerEvents();
         initFromAuthEvent();

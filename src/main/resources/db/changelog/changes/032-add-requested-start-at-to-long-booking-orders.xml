@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="add_requested_start_at_to_long_booking_orders" author="shift-backend">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="long_booking_orders" columnName="requested_start_at"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="long_booking_orders">
+            <column name="requested_start_at" type="timestamp with time zone"/>
+        </addColumn>
+
+        <sql>UPDATE long_booking_orders SET requested_start_at = created_at WHERE requested_start_at IS NULL;</sql>
+
+        <addNotNullConstraint tableName="long_booking_orders" columnName="requested_start_at"/>
+
+        <rollback>
+            <dropColumn tableName="long_booking_orders" columnName="requested_start_at"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Услуги и тарифы | FredAvto</title>
     <meta name="description" content="Каталог машин и тарифы FredAvto.">
-    <link rel="stylesheet" href="css/app.css">
-    <link rel="stylesheet" href="css/panels.css">
-    <link rel="stylesheet" href="css/catalog.css">
-    <link rel="stylesheet" href="css/mobile-header.css" media="(max-width: 780px)">
+    <link rel="stylesheet" href="css/app.css?v=3">
+    <link rel="stylesheet" href="css/panels.css?v=2">
+    <link rel="stylesheet" href="css/catalog.css?v=2">
+    <link rel="stylesheet" href="css/mobile.css?v=2">
 </head>
 <body class="panel-page cars-catalog-page">
 <header class="site-header panel-header inner-header">
@@ -32,7 +32,6 @@
             <a href="/services.html">Услуги</a>
         </nav>
         <div class="auth-block auth-block_panel">
-            <span id="pageUserLabel" class="auth-user-label hidden"></span>
             <button id="pageLogoutBtn" class="btn btn-small hidden" type="button">Выйти</button>
         </div>
     </div>
@@ -56,6 +55,7 @@
                     <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="cabriolet">Кабриолет</button>
                     <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="offroad">Внедорожник</button>
                     <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="cargo">Грузовой</button>
+                    <button class="catalog-tab" type="button" data-filter-group="type" data-filter-value="long_booking">Долгое бронирование</button>
                 </div>
             </div>
 

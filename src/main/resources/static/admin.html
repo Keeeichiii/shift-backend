@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Панель администратора</title>
-    <link rel="stylesheet" href="css/app.css">
-    <link rel="stylesheet" href="css/panels.css">
-    <link rel="stylesheet" href="css/mobile-header.css" media="(max-width: 780px)">
+    <link rel="stylesheet" href="css/app.css?v=3">
+    <link rel="stylesheet" href="css/panels.css?v=2">
+    <link rel="stylesheet" href="css/mobile.css?v=2">
 </head>
 <body class="panel-page">
 <header class="site-header panel-header inner-header">
@@ -30,7 +30,6 @@
             <a href="/services.html">Услуги</a>
         </nav>
         <div class="auth-block auth-block_panel">
-            <span id="pageUserLabel" class="auth-user-label">Администратор</span>
             <button id="pageLogoutBtn" class="btn btn-small" type="button">Выйти</button>
         </div>
     </div>
@@ -49,6 +48,7 @@
         <div class="panel-tabs" data-panel-tabs="admin">
             <button class="panel-tab is-active" type="button" data-panel-target="admin-users-section">Пользователи</button>
             <button class="panel-tab" type="button" data-panel-target="admin-license-section">Одобрение данных водительских прав</button>
+            <button class="panel-tab" type="button" data-panel-target="admin-long-booking-section">Подтверждение заказов</button>
             <button class="panel-tab" type="button" data-panel-target="admin-vehicles-section">Создание карточки машины</button>
             <button class="panel-tab" type="button" data-panel-target="admin-news-section">Новости</button>
             <button class="panel-tab" type="button" data-panel-target="admin-support-section">Сообщения</button>
@@ -116,6 +116,26 @@
                 </section>
             </section>
 
+            <section id="admin-long-booking-section" class="panel-section hidden">
+                <section class="panel-grid profile-grid">
+                    <article class="panel-card">
+                        <h2>Заявки на долгое бронирование</h2>
+                        <p class="upload-copy">Ожидают подтверждения или отклонения.</p>
+                        <div id="adminLongBookingPendingList" class="trip-list"></div>
+                    </article>
+                    <article class="panel-card panel-card_light">
+                        <h2>Подтверждённые заявки</h2>
+                        <p class="upload-copy">Заказы со статусом «подтверждён».</p>
+                        <div id="adminLongBookingConfirmedList" class="trip-list"></div>
+                    </article>
+                    <article class="panel-card">
+                        <h2>Забронированные авто (парк)</h2>
+                        <p class="upload-copy">Машины флота в статусе BOOKED.</p>
+                        <div id="adminBookedFleetList" class="trip-list"></div>
+                    </article>
+                </section>
+            </section>
+
             <section id="admin-vehicles-section" class="panel-section hidden">
                 <section class="panel-grid profile-grid">
                     <article class="panel-card panel-card_light">
@@ -136,6 +156,7 @@
                                     <option value="cabriolet">Кабриолет</option>
                                     <option value="offroad">Внедорожник</option>
                                     <option value="cargo">Грузовой</option>
+                                    <option value="long_booking">Долгое бронирование</option>
                                 </select>
                             </div>
                             <div class="field">

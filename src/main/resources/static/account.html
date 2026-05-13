@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный кабинет</title>
-    <link rel="stylesheet" href="css/app.css">
-    <link rel="stylesheet" href="css/panels.css">
-    <link rel="stylesheet" href="css/mobile-header.css" media="(max-width: 780px)">
+    <link rel="stylesheet" href="css/app.css?v=3">
+    <link rel="stylesheet" href="css/panels.css?v=2">
+    <link rel="stylesheet" href="css/mobile.css?v=2">
 </head>
 <body class="panel-page">
 <header class="site-header panel-header inner-header">
@@ -30,7 +30,6 @@
             <a href="/services.html">Услуги</a>
         </nav>
         <div class="auth-block auth-block_panel">
-            <span id="pageUserLabel" class="auth-user-label">Пользователь</span>
             <button id="pageLogoutBtn" class="btn btn-small" type="button">Выйти</button>
         </div>
     </div>
@@ -48,7 +47,13 @@
 
         <div id="pageState" class="page-state hidden"></div>
 
-        <div id="pageContent" class="panel-grid">
+        <div id="pageContent">
+            <nav class="panel-tabs" role="tablist" aria-label="Разделы кабинета">
+                <button type="button" class="panel-tab is-active" data-account-tab="profile" id="accountTabProfileBtn">Профиль</button>
+                <button type="button" class="panel-tab" data-account-tab="orders" id="accountTabOrdersBtn">Заказы</button>
+            </nav>
+
+            <div id="accountPanelProfile" class="account-tab-panel panel-grid">
             <section class="panel-grid stats-grid">
                 <article class="stat-card">
                     <span>Статус документов</span>
@@ -137,6 +142,15 @@
                 <h2>Мои поездки</h2>
                 <div id="tripList" class="trip-list"></div>
             </section>
+            </div>
+
+            <div id="accountPanelOrders" class="account-tab-panel panel-section hidden">
+                <section class="panel-card">
+                    <h2>Заказы долгого бронирования</h2>
+                    <p class="upload-copy">Заявки на аренду по тарифу «долгое бронирование». Оформить заказ можно на странице соответствующей машины.</p>
+                    <div id="longBookingOrderList" class="trip-list"></div>
+                </section>
+            </div>
         </div>
     </div>
 </main>

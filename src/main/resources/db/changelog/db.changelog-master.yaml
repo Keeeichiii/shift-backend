@@ -59,3 +59,9 @@ databaseChangeLog:
       file: db/changelog/changes/029-sync-vehicle-cards-wrapped-from-short-description.xml
   - include:
       file: db/changelog/changes/030-set-seed-vehicle-card-image-paths.xml
+  - include:
+      file: db/changelog/changes/031-create-table-long-booking-orders.xml
+  - include:
+      file: db/changelog/changes/032-add-requested-start-at-to-long-booking-orders.xml
+  - include:
+      file: db/changelog/changes/033-add-requested-end-at-to-long-booking-orders.xml

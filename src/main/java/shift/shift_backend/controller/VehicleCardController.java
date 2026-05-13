@@ -2,6 +2,7 @@ package shift.shift_backend.controller;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,10 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import shift.shift_backend.dto.longbooking.LongBookingBusyIntervalDto;
 import shift.shift_backend.dto.vehiclecard.CreateVehicleCardRequest;
 import shift.shift_backend.dto.vehiclecard.UpdateVehicleCardRequest;
 import shift.shift_backend.dto.vehiclecard.VehicleCardDto;
 import shift.shift_backend.dto.vehiclecard.VehicleCardImageUploadResponse;
+import shift.shift_backend.service.LongBookingOrderService;
 import shift.shift_backend.service.VehicleCardImageUploadService;
 import shift.shift_backend.service.VehicleCardService;
 
@@ -30,6 +33,7 @@ public class VehicleCardController {
 
     private final VehicleCardService vehicleCardService;
     private final VehicleCardImageUploadService vehicleCardImageUploadService;
+    private final LongBookingOrderService longBookingOrderService;
 
     @GetMapping("/public")
     public List<VehicleCardDto> getPublishedCards() {
@@ -39,6 +43,15 @@ public class VehicleCardController {
     @GetMapping("/public/{slug}")
     public VehicleCardDto getPublicCard(@PathVariable String slug) {
         return vehicleCardService.getBySlug(slug);
+    }
+
+    @GetMapping("/public/{slug}/long-booking-busy-intervals")
+    public List<LongBookingBusyIntervalDto> getLongBookingBusyIntervals(
+            @PathVariable String slug,
+            @RequestParam("from") OffsetDateTime from,
+            @RequestParam("to") OffsetDateTime to
+    ) {
+        return longBookingOrderService.listBusyIntervalsForPublishedCard(slug, from, to);
     }
 
     @GetMapping

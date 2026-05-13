@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Инновационная платформа каршеринга</title>
     <meta name="description" content="Инновационная веб-платформа для краткосрочной аренды автомобилей.">
-    <link rel="stylesheet" href="css/app.css">
-    <link rel="stylesheet" href="css/mobile-header.css" media="(max-width: 780px)">
+    <link rel="stylesheet" href="css/app.css?v=3">
+    <link rel="stylesheet" href="css/mobile.css?v=2">
     <link
             rel="stylesheet"
             href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -32,13 +32,13 @@
         <a class="logo" href="#top">Каршеринг</a>
         <nav id="menuRight" class="menu menu-right">
             <a id="panelLink" href="#contacts" class="hidden">Панель администратора</a>
+            <button id="openLogin" class="btn btn-small" type="button">Войти</button>
+            <button id="openRegister" class="btn btn-small btn-secondary" type="button">Регистрация</button>
             <a href="#contacts">Контакты</a>
             <a href="/services.html">Услуги</a>
         </nav>
         <div class="auth-block">
             <span id="currentUserLabel" class="auth-user-label hidden"></span>
-            <button id="openLogin" class="btn btn-small" type="button">Войти</button>
-            <button id="openRegister" class="btn btn-small btn-secondary" type="button">Регистрация</button>
             <button id="logoutBtn" class="btn btn-small hidden" type="button">Выйти</button>
         </div>
     </div>

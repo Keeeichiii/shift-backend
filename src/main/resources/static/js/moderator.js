@@ -134,6 +134,7 @@ async function loadModeratorPanel() {
     );
     renderModeratorUsers(panel.users);
     renderModeratorSupportRequests(panel.supportRequests || []);
+    renderPanelLongBookingStaffSection("moderator", panel, loadModeratorPanel);
     moderatorVehicleCardManager?.setCards(vehicleCards);
     moderatorNewsManager?.setNews(newsItems);
 }

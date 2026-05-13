@@ -226,6 +226,35 @@ function fillProfileForm(profile) {
     form.bio.value = profile.bio || "";
 }
 
+function renderLongBookingOrders(orders) {
+    const list = document.getElementById("longBookingOrderList");
+    if (!list) {
+        return;
+    }
+    const statusLabels = {
+        PENDING: "Ожидает подтверждения",
+        CONFIRMED: "Подтверждён",
+        CANCELLED: "Отменён"
+    };
+
+    if (!orders.length) {
+        list.innerHTML = `<div class="trip-card"><strong>Заказов пока нет</strong><p>На странице автомобиля с тарифом «долгое бронирование» нажмите «Оформить заявку».</p></div>`;
+        return;
+    }
+
+    list.innerHTML = orders.map((o) => `
+        <div class="trip-card">
+            <strong>${escapeHtml(o.vehicleTitle)}</strong>
+            <p>Статус: ${escapeHtml(statusLabels[o.status] || o.status)}</p>
+            <p>Создан: ${escapeHtml(formatDateTime(o.createdAt))}</p>
+            <p>Начало: ${o.requestedStartAt ? escapeHtml(formatDateTime(o.requestedStartAt)) : "—"}</p>
+            <p>Окончание: ${o.requestedEndAt ? escapeHtml(formatDateTime(o.requestedEndAt)) : "—"}</p>
+            ${o.customerNote ? `<p>Комментарий: ${escapeHtml(o.customerNote)}</p>` : ""}
+            <p><a class="btn btn-small btn-secondary" href="/vehicle.html?slug=${encodeURIComponent(o.vehicleSlug)}">Карточка авто</a></p>
+        </div>
+    `).join("");
+}
+
 function renderTrips(trips) {
     const list = document.getElementById("tripList");
     const count = document.getElementById("tripCount");
@@ -251,9 +280,10 @@ async function loadAccountPage() {
     try {
         const sessionUser = await loadSessionUser();
         setupPageHeader(sessionUser);
-        const [profile, trips] = await Promise.all([
+        const [profile, trips, longBookingOrders] = await Promise.all([
             pageRequest("/api/me"),
-            pageRequest("/api/me/trips")
+            pageRequest("/api/me/trips"),
+            pageRequest("/api/me/long-booking-orders")
         ]);
 
         document.getElementById("docStatusValue").textContent = profile.docStatus;
@@ -266,6 +296,7 @@ async function loadAccountPage() {
         renderLicensePreview(profile);
         fillProfileForm(profile);
         renderTrips(trips);
+        renderLongBookingOrders(longBookingOrders);
         clearPageError();
     } catch (error) {
         handleProtectedPageError(error, "Не удалось открыть кабинет пользователя.");
@@ -355,3 +386,24 @@ if (licenseUploadForm) {
 }
 
 loadAccountPage();
+
+function setupAccountTabs() {
+    const profileBtn = document.getElementById("accountTabProfileBtn");
+    const ordersBtn = document.getElementById("accountTabOrdersBtn");
+    const profilePanel = document.getElementById("accountPanelProfile");
+    const ordersPanel = document.getElementById("accountPanelOrders");
+    if (!profileBtn || !ordersBtn || !profilePanel || !ordersPanel) {
+        return;
+    }
+    function show(tab) {
+        const isProfile = tab === "profile";
+        profilePanel.classList.toggle("hidden", !isProfile);
+        ordersPanel.classList.toggle("hidden", isProfile);
+        profileBtn.classList.toggle("is-active", isProfile);
+        ordersBtn.classList.toggle("is-active", !isProfile);
+    }
+    profileBtn.addEventListener("click", () => show("profile"));
+    ordersBtn.addEventListener("click", () => show("orders"));
+}
+
+setupAccountTabs();

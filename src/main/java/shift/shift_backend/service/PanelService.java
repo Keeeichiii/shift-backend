@@ -13,13 +13,18 @@ import org.springframework.web.server.ResponseStatusException;
 import shift.shift_backend.domain.entity.Credential;
 import shift.shift_backend.domain.entity.User;
 import shift.shift_backend.domain.enums.DocumentStatus;
+import shift.shift_backend.domain.enums.VehicleStatus;
 import shift.shift_backend.dto.panel.AdminPanelDto;
 import shift.shift_backend.dto.panel.ModeratorPanelDto;
+import shift.shift_backend.dto.panel.PanelLongBookingOrderDto;
 import shift.shift_backend.dto.panel.PanelUserReviewDto;
 import shift.shift_backend.dto.support.PanelSupportRequestDto;
+import shift.shift_backend.dto.vehicle.VehicleDto;
+import shift.shift_backend.mapper.VehicleMapper;
 import shift.shift_backend.repository.CredentialRepository;
 import shift.shift_backend.repository.UserRepository;
 import shift.shift_backend.repository.UserRoleRepository;
+import shift.shift_backend.repository.VehicleRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +34,9 @@ public class PanelService {
     private final CredentialRepository credentialRepository;
     private final UserRoleRepository userRoleRepository;
     private final SupportRequestService supportRequestService;
+    private final LongBookingOrderService longBookingOrderService;
+    private final VehicleRepository vehicleRepository;
+    private final VehicleMapper vehicleMapper;
 
     @Transactional(readOnly = true)
     public AdminPanelDto getAdminPanel() {
@@ -38,7 +46,13 @@ public class PanelService {
         long activeUsers = users.stream().filter(user -> user.lastActivity() != null).count();
         long pendingModeration = users.stream().filter(user -> user.docStatus() == DocumentStatus.PENDING).count();
         long approvedUsers = users.stream().filter(user -> user.docStatus() == DocumentStatus.VERIFIED).count();
-        return new AdminPanelDto(totalUsers, activeUsers, pendingModeration, approvedUsers, users, supportRequests);
+        List<PanelLongBookingOrderDto> pendingLongBookings = longBookingOrderService.listPendingForStaff();
+        List<PanelLongBookingOrderDto> confirmedLongBookings = longBookingOrderService.listConfirmedForStaff();
+        List<VehicleDto> bookedFleetVehicles = vehicleRepository.findAllByStatus(VehicleStatus.BOOKED).stream()
+                .map(vehicleMapper::toDto)
+                .toList();
+        return new AdminPanelDto(totalUsers, activeUsers, pendingModeration, approvedUsers, users, supportRequests,
+                pendingLongBookings, confirmedLongBookings, bookedFleetVehicles);
     }
 
     @Transactional(readOnly = true)
@@ -47,7 +61,13 @@ public class PanelService {
         List<PanelSupportRequestDto> supportRequests = supportRequestService.findAllForPanels();
         long readyForApproval = users.stream().filter(PanelUserReviewDto::eligibleForApproval).count();
         long alreadyApproved = users.stream().filter(user -> user.docStatus() == DocumentStatus.VERIFIED).count();
-        return new ModeratorPanelDto(users.size(), readyForApproval, alreadyApproved, users, supportRequests);
+        List<PanelLongBookingOrderDto> pendingLongBookings = longBookingOrderService.listPendingForStaff();
+        List<PanelLongBookingOrderDto> confirmedLongBookings = longBookingOrderService.listConfirmedForStaff();
+        List<VehicleDto> bookedFleetVehicles = vehicleRepository.findAllByStatus(VehicleStatus.BOOKED).stream()
+                .map(vehicleMapper::toDto)
+                .toList();
+        return new ModeratorPanelDto(users.size(), readyForApproval, alreadyApproved, users, supportRequests,
+                pendingLongBookings, confirmedLongBookings, bookedFleetVehicles);
     }
 
     @Transactional

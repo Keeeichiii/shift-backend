@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import shift.shift_backend.domain.enums.DocumentStatus;
 import shift.shift_backend.dto.auth.AuthUserResponse;
 import shift.shift_backend.dto.auth.LoginRequest;
 import shift.shift_backend.dto.auth.RegisterRequest;
@@ -28,7 +29,7 @@ class AuthControllerTest {
 		AuthController controller = new AuthController(authenticationManager, authService);
 
 		RegisterRequest request = new RegisterRequest("u1", "a@a.com", "secret12", "F", "L");
-		AuthUserResponse body = new AuthUserResponse(10L, "u1", "a@a.com", List.of("USER"));
+		AuthUserResponse body = new AuthUserResponse(10L, "u1", "a@a.com", List.of("USER"), DocumentStatus.PENDING, null, null, null);
 		when(authService.register(request)).thenReturn(body);
 
 		AuthUserResponse result = controller.register(request);
@@ -47,7 +48,7 @@ class AuthControllerTest {
 				"login@a.com", "secret12", List.of(new SimpleGrantedAuthority("ROLE_USER")));
 		when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
 				.thenReturn(token);
-		AuthUserResponse fromService = new AuthUserResponse(2L, "u2", "login@a.com", List.of("USER"));
+		AuthUserResponse fromService = new AuthUserResponse(2L, "u2", "login@a.com", List.of("USER"), DocumentStatus.PENDING, null, null, null);
 		when(authService.getByEmail("login@a.com")).thenReturn(fromService);
 
 		MockHttpServletRequest httpRequest = new MockHttpServletRequest();

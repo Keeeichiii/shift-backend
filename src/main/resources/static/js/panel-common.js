@@ -124,9 +124,46 @@ async function loadSessionUser() {
     return pageRequest("/api/auth/me");
 }
 
+function findContactsNavAnchor(nav = document.getElementById("menuRight")) {
+    if (!nav) {
+        return null;
+    }
+    for (const a of nav.querySelectorAll("a")) {
+        const href = (a.getAttribute("href") || "").trim();
+        if (href.includes("contacts")) {
+            return a;
+        }
+    }
+    return null;
+}
+
+/** Гостевые «Войти» / «Регистрация» — сразу перед ссылкой «Контакты» в #menuRight. */
+function syncGuestAuthButtonsPlacement() {
+    const nav = document.getElementById("menuRight");
+    const contact = findContactsNavAnchor(nav);
+    if (!nav || !contact) {
+        return;
+    }
+    const login = document.getElementById("pageLoginBtn");
+    const reg = document.getElementById("pageRegisterBtn");
+    if (login) {
+        nav.insertBefore(login, contact);
+    }
+    if (reg) {
+        const lb = document.getElementById("pageLoginBtn");
+        if (lb && lb.parentNode === nav) {
+            lb.insertAdjacentElement("afterend", reg);
+        } else {
+            nav.insertBefore(reg, contact);
+        }
+    }
+}
+
 function ensureGuestLoginButton() {
+    const nav = document.getElementById("menuRight");
+    const contactAnchor = findContactsNavAnchor(nav);
     const authBlock = document.querySelector(".auth-block");
-    if (!authBlock) {
+    if (!nav && !authBlock) {
         return null;
     }
     let loginButton = document.getElementById("pageLoginBtn");
@@ -136,8 +173,15 @@ function ensureGuestLoginButton() {
         loginButton.type = "button";
         loginButton.className = "btn btn-small";
         loginButton.textContent = "Войти";
-        authBlock.insertBefore(loginButton, authBlock.firstChild);
+        if (nav && contactAnchor) {
+            nav.insertBefore(loginButton, contactAnchor);
+        } else if (authBlock) {
+            authBlock.insertBefore(loginButton, authBlock.firstChild);
+        } else {
+            return null;
+        }
     }
+    syncGuestAuthButtonsPlacement();
     if (loginButton.dataset.bound !== "true") {
         loginButton.addEventListener("click", () => {
             window.location.href = "/index.html";
@@ -148,8 +192,10 @@ function ensureGuestLoginButton() {
 }
 
 function ensureGuestRegisterButton() {
+    const nav = document.getElementById("menuRight");
+    const contactAnchor = findContactsNavAnchor(nav);
     const authBlock = document.querySelector(".auth-block");
-    if (!authBlock) {
+    if (!nav && !authBlock) {
         return null;
     }
     let registerButton = document.getElementById("pageRegisterBtn");
@@ -160,12 +206,21 @@ function ensureGuestRegisterButton() {
         registerButton.className = "btn btn-small btn-secondary";
         registerButton.textContent = "Регистрация";
         const loginButton = document.getElementById("pageLoginBtn");
-        if (loginButton) {
+        if (nav && contactAnchor) {
+            if (loginButton && loginButton.parentNode === nav) {
+                loginButton.insertAdjacentElement("afterend", registerButton);
+            } else {
+                nav.insertBefore(registerButton, contactAnchor);
+            }
+        } else if (loginButton) {
             loginButton.insertAdjacentElement("afterend", registerButton);
-        } else {
+        } else if (authBlock) {
             authBlock.insertBefore(registerButton, authBlock.firstChild);
+        } else {
+            return null;
         }
     }
+    syncGuestAuthButtonsPlacement();
     if (registerButton.dataset.bound !== "true") {
         registerButton.addEventListener("click", () => {
             window.location.href = "/index.html?register=1";
@@ -187,16 +242,11 @@ async function performLogout() {
 }
 
 function setupPageHeader(user) {
-    const userLabel = document.getElementById("pageUserLabel");
     const roleLabel = document.getElementById("pageRoleLabel");
     const logoutButton = document.getElementById("pageLogoutBtn");
     const panelLink = document.getElementById("panelLink");
     const loginButton = ensureGuestLoginButton();
 
-    if (userLabel) {
-        userLabel.textContent = user.username || user.email || "Пользователь";
-        userLabel.classList.remove("hidden");
-    }
     if (roleLabel) {
         roleLabel.textContent = Array.isArray(user.roles) ? user.roles.join(", ") : "";
     }
@@ -233,14 +283,12 @@ function setupPageHeader(user) {
 
 function setupGuestPageHeader() {
     const panelLink = document.getElementById("panelLink");
-    const userLabel = document.getElementById("pageUserLabel");
     const roleLabel = document.getElementById("pageRoleLabel");
     const logoutButton = document.getElementById("pageLogoutBtn");
     const loginButton = ensureGuestLoginButton();
     const registerButton = ensureGuestRegisterButton();
 
     if (panelLink) panelLink.classList.add("hidden");
-    if (userLabel) userLabel.classList.add("hidden");
     if (roleLabel) roleLabel.textContent = "";
     if (logoutButton) logoutButton.classList.add("hidden");
     if (loginButton) loginButton.classList.remove("hidden");
@@ -281,4 +329,105 @@ function handleProtectedPageError(error, fallbackMessage) {
         return;
     }
     setPageError(extractErrorMessage(error, fallbackMessage));
+}
+
+function longBookingStaffStatusLabel(status) {
+    const map = {
+        PENDING: "Ожидает подтверждения",
+        CONFIRMED: "Подтверждён",
+        CANCELLED: "Отменён"
+    };
+    return map[status] || status || "—";
+}
+
+function renderPanelLongBookingStaffSection(prefix, panel, reloadCallback) {
+    const pendingEl = document.getElementById(`${prefix}LongBookingPendingList`);
+    const confirmedEl = document.getElementById(`${prefix}LongBookingConfirmedList`);
+    const fleetEl = document.getElementById(`${prefix}BookedFleetList`);
+    if (!pendingEl || !confirmedEl || !fleetEl) {
+        return;
+    }
+
+    const pending = panel.longBookingOrdersPending || [];
+    const confirmed = panel.longBookingOrdersConfirmed || [];
+    const fleet = panel.bookedFleetVehicles || [];
+
+    if (!pending.length) {
+        pendingEl.innerHTML = `<div class="trip-card"><strong>Нет заявок</strong><p>Новые заявки на долгое бронирование появятся здесь.</p></div>`;
+    } else {
+        pendingEl.innerHTML = pending.map((o) => `
+            <div class="trip-card" data-long-booking-order-id="${escapeHtml(o.id)}">
+                <div class="long-booking-staff-card__head">
+                    <img class="long-booking-staff-card__img" src="${escapeHtml(normalizeStaticAssetPath(o.vehicleImagePath))}" alt="">
+                    <div>
+                        <strong>${escapeHtml(o.vehicleTitle)}</strong>
+                        <p>Пользователь: ${escapeHtml(o.username)}${o.userEmail ? ` · ${escapeHtml(o.userEmail)}` : ""}</p>
+                        <p>Создан: ${escapeHtml(formatDateTime(o.createdAt))}</p>
+                        <p>Начало: ${o.requestedStartAt ? escapeHtml(formatDateTime(o.requestedStartAt)) : "—"}</p>
+                        <p>Окончание: ${o.requestedEndAt ? escapeHtml(formatDateTime(o.requestedEndAt)) : "—"}</p>
+                        <p>Статус: ${escapeHtml(longBookingStaffStatusLabel(o.status))}</p>
+                        ${o.customerNote ? `<p>Комментарий: ${escapeHtml(o.customerNote)}</p>` : ""}
+                        <p><a class="btn btn-small btn-secondary" href="/vehicle.html?slug=${encodeURIComponent(o.vehicleSlug)}">Страница авто</a></p>
+                        <div class="panel-actions">
+                            <button type="button" class="btn btn-small long-booking-confirm-btn">Подтвердить</button>
+                            <button type="button" class="btn btn-small btn-secondary long-booking-cancel-btn">Отклонить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join("");
+
+        pendingEl.querySelectorAll(".long-booking-confirm-btn").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+                const id = btn.closest("[data-long-booking-order-id]").dataset.longBookingOrderId;
+                try {
+                    setButtonBusy(btn, true, "…");
+                    await pageRequest(`/api/moderator/long-booking-orders/${encodeURIComponent(id)}/confirm`, {method: "POST"});
+                    await reloadCallback();
+                } catch (error) {
+                    window.alert(extractErrorMessage(error, "Не удалось подтвердить."));
+                } finally {
+                    setButtonBusy(btn, false, "Подтвердить");
+                }
+            });
+        });
+        pendingEl.querySelectorAll(".long-booking-cancel-btn").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+                const id = btn.closest("[data-long-booking-order-id]").dataset.longBookingOrderId;
+                try {
+                    setButtonBusy(btn, true, "…");
+                    await pageRequest(`/api/moderator/long-booking-orders/${encodeURIComponent(id)}/cancel`, {method: "POST"});
+                    await reloadCallback();
+                } catch (error) {
+                    window.alert(extractErrorMessage(error, "Не удалось отклонить."));
+                } finally {
+                    setButtonBusy(btn, false, "Отклонить");
+                }
+            });
+        });
+    }
+
+    if (!confirmed.length) {
+        confirmedEl.innerHTML = `<div class="trip-card"><strong>Подтверждённых заявок пока нет</strong></div>`;
+    } else {
+        confirmedEl.innerHTML = confirmed.map((o) => `
+            <div class="trip-card">
+                <strong>${escapeHtml(o.vehicleTitle)}</strong>
+                <p>${escapeHtml(o.username)} · ${escapeHtml(formatDateTime(o.createdAt))} · ${o.requestedStartAt ? escapeHtml(formatDateTime(o.requestedStartAt)) : "—"} — ${o.requestedEndAt ? escapeHtml(formatDateTime(o.requestedEndAt)) : "—"}</p>
+                ${o.customerNote ? `<p>${escapeHtml(o.customerNote)}</p>` : ""}
+            </div>
+        `).join("");
+    }
+
+    if (!fleet.length) {
+        fleetEl.innerHTML = `<div class="trip-card"><strong>Нет машин в статусе BOOKED</strong><p>Забронированные авто флота появятся здесь.</p></div>`;
+    } else {
+        fleetEl.innerHTML = fleet.map((v) => `
+            <div class="trip-card">
+                <strong>#${escapeHtml(v.id)} · ${escapeHtml(v.licensePlate || "—")}</strong>
+                <p>VIN: ${escapeHtml(v.vin || "—")}</p>
+                <p>Статус: ${escapeHtml(v.status)} · бренд ID: ${escapeHtml(String(v.brandId ?? "—"))}</p>
+            </div>
+        `).join("");
+    }
 }

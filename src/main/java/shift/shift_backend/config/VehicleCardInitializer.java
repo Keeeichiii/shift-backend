@@ -207,6 +207,49 @@ public class VehicleCardInitializer implements CommandLineRunner {
                 "3 ч. - 45.00 BYN\n6 ч. - 79.00 BYN",
                 "1 сутки - 149.00 BYN\n3 суток - 429.00 BYN"
         );
+        ensureCard(
+                "toyota-camry-long-booking",
+                "Toyota Camry",
+                "long_booking",
+                "/images/cars/долгое бронирование/Toyota Camry.png",
+                new BigDecimal("0.79"),
+                false,
+                "Долгое бронирование, без оклейки",
+                "Седан для поездок на несколько дней: выгодные суточные пакеты и спокойный расход по трассе.",
+                "LONG",
+                "Автомат",
+                "Бензин",
+                "2.5L",
+                "Топливо включено\nЗавершение аренды в разрешённых зонах\nДоступно подтверждённым пользователям\nТариф «долгое бронирование»",
+                "Круиз-контроль\nПросторный салон\nБольшой багажник",
+                "1 мин. - 0.79 BYN\nОжидание - 0.18 BYN / мин.",
+                "3 ч. - 27.00 BYN\n6 ч. - 46.00 BYN",
+                "1 сутки - 79.00 BYN\n3 суток - 219.00 BYN"
+        );
+
+        upsertCard(
+                "lixiang-l7-ultra",
+                "Li Xiang L7 Ultra",
+                "long_booking",
+                "/images/cars/долгое бронирование/lixiang l7 ultra.png",
+                new BigDecimal("0.99"),
+                false,
+                "Долгое бронирование, премиальный гибридный кроссовер",
+                "Li Xiang L7 Ultra для долгих поездок и командировок: просторный салон, тихий ход и комфорт на трассе."
+                        + " Формат аренды только по часовым и суточным пакетам с подтверждением периода через календарь.",
+                "L7",
+                "Автомат",
+                "Гибрид",
+                "1.5T + электропривод",
+                "Тариф только «долгое бронирование»\n"
+                        + "Доступно после подтверждения документов\n"
+                        + "Возврат в разрешённых зонах сервиса\n"
+                        + "Пересекающиеся интервалы недоступны в календаре",
+                "Пневмоподвеска\nПанорамная крыша\nАдаптивный круиз\nВентиляция сидений\nКамеры 360",
+                "Минутный тариф недоступен для этой категории",
+                "6 ч. - 79.00 BYN\n12 ч. - 129.00 BYN\n24 ч. - 189.00 BYN",
+                "1 сутки - 189.00 BYN\n3 суток - 529.00 BYN\n7 суток - 1189.00 BYN\n30 суток - 4290.00 BYN"
+        );
     }
 
     private void ensureCard(
@@ -233,6 +276,47 @@ public class VehicleCardInitializer implements CommandLineRunner {
         }
 
         VehicleCard card = new VehicleCard();
+        card.setSlug(slug);
+        card.setTitle(title);
+        card.setCategory(category);
+        card.setWrapped(wrapped);
+        card.setImagePath(imagePath);
+        card.setPricePerMinute(pricePerMinute);
+        card.setShortDescription(shortDescription);
+        card.setDetailDescription(detailDescription);
+        card.setBadge(badge);
+        card.setTransmission(transmission);
+        card.setFuelType(fuelType);
+        card.setEngine(engine);
+        card.setConditionsText(conditions);
+        card.setFeaturesText(features);
+        card.setMinutePackagesText(minutePackages);
+        card.setHourPackagesText(hourPackages);
+        card.setDayPackagesText(dayPackages);
+        card.setPublished(true);
+        vehicleCardRepository.save(card);
+    }
+
+    private void upsertCard(
+            String slug,
+            String title,
+            String category,
+            String imagePath,
+            BigDecimal pricePerMinute,
+            boolean wrapped,
+            String shortDescription,
+            String detailDescription,
+            String badge,
+            String transmission,
+            String fuelType,
+            String engine,
+            String conditions,
+            String features,
+            String minutePackages,
+            String hourPackages,
+            String dayPackages
+    ) {
+        VehicleCard card = vehicleCardRepository.findBySlug(slug).orElseGet(VehicleCard::new);
         card.setSlug(slug);
         card.setTitle(title);
         card.setCategory(category);

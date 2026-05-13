@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --catalog-bg: #2d2b2b;
     --catalog-surface: #2d2b2b;
     --catalog-card: rgba(255, 255, 255, 0.04);
@@ -290,6 +290,281 @@
     margin: 0;
     color: rgba(255, 255, 255, 0.76);
     line-height: 1.55;
+}
+
+.long-booking-order-block {
+    margin-top: 22px;
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--catalog-line);
+}
+
+.long-booking-order-block__title {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.long-booking-order-block__hint {
+    margin: 0 0 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.long-booking-order-block__notice {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(255, 180, 72, 0.12);
+    border: 1px solid rgba(255, 180, 72, 0.35);
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(255, 235, 200, 0.95);
+}
+
+.long-booking-order-block__notice a {
+    color: #8ef394;
+    text-decoration: underline;
+}
+
+.lb-cal {
+    margin-bottom: 16px;
+}
+
+.lb-cal__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.lb-cal__title {
+    font-weight: 700;
+    font-size: 15px;
+    color: #fff;
+    text-align: center;
+    flex: 1;
+}
+
+.lb-cal__nav-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.lb-cal__nav-btn:hover {
+    border-color: rgba(24, 164, 32, 0.45);
+}
+
+.lb-cal__weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.55);
+    text-align: center;
+}
+
+.lb-cal__grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.lb-cal__cell--pad {
+    min-height: 40px;
+}
+
+.lb-cal__day {
+    min-height: 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.2);
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.lb-cal__day--free {
+    border-color: rgba(24, 164, 32, 0.25);
+}
+
+.lb-cal__day--partial {
+    background: rgba(255, 200, 72, 0.12);
+    border-color: rgba(255, 200, 72, 0.35);
+}
+
+.lb-cal__day--full {
+    background: rgba(220, 72, 72, 0.18);
+    border-color: rgba(220, 100, 100, 0.45);
+    color: rgba(255, 255, 255, 0.55);
+    cursor: not-allowed;
+}
+
+.lb-cal__day--past {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.lb-cal__day--in-range {
+    outline: 1px solid rgba(24, 164, 32, 0.45);
+}
+
+.lb-cal__day--range-start,
+.lb-cal__day--range-end {
+    border-color: rgba(24, 164, 32, 0.75);
+    background: rgba(24, 164, 32, 0.22);
+}
+
+.lb-cal__legend {
+    margin: 12px 0 0;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.62);
+    line-height: 1.5;
+}
+
+.lb-cal__swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+.lb-cal__swatch--free {
+    background: rgba(24, 164, 32, 0.35);
+    border: 1px solid rgba(24, 164, 32, 0.5);
+}
+
+.lb-cal__swatch--partial {
+    background: rgba(255, 200, 72, 0.35);
+    border: 1px solid rgba(255, 200, 72, 0.5);
+}
+
+.lb-cal__swatch--full {
+    background: rgba(220, 72, 72, 0.45);
+    border: 1px solid rgba(220, 100, 100, 0.55);
+}
+
+.lb-cal__detail {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.22);
+}
+
+.lb-cal__detail strong {
+    display: block;
+    margin-bottom: 10px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.lb-cal__busy-lines ul {
+    margin: 0 0 12px;
+    padding-left: 18px;
+    color: rgba(255, 200, 200, 0.92);
+    font-size: 13px;
+}
+
+.lb-cal__busy-title {
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.lb-cal__busy-title--ok {
+    color: rgba(142, 243, 148, 0.95);
+}
+
+.lb-cal__detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+    align-items: center;
+}
+
+.lb-cal__summary {
+    margin: 12px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.long-booking-datetime-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+}
+
+@media (max-width: 640px) {
+    .long-booking-datetime-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.long-booking-datetime-select,
+.long-booking-datetime-time {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+}
+
+.long-booking-order-block__label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.long-booking-order-block__note {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 72px;
+}
+
+.long-booking-order-block__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
 }
 
 .car-section {
@@ -586,42 +861,5 @@
 
     .catalog-footer {
         flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-        padding-top: 18px;
-        margin-top: 24px;
-        font-size: 12.5px;
-        line-height: 1.55;
-    }
-
-    .catalog-footer > * {
-        overflow-wrap: anywhere;
-        word-break: break-word;
-    }
-}
-
-@media (max-width: 480px) {
-    .car-detail-title,
-    .catalog-title {
-        font-size: clamp(1.45rem, 6.5vw, 2rem);
-    }
-
-    .car-rate-tab {
-        padding: 10px 16px;
-        font-size: 12px;
-    }
-
-    .car-price-box strong {
-        font-size: clamp(1.35rem, 6vw, 26px);
-    }
-
-    .car-section h2 {
-        font-size: clamp(1.15rem, 5vw, 22px);
-    }
-
-    .catalog-footer {
-        font-size: 12px;
-        gap: 10px;
-        padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
     }
 }

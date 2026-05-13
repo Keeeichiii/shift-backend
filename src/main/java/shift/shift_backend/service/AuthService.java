@@ -69,6 +69,15 @@ public class AuthService {
 
     private AuthUserResponse buildResponse(User user, String email) {
         List<String> roles = userRoleRepository.findRoleNamesByUserId(user.getId());
-        return new AuthUserResponse(user.getId(), user.getUsername(), email, roles);
+        return new AuthUserResponse(
+                user.getId(),
+                user.getUsername(),
+                email,
+                roles,
+                user.getDocStatus(),
+                user.getLicenseExpiresAt(),
+                user.getDrivingBanUntil(),
+                user.getDriverLicense()
+        );
     }
 }

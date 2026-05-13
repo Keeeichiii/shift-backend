@@ -7,7 +7,8 @@ const PANEL_VEHICLE_CATEGORY_LABELS = {
     electric: "Электро",
     cabriolet: "Кабриолет",
     offroad: "Внедорожник",
-    cargo: "Грузовой"
+    cargo: "Грузовой",
+    long_booking: "Долгое бронирование"
 };
 
 /** Имена подпапок в static/images/cars/… (как на сервере при сохранении). */
@@ -20,7 +21,8 @@ const PANEL_VEHICLE_CATEGORY_FOLDERS = {
     electric: "электро",
     cabriolet: "кабриолет",
     offroad: "внедорожник",
-    cargo: "грузовой"
+    cargo: "грузовой",
+    long_booking: "долгое бронирование"
 };
 
 function panelVehicleCategoryLabel(value) {

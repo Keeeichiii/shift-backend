@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import shift.shift_backend.domain.entity.Credential;
 import shift.shift_backend.domain.entity.Role;
 import shift.shift_backend.domain.entity.User;
+import shift.shift_backend.domain.enums.DocumentStatus;
 import shift.shift_backend.dto.auth.AuthUserResponse;
 import shift.shift_backend.dto.auth.RegisterRequest;
 import shift.shift_backend.repository.CredentialRepository;
@@ -86,6 +87,7 @@ class AuthServiceTest {
 		assertThat(r.email()).isEqualTo("a@a.com");
 		assertThat(r.username()).isEqualTo("u5");
 		assertThat(r.roles()).containsExactly("USER");
+		assertThat(r.docStatus()).isEqualTo(DocumentStatus.PENDING);
 	}
 
 	@Test

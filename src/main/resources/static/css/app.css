@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --dark: #2d2b2b;
     --light: #ffffff;
     --text: #111111;
@@ -13,19 +13,11 @@
     box-sizing: border-box;
 }
 
-html {
-    scroll-padding-top: 88px;
-}
-
 html, body {
     margin: 0;
     font-family: Inter, Segoe UI, Arial, sans-serif;
     color: var(--text);
     background: #f3f3f3;
-}
-
-body {
-    overflow-x: clip;
 }
 
 .container {
@@ -112,6 +104,11 @@ body {
     font-size: 14px;
 }
 
+.site-header .menu button.btn-small {
+    margin-top: 0;
+    flex-shrink: 0;
+}
+
 .menu-left {
     justify-self: start;
 }
@@ -140,16 +137,10 @@ body {
     background: transparent;
     color: #fff;
     border-radius: 8px;
-    padding: 10px 12px;
-    min-height: 44px;
-    min-width: 44px;
-    font: inherit;
-    font-size: 14px;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+    padding: 7px 10px;
 }
 
-/* Бургер вставляется скриптом; на десктопе не показывается (мобильные стили в mobile-header.css) */
+/* Вставляется скриптом (shared-drawers.js); видимость только в css/mobile.css */
 .header-drawer-burger {
     display: none;
     flex-shrink: 0;
@@ -310,9 +301,7 @@ h1 {
 .pricing-row {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 12px 16px;
+    gap: 16px;
     padding: 18px 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -330,11 +319,9 @@ h1 {
 }
 
 .pricing-row strong {
-    white-space: normal;
-    text-align: right;
-    font-size: clamp(1.15rem, 4.2vw, 26px);
+    white-space: nowrap;
+    font-size: 26px;
     font-weight: 700;
-    line-height: 1.25;
 }
 
 .feature-list {
@@ -568,7 +555,6 @@ h1 {
     border-top: 1px solid var(--line);
     background: var(--dark);
     padding: 18px 0 46px;
-    padding-bottom: max(46px, env(safe-area-inset-bottom, 0px));
 }
 
 .footer__inner {
@@ -684,11 +670,7 @@ h1 {
     background: rgba(0, 0, 0, 0.58);
     display: grid;
     place-items: center;
-    z-index: 5100;
-    padding: 16px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    z-index: 100;
 }
 
 .modal-card {
@@ -729,188 +711,6 @@ h1 {
     color: #1f2937;
 }
 
-@media (max-width: 900px) {
-    .section {
-        padding: 90px 0;
-    }
-
-    .pricing-table,
-    .feature-list,
-    .booking-grid,
-    .account-shell,
-    .contacts-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .contact-map {
-        min-height: 280px;
-    }
-
-    .hero-stage {
-        min-height: 300px;
-    }
-}
-
-@media (max-width: 780px) {
-    .site-header .container {
-        width: calc(100vw - 10px);
-        margin-right: 10px;
-    }
-
-    .header-row,
-    .inner-header .header-row {
-        grid-template-columns: auto auto 1fr auto;
-    }
-
-    .logo {
-        order: 3;
-    }
-
-    .brand-anchor {
-        order: 1;
-        gap: 10px;
-        margin-left: 2px;
-    }
-
-    .brand-icon {
-        width: 44px;
-        height: 44px;
-    }
-
-    .brand-name {
-        font-size: 24px;
-    }
-
-    .auth-block {
-        order: 4;
-        gap: 6px;
-    }
-
-    .menu-toggle {
-        display: inline-block;
-        order: 2;
-    }
-
-    .menu-left,
-    .menu-right {
-        display: none;
-        position: absolute;
-        left: 4vw;
-        right: 4vw;
-        top: 76px;
-        background: #111;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        padding: 12px;
-    }
-
-    .menu-left.open,
-    .menu-right.open {
-        display: grid;
-    }
-
-    .hero-copy {
-        text-align: left;
-    }
-
-    .hero-actions {
-        justify-content: flex-start;
-    }
-
-    .section-title_center,
-    .section-sub_center {
-        text-align: left;
-        margin-left: 0;
-        margin-right: 0;
-    }
-
-    .footer {
-        padding: 22px 0 max(28px, calc(20px + env(safe-area-inset-bottom, 0px)));
-    }
-
-    .footer__inner {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0;
-        text-align: left;
-    }
-
-    .footer__brand {
-        font-size: 15px;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        padding-bottom: 14px;
-        margin-bottom: 14px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.14);
-    }
-
-    .footer__meta {
-        text-align: left;
-        gap: 10px;
-        max-width: 100%;
-    }
-
-    .footer__meta p {
-        font-size: 13px;
-        line-height: 1.55;
-        color: rgba(255, 255, 255, 0.78);
-        overflow-wrap: anywhere;
-        word-break: break-word;
-        hyphens: auto;
-    }
-
-    .pricing-row strong {
-        text-align: left;
-        flex: 1 1 100%;
-    }
-
-    .booking-card__media {
-        height: min(220px, 42vw);
-    }
-
-    .account-preview {
-        justify-items: stretch;
-    }
-
-    .lead {
-        font-size: 16px;
-    }
-}
-
-@media (max-width: 480px) {
-    .section {
-        padding: 64px 0;
-    }
-
-    .footer {
-        padding: 20px 0 max(24px, calc(16px + env(safe-area-inset-bottom, 0px)));
-    }
-
-    .footer__brand {
-        font-size: 14px;
-        padding-bottom: 12px;
-        margin-bottom: 12px;
-    }
-
-    .footer__meta p {
-        font-size: 12.5px;
-        line-height: 1.6;
-    }
-
-    .hero-stage {
-        min-height: 240px;
-        border-radius: 18px;
-    }
-
-    .hero-actions .btn {
-        width: 100%;
-        max-width: 100%;
-        text-align: center;
-        box-sizing: border-box;
-        margin-top: 16px;
-    }
-}
-
 .btn-support {
     position: relative;
     padding: 9px 16px;
@@ -946,6 +746,28 @@ h1 {
     border-radius: 999px;
     background: #142114;
     display: block;
+}
+
+/* ПК: вертикальное центрирование полосы шапки (мобилка — mobile.css). */
+@media (min-width: 781px) {
+    .site-header {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 80px;
+        box-sizing: border-box;
+    }
+
+    /* Шестая колонка под бургер после .auth-block (logout слева от бургера). */
+    .site-header .header-row,
+    .site-header.inner-header .header-row {
+        grid-template-columns: auto 1fr auto 1fr auto auto;
+        align-content: center;
+    }
+
+    .site-header .header-drawer-burger {
+        justify-self: end;
+    }
 }
 
 body.drawer-open {
@@ -1222,4 +1044,3 @@ body.drawer-open {
     color: #2b2e31;
     font-size: 14px;
 }
-

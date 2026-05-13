@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --panel-bg: #171717;
     --panel-card: #222222;
     --panel-card-light: #ffffff;
@@ -477,6 +477,21 @@
     background: rgba(24, 164, 32, 0.16);
     border-color: rgba(24, 164, 32, 0.32);
     color: #8ef394;
+}
+
+.long-booking-staff-card__head {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.long-booking-staff-card__img {
+    width: 120px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 12px;
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .panel-section {
@@ -1224,34 +1239,6 @@
     .city-map,
     .map-fallback {
         min-height: 440px;
-    }
-
-    .map-card__header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-
-    .panel-banner {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .stat-card strong {
-        font-size: clamp(1.45rem, 7vw, 34px);
-    }
-
-    .zone-item {
-        flex-wrap: wrap;
-    }
-
-    .zone-item span {
-        white-space: normal;
-        text-align: right;
-    }
-
-    .panel-page h1 {
-        word-wrap: break-word;
     }
 }
 

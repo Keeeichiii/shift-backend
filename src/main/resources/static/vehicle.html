@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Карточка машины | FredAvto</title>
-    <link rel="stylesheet" href="css/app.css">
-    <link rel="stylesheet" href="css/panels.css">
-    <link rel="stylesheet" href="css/catalog.css">
-    <link rel="stylesheet" href="css/mobile-header.css" media="(max-width: 780px)">
+    <link rel="stylesheet" href="css/app.css?v=3">
+    <link rel="stylesheet" href="css/panels.css?v=2">
+    <link rel="stylesheet" href="css/catalog.css?v=2">
+    <link rel="stylesheet" href="css/mobile.css?v=2">
 </head>
 <body class="panel-page car-detail-page">
 <header class="site-header panel-header inner-header">
@@ -31,7 +31,6 @@
             <a href="/services.html">Услуги</a>
         </nav>
         <div class="auth-block auth-block_panel">
-            <span id="pageUserLabel" class="auth-user-label hidden"></span>
             <button id="pageLogoutBtn" class="btn btn-small hidden" type="button">Выйти</button>
         </div>
     </div>
@@ -59,6 +58,41 @@
                         <div class="car-price-box">
                             <strong id="vehiclePrice"></strong>
                             <p id="vehiclePriceHint"></p>
+                        </div>
+
+                        <div id="longBookingOrderBlock" class="long-booking-order-block hidden">
+                            <h3 class="long-booking-order-block__title">Заявка на долгое бронирование</h3>
+                            <p class="long-booking-order-block__hint">В календаре занятые периоды подсвечены: нельзя выбрать пересекающийся интервал. Нажмите день — увидите занятость и свободные варианты времени. Сначала выберите начало, затем окончание (не раньше чем через час после начала).</p>
+                            <p id="longBookingOrderLicenseNotice" class="long-booking-order-block__notice hidden" role="status"></p>
+                            <div class="lb-cal" id="longBookingCalendarRoot">
+                                <div class="lb-cal__nav">
+                                    <button type="button" class="lb-cal__nav-btn" id="longBookingCalPrev" aria-label="Предыдущий месяц">‹</button>
+                                    <span class="lb-cal__title" id="longBookingCalMonthLabel"></span>
+                                    <button type="button" class="lb-cal__nav-btn" id="longBookingCalNext" aria-label="Следующий месяц">›</button>
+                                </div>
+                                <div class="lb-cal__weekdays" aria-hidden="true">
+                                    <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
+                                </div>
+                                <div id="longBookingCalGrid" class="lb-cal__grid"></div>
+                                <p class="lb-cal__legend">Подсказка: <span class="lb-cal__swatch lb-cal__swatch--free"></span> свободно &nbsp; <span class="lb-cal__swatch lb-cal__swatch--partial"></span> частично занято &nbsp; <span class="lb-cal__swatch lb-cal__swatch--full"></span> занято целиком</p>
+                                <div id="longBookingCalDetail" class="lb-cal__detail hidden">
+                                    <strong id="longBookingCalDetailTitle"></strong>
+                                    <div id="longBookingCalBusyLines" class="lb-cal__busy-lines"></div>
+                                    <label class="long-booking-order-block__label" for="longBookingCalTimeSelect" id="longBookingCalTimeLabel">Время</label>
+                                    <select id="longBookingCalTimeSelect" class="long-booking-datetime-select"></select>
+                                    <div class="lb-cal__detail-actions">
+                                        <button type="button" class="btn btn-small" id="longBookingCalApplyBtn">Подтвердить</button>
+                                        <button type="button" class="btn btn-small btn-secondary" id="longBookingCalClearRange">Сбросить период</button>
+                                    </div>
+                                </div>
+                                <p id="longBookingRangeSummary" class="lb-cal__summary" aria-live="polite"></p>
+                            </div>
+                            <label class="long-booking-order-block__label" for="longBookingOrderNote">Комментарий</label>
+                            <textarea id="longBookingOrderNote" class="long-booking-order-block__note" rows="3" maxlength="4000" placeholder="Например: вопрос по залогу…"></textarea>
+                            <div class="long-booking-order-block__actions">
+                                <button id="longBookingOrderSubmit" type="button" class="btn btn-small">Оформить заявку</button>
+                                <span id="longBookingOrderStatus" class="status-text"></span>
+                            </div>
                         </div>
                     </div>
                 </div>

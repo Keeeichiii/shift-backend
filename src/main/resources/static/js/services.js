@@ -8,7 +8,8 @@ const CATEGORY_LABELS = {
     electric: "Электро",
     cabriolet: "Кабриолет",
     offroad: "Внедорожник",
-    cargo: "Грузовой"
+    cargo: "Грузовой",
+    long_booking: "Долгое бронирование"
 };
 
 function categoryLabel(value) {

@@ -136,6 +136,7 @@ async function loadAdminPage() {
         document.getElementById("approvedUsersValue").textContent = String(panel.approvedUsers);
         renderAdminUsers(panel.users);
         renderAdminSupportRequests(panel.supportRequests || []);
+        renderPanelLongBookingStaffSection("admin", panel, loadAdminPage);
         adminVehicleCardManager?.setCards(vehicleCards);
         adminNewsManager?.setNews(newsItems);
         if (panel.users.length) {
