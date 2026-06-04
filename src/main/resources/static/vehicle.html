@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -60,8 +60,15 @@
                             <p id="vehiclePriceHint"></p>
                         </div>
 
+                        <button id="longBookingOrderOpen" type="button" class="btn long-booking-order-open hidden">Заявка на долгое бронирование</button>
+                    </div>
+                </div>
+
+                <div id="longBookingOrderModal" class="modal long-booking-modal hidden" role="dialog" aria-modal="true" aria-labelledby="longBookingOrderTitle">
+                    <div class="modal-card long-booking-modal__card">
+                        <button type="button" class="close-btn" id="longBookingOrderClose" aria-label="Закрыть">×</button>
                         <div id="longBookingOrderBlock" class="long-booking-order-block hidden">
-                            <h3 class="long-booking-order-block__title">Заявка на долгое бронирование</h3>
+                            <h3 class="long-booking-order-block__title" id="longBookingOrderTitle">Заявка на долгое бронирование</h3>
                             <p class="long-booking-order-block__hint">В календаре занятые периоды подсвечены: нельзя выбрать пересекающийся интервал. Нажмите день — увидите занятость и свободные варианты времени. Сначала выберите начало, затем окончание (не раньше чем через час после начала).</p>
                             <p id="longBookingOrderLicenseNotice" class="long-booking-order-block__notice hidden" role="status"></p>
                             <div class="lb-cal" id="longBookingCalendarRoot">
@@ -86,6 +93,7 @@
                                     </div>
                                 </div>
                                 <p id="longBookingRangeSummary" class="lb-cal__summary" aria-live="polite"></p>
+                                <div id="longBookingPriceEstimate" class="lb-cal__price-estimate hidden" aria-live="polite"></div>
                             </div>
                             <label class="long-booking-order-block__label" for="longBookingOrderNote">Комментарий</label>
                             <textarea id="longBookingOrderNote" class="long-booking-order-block__note" rows="3" maxlength="4000" placeholder="Например: вопрос по залогу…"></textarea>

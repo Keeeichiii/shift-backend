@@ -143,12 +143,14 @@ cd C:\shift
 docker load -i .\shift-app.tar
 
 cd .\docker
+$env:POSTGRES_PASSWORD="замените-на-свой-пароль"
 docker compose -f compose.image.yaml up -d</code></pre>
       <pre><code># macOS / Linux
 cd ~/shift
 docker load -i ./shift-app.tar
 
 cd docker
+export POSTGRES_PASSWORD="замените-на-свой-пароль"
 docker compose -f compose.image.yaml up -d</code></pre>
       <p style="margin:1rem 0 0;"><strong>Сайт:</strong> <a href="http://localhost:8090">http://localhost:8090</a></p>
     </div>

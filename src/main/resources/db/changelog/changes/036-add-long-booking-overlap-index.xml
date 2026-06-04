@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="add_long_booking_overlap_index" author="ea.novak">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="long_booking_orders" indexName="idx_long_booking_orders_vehicle_status_range"/>
+            </not>
+        </preConditions>
+
+        <createIndex tableName="long_booking_orders" indexName="idx_long_booking_orders_vehicle_status_range">
+            <column name="vehicle_card_id"/>
+            <column name="status"/>
+            <column name="requested_start_at"/>
+            <column name="requested_end_at"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="long_booking_orders" indexName="idx_long_booking_orders_vehicle_status_range"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

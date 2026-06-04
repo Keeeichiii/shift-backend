@@ -42,10 +42,12 @@ WINDOWS — ПОДСИСТЕМА LINUX (WSL 2)
 
      Windows:
        cd .\docker
+       $env:POSTGRES_PASSWORD="замените-на-свой-пароль"
        docker compose -f compose.image.yaml up -d
 
      macOS / Linux:
        cd docker
+       export POSTGRES_PASSWORD="замените-на-свой-пароль"
        docker compose -f compose.image.yaml up -d
 
   4) Браузер: http://localhost:8090
@@ -69,5 +71,19 @@ WINDOWS — ПОДСИСТЕМА LINUX (WSL 2)
 ЛОГИ
 ----
   docker compose -f compose.image.yaml logs app --tail 80
+
+
+ЗАПУСК ИЗ IDE
+-------------
+  Перед стартом приложения запустите локальную БД и задайте тот же пароль
+  в окружении запуска:
+
+    Windows PowerShell:
+      $env:POSTGRES_PASSWORD="замените-на-свой-пароль"
+      docker compose up -d db
+
+    IntelliJ IDEA:
+      Run Configuration -> Environment variables:
+      POSTGRES_PASSWORD=замените-на-свой-пароль
 
 ================================================================================

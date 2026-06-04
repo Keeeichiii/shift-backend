@@ -119,7 +119,13 @@ function extractErrorMessage(error, fallback) {
     if (!error || !error.message) {
         return fallback;
     }
-    return error.message.replace(/^"|"$/g, "") || fallback;
+    const raw = error.message.replace(/^"|"$/g, "");
+    try {
+        const parsed = JSON.parse(raw);
+        return parsed.detail || parsed.message || parsed.title || fallback;
+    } catch {
+        return raw || fallback;
+    }
 }
 
 async function request(url, options = {}) {
@@ -132,12 +138,29 @@ async function request(url, options = {}) {
     });
     if (!response.ok) {
         const text = await response.text();
-        throw new Error(text || "Request failed");
+        const error = new Error(text || "Запрос не выполнен.");
+        error.status = response.status;
+        throw error;
     }
     if (response.status === 204) {
         return null;
     }
     return response.json();
+}
+
+async function offerToSaveRegistrationCredentials(formData) {
+    if (!window.PasswordCredential || !navigator.credentials) {
+        return;
+    }
+    try {
+        await navigator.credentials.store(new PasswordCredential({
+            id: String(formData.email || formData.username || ""),
+            name: String(formData.username || formData.email || ""),
+            password: String(formData.password || "")
+        }));
+    } catch {
+        // Браузер может не поддерживать сохранение или пользователь может отказаться.
+    }
 }
 
 function updateRolePanel(user) {
@@ -211,7 +234,9 @@ if (loginForm) {
             closeModal(loginModal);
             loginForm.reset();
         } catch (error) {
-            loginStatus.textContent = extractErrorMessage(error, "Ошибка входа: проверьте email и пароль.");
+            loginStatus.textContent = error.status === 401
+                    ? "Неверная почта или пароль."
+                    : extractErrorMessage(error, "Ошибка входа: проверьте email и пароль.");
         } finally {
             setButtonBusy(submitButton, false, "Вход...");
         }
@@ -231,6 +256,7 @@ if (registerForm) {
                 body: JSON.stringify(data)
             });
             registerStatus.textContent = "Регистрация успешна. Войдите в аккаунт и загрузите документы в личном кабинете.";
+            await offerToSaveRegistrationCredentials(data);
             registerForm.reset();
         } catch (error) {
             registerStatus.textContent = extractErrorMessage(error, "Ошибка регистрации. Проверьте данные.");

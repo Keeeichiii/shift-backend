@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -77,42 +77,106 @@
                     </article>
                 </section>
 
-                <section class="panel-card">
-                    <h2>Пользователи</h2>
-                    <div id="adminUserList" class="admin-user-list"></div>
+                <section class="panel-grid profile-grid">
+                    <article class="panel-card">
+                        <h2>Пользователи</h2>
+                        <div id="adminUserList" class="admin-user-list"></div>
+                    </article>
+                    <article id="adminUserManageCard" class="panel-card panel-card_light">
+                        <h2>Управление пользователем</h2>
+                        <form id="adminUserForm" class="panel-form">
+                            <input id="adminUserId" name="userId" type="hidden">
+                            <div class="field"><label for="adminUserUsername">Username</label><input id="adminUserUsername" name="username" type="text" maxlength="45"></div>
+                            <div class="field"><label for="adminUserEmail">Email</label><input id="adminUserEmail" name="email" type="email" maxlength="100"></div>
+                            <div class="field"><label for="adminUserPassword">Новый пароль</label><input id="adminUserPassword" name="password" type="password" minlength="6" maxlength="100" placeholder="Оставьте пустым, чтобы не менять"></div>
+                            <div class="field"><label for="adminUserRegionId">ID региона</label><input id="adminUserRegionId" name="regionId" type="number" min="1" step="1"></div>
+                            <div class="field"><label for="adminUserFirstName">Имя</label><input id="adminUserFirstName" name="firstName" type="text" maxlength="45"></div>
+                            <div class="field"><label for="adminUserLastName">Фамилия</label><input id="adminUserLastName" name="lastName" type="text" maxlength="45"></div>
+                            <div class="field"><label for="adminUserProfileName">Имя профиля</label><input id="adminUserProfileName" name="profileName" type="text" maxlength="45"></div>
+                            <div class="field"><label for="adminUserPhone">Телефон</label><input id="adminUserPhone" name="phone" type="text" maxlength="30"></div>
+                            <div class="field"><label for="adminUserDriverLicense">Номер прав</label><input id="adminUserDriverLicense" name="driverLicense" type="text" maxlength="50"></div>
+                            <div class="field"><label for="adminUserLicenseExpiresAt">Права действуют до</label><input id="adminUserLicenseExpiresAt" name="licenseExpiresAt" type="date"></div>
+                            <div class="field"><label for="adminUserDrivingBanUntil">Лишение прав до</label><input id="adminUserDrivingBanUntil" name="drivingBanUntil" type="date"></div>
+                            <div class="field">
+                                <label for="adminUserDocStatus">Статус документов</label>
+                                <select id="adminUserDocStatus" name="docStatus">
+                                    <option value="">Не менять</option>
+                                    <option value="PENDING">Ожидает проверки</option>
+                                    <option value="VERIFIED">Одобрен</option>
+                                    <option value="REJECTED">Отклонён</option>
+                                    <option value="EXPIRED">Истёк срок</option>
+                                </select>
+                            </div>
+                            <div class="field-wide">
+                                <label>Роли</label>
+                                <div class="admin-role-options">
+                                    <label><input type="checkbox" name="roles" value="USER"> USER</label>
+                                    <label><input type="checkbox" name="roles" value="MODERATOR"> MODERATOR</label>
+                                    <label><input type="checkbox" name="roles" value="ADMIN"> ADMIN</label>
+                                </div>
+                            </div>
+                            <div class="field-wide"><label for="adminUserBio">Описание</label><textarea id="adminUserBio" name="bio" maxlength="300"></textarea></div>
+                            <div class="field-wide">
+                                <div class="panel-actions">
+                                    <button id="adminUserSubmit" class="btn" type="submit">Сохранить пользователя</button>
+                                    <button id="adminUserDelete" class="btn btn-danger hidden" type="button">Удалить пользователя</button>
+                                    <span id="adminUserStatus" class="status-text"></span>
+                                </div>
+                            </div>
+                        </form>
+                    </article>
                 </section>
             </section>
 
             <section id="admin-license-section" class="panel-section hidden">
                 <section class="panel-grid profile-grid">
-                    <article class="panel-card panel-card_light">
-                        <h2>Данные водительских прав</h2>
-                        <form id="adminLicenseForm" class="panel-form">
-                            <div class="field"><label for="adminSelectedUser">Пользователь</label><input id="adminSelectedUser" type="text" readonly></div>
-                            <div class="field"><label for="adminDriverLicense">Номер прав</label><input id="adminDriverLicense" name="driverLicense" type="text"></div>
-                            <div class="field"><label for="adminLicenseExpiresAt">Права действуют до</label><input id="adminLicenseExpiresAt" name="licenseExpiresAt" type="date"></div>
-                            <div class="field"><label for="adminDrivingBanUntil">Лишение прав до</label><input id="adminDrivingBanUntil" name="drivingBanUntil" type="date"></div>
-                            <div class="field">
-                                <label for="adminDocStatus">Статус документов</label>
-                                <select id="adminDocStatus" name="docStatus">
-                                    <option value="PENDING">PENDING</option>
-                                    <option value="VERIFIED">VERIFIED</option>
-                                    <option value="REJECTED">REJECTED</option>
-                                    <option value="EXPIRED">EXPIRED</option>
-                                </select>
-                            </div>
-                            <div class="field-wide">
-                                <div class="panel-actions">
-                                    <button class="btn" type="submit">Сохранить данные</button>
-                                    <span id="adminSaveStatus" class="status-text"></span>
-                                </div>
-                            </div>
-                        </form>
-                    </article>
                     <article class="panel-card">
-                        <h2>Загруженные документы</h2>
-                        <div id="adminLicensePreview" class="license-preview-grid"></div>
+                        <h2>Очередь модерации</h2>
+                        <p class="upload-copy">Только обычные пользователи, без администраторов и модераторов.</p>
+                        <div class="admin-license-toolbar">
+                            <input id="adminLicenseSearch" type="search" placeholder="Поиск по имени, логину или email">
+                            <select id="adminLicenseSort">
+                                <option value="priority">Сначала ожидающие</option>
+                                <option value="newest">Сначала новые</option>
+                                <option value="name">По имени</option>
+                            </select>
+                        </div>
+                        <div class="admin-license-tabs">
+                            <button class="panel-tab is-active" type="button" data-admin-license-tab="queue">На проверку</button>
+                            <button class="panel-tab" type="button" data-admin-license-tab="approved">Одобренные</button>
+                        </div>
+                        <div id="adminLicenseUserList" class="review-list"></div>
                     </article>
+                    <div class="panel-grid">
+                        <article class="panel-card panel-card_light">
+                            <h2>Данные водительских прав</h2>
+                            <form id="adminLicenseForm" class="panel-form">
+                                <div class="field"><label for="adminSelectedUser">Пользователь</label><input id="adminSelectedUser" type="text" readonly></div>
+                                <div class="field"><label for="adminDriverLicense">Номер прав</label><input id="adminDriverLicense" name="driverLicense" type="text"></div>
+                                <div class="field"><label for="adminLicenseExpiresAt">Права действуют до</label><input id="adminLicenseExpiresAt" name="licenseExpiresAt" type="date"></div>
+                                <div class="field"><label for="adminDrivingBanUntil">Лишение прав до</label><input id="adminDrivingBanUntil" name="drivingBanUntil" type="date"></div>
+                                <div class="field">
+                                    <label for="adminDocStatus">Статус документов</label>
+                                    <select id="adminDocStatus" name="docStatus">
+                                        <option value="PENDING">Ожидает проверки</option>
+                                        <option value="VERIFIED">Одобрен</option>
+                                        <option value="REJECTED">Отклонён</option>
+                                        <option value="EXPIRED">Истёк срок</option>
+                                    </select>
+                                </div>
+                                <div class="field-wide">
+                                    <div class="panel-actions">
+                                        <button class="btn" type="submit">Сохранить данные</button>
+                                        <span id="adminSaveStatus" class="status-text"></span>
+                                    </div>
+                                </div>
+                            </form>
+                        </article>
+                        <article class="panel-card">
+                            <h2>Загруженные документы</h2>
+                            <div id="adminLicensePreview" class="license-preview-grid"></div>
+                        </article>
+                    </div>
                 </section>
             </section>
 
@@ -130,7 +194,7 @@
                     </article>
                     <article class="panel-card">
                         <h2>Забронированные авто (парк)</h2>
-                        <p class="upload-copy">Машины флота в статусе BOOKED.</p>
+                        <p class="upload-copy">Забронированные машины флота.</p>
                         <div id="adminBookedFleetList" class="trip-list"></div>
                     </article>
                 </section>

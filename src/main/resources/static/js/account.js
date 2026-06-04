@@ -94,11 +94,20 @@ function getRentAccess(profile) {
     const hasLicenseId = profile.driverLicense && String(profile.driverLicense).trim();
     const licenseExpired = profile.licenseExpiresAt && isDateBeforeTodayUtc(profile.licenseExpiresAt);
 
-    if (profile.docStatus === "VERIFIED" && hasLicenseId && profile.licenseExpiresAt && !licenseExpired) {
+    if (profile.docStatus === "VERIFIED") {
+        if (licenseExpired) {
+            return {
+                variant: "denied",
+                status: "Нет доступа",
+                hint: "Срок действия водительских прав истёк. Загрузите новые снимки удостоверения — после проверки администратор обновит данные."
+            };
+        }
         return {
             variant: "allowed",
             status: "Разрешён",
-            hint: "Профиль и водительские права в порядке. Можно бронировать автомобиль в рамках правил сервиса."
+            hint: hasLicenseId && profile.licenseExpiresAt
+                    ? "Профиль и водительские права в порядке. Можно бронировать автомобиль в рамках правил сервиса."
+                    : "Документы подтверждены. Можно бронировать автомобиль в рамках правил сервиса."
         };
     }
 
@@ -153,7 +162,7 @@ function renderProfileInfo(profile) {
         <div class="info-item"><span>Пользователь</span><strong>${escapeHtml(profile.firstName || "")} ${escapeHtml(profile.lastName || "")}</strong></div>
         <div class="info-item"><span>Email</span><strong>${escapeHtml(profile.email)}</strong></div>
         <div class="info-item"><span>Роли</span><strong>${escapeHtml(profile.roles.join(", "))}</strong></div>
-        <div class="info-item"><span>Документы</span><strong>${escapeHtml(profile.docStatus)}</strong></div>
+        <div class="info-item"><span>Документы</span><strong>${escapeHtml(documentStatusLabel(profile.docStatus))}</strong></div>
         <div class="info-item"><span>Номер прав</span><strong>${escapeHtml(profile.driverLicense || "Заполнит администратор")}</strong></div>
         <div class="info-item"><span>Права действуют до</span><strong>${escapeHtml(formatDate(profile.licenseExpiresAt))}</strong></div>
         <div class="info-item"><span>Лишение прав до</span><strong>${escapeHtml(formatDate(profile.drivingBanUntil))}</strong></div>
@@ -222,7 +231,6 @@ function fillProfileForm(profile) {
     form.lastName.value = profile.lastName || "";
     form.phone.value = profile.phone || "";
     form.profileName.value = profile.profileName || "";
-    form.avatarUrl.value = profile.avatarUrl || "";
     form.bio.value = profile.bio || "";
 }
 
@@ -249,6 +257,7 @@ function renderLongBookingOrders(orders) {
             <p>Создан: ${escapeHtml(formatDateTime(o.createdAt))}</p>
             <p>Начало: ${o.requestedStartAt ? escapeHtml(formatDateTime(o.requestedStartAt)) : "—"}</p>
             <p>Окончание: ${o.requestedEndAt ? escapeHtml(formatDateTime(o.requestedEndAt)) : "—"}</p>
+            <p>Стоимость: ${escapeHtml(formatMoney(o.estimatedPrice))}</p>
             ${o.customerNote ? `<p>Комментарий: ${escapeHtml(o.customerNote)}</p>` : ""}
             <p><a class="btn btn-small btn-secondary" href="/vehicle.html?slug=${encodeURIComponent(o.vehicleSlug)}">Карточка авто</a></p>
         </div>
@@ -269,7 +278,7 @@ function renderTrips(trips) {
         <div class="trip-card">
             <strong>Поездка #${escapeHtml(trip.id)}</strong>
             <p>Автомобиль: ${escapeHtml(trip.vehicleId)}</p>
-            <p>Статус: ${escapeHtml(trip.status)}</p>
+            <p>Статус: ${escapeHtml(tripStatusLabel(trip.status))}</p>
             <p>Начало: ${escapeHtml(formatDateTime(trip.startTime))}</p>
             <p>Завершение: ${escapeHtml(formatDateTime(trip.endTime))}</p>
         </div>
@@ -286,7 +295,7 @@ async function loadAccountPage() {
             pageRequest("/api/me/long-booking-orders")
         ]);
 
-        document.getElementById("docStatusValue").textContent = profile.docStatus;
+        document.getElementById("docStatusValue").textContent = documentStatusLabel(profile.docStatus);
         document.getElementById("licenseValue").textContent = formatDate(profile.licenseExpiresAt);
         document.getElementById("banValue").textContent = formatDate(profile.drivingBanUntil);
         renderBanner(profile);
@@ -310,10 +319,11 @@ if (profileForm) {
         const status = document.getElementById("profileStatus");
         const data = Object.fromEntries(new FormData(profileForm).entries());
         const submitButton = profileForm.querySelector('button[type="submit"]');
-        if (!data.phone) delete data.phone;
-        if (!data.profileName) delete data.profileName;
-        if (!data.avatarUrl) delete data.avatarUrl;
-        if (!data.bio) delete data.bio;
+        ["firstName", "lastName", "phone", "profileName", "bio"].forEach((field) => {
+            if (typeof data[field] === "string") {
+                data[field] = data[field].trim();
+            }
+        });
 
         try {
             setButtonBusy(submitButton, true, "Сохранение...");
@@ -329,7 +339,7 @@ if (profileForm) {
             renderIdentityInfo(updated);
             renderLicensePreview(updated);
             fillProfileForm(updated);
-            document.getElementById("docStatusValue").textContent = updated.docStatus;
+            document.getElementById("docStatusValue").textContent = documentStatusLabel(updated.docStatus);
             document.getElementById("licenseValue").textContent = formatDate(updated.licenseExpiresAt);
             document.getElementById("banValue").textContent = formatDate(updated.drivingBanUntil);
         } catch (error) {
@@ -373,7 +383,7 @@ if (licenseUploadForm) {
             renderProfileInfo(updated);
             renderIdentityInfo(updated);
             renderLicensePreview(updated);
-            document.getElementById("docStatusValue").textContent = updated.docStatus;
+            document.getElementById("docStatusValue").textContent = documentStatusLabel(updated.docStatus);
             document.getElementById("licenseValue").textContent = formatDate(updated.licenseExpiresAt);
             document.getElementById("banValue").textContent = formatDate(updated.drivingBanUntil);
             licenseUploadForm.reset();

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="drop_avatar_url_from_users" author="ea.novak">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="users" columnName="avatar_url"/>
+        </preConditions>
+
+        <dropColumn tableName="users" columnName="avatar_url"/>
+
+        <rollback>
+            <addColumn tableName="users">
+                <column name="avatar_url" type="varchar(255)"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

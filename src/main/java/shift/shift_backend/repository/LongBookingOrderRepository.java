@@ -31,4 +31,20 @@ public interface LongBookingOrderRepository extends JpaRepository<LongBookingOrd
             @Param("rangeStart") OffsetDateTime rangeStart,
             @Param("rangeEnd") OffsetDateTime rangeEnd
     );
+
+    @Query("""
+            SELECT o FROM LongBookingOrder o
+            WHERE o.id <> :excludedOrderId
+            AND o.vehicleCard.id = :vehicleCardId
+            AND o.status IN :statuses
+            AND o.requestedStartAt < :rangeEnd
+            AND o.requestedEndAt > :rangeStart
+            """)
+    List<LongBookingOrder> findOverlappingForVehicleCardExcludingOrder(
+            @Param("excludedOrderId") Long excludedOrderId,
+            @Param("vehicleCardId") Long vehicleCardId,
+            @Param("statuses") Collection<LongBookingOrderStatus> statuses,
+            @Param("rangeStart") OffsetDateTime rangeStart,
+            @Param("rangeEnd") OffsetDateTime rangeEnd
+    );
 }

@@ -1,4 +1,5 @@
 ﻿let supportPageUser = null;
+let supportSuccessHideTimer = null;
 
 function updateSupportPageAccess() {
     const hint = document.getElementById("supportPageHint");
@@ -18,6 +19,65 @@ function updateSupportPageAccess() {
         form.classList.add("hidden");
         loginButton.classList.remove("hidden");
     }
+}
+
+function setSupportSendingState(active) {
+    document.querySelector(".support-form-card")?.classList.toggle("is-submitting", active);
+    document.getElementById("supportPageSubmit")?.classList.toggle("is-loading", active);
+}
+
+function hideSupportSuccessAnimation() {
+    const overlay = document.getElementById("supportSubmitSuccess");
+    if (!overlay) {
+        return;
+    }
+    overlay.classList.add("hidden");
+    overlay.setAttribute("aria-hidden", "true");
+}
+
+function restartSupportSuccessAnimations(overlay) {
+    overlay.querySelectorAll(
+        ".support-submit-success__panel, .support-submit-success__circle, .support-submit-success__check, .support-submit-success__title, .support-submit-success__text, .support-submit-success__ripple"
+    ).forEach((element) => {
+        element.style.animation = "none";
+        void element.offsetWidth;
+        element.style.animation = "";
+    });
+}
+
+function showSupportSuccessAnimation() {
+    const overlay = document.getElementById("supportSubmitSuccess");
+    if (!overlay) {
+        return;
+    }
+
+    overlay.classList.remove("hidden");
+    overlay.setAttribute("aria-hidden", "false");
+    restartSupportSuccessAnimations(overlay);
+
+    if (supportSuccessHideTimer) {
+        clearTimeout(supportSuccessHideTimer);
+    }
+    supportSuccessHideTimer = window.setTimeout(() => {
+        hideSupportSuccessAnimation();
+        supportSuccessHideTimer = null;
+    }, 5200);
+}
+
+function updateSupportContactPlaceholder() {
+    const channel = document.getElementById("supportPageContactChannel");
+    const value = document.getElementById("supportPageContactValue");
+    if (!channel || !value) {
+        return;
+    }
+
+    const placeholders = {
+        phone: "+375 29 123-45-67",
+        telegram: "@username или ID аккаунта",
+        whatsapp: "+375 29 123-45-67",
+        email: "name@example.com"
+    };
+    value.placeholder = placeholders[channel.value] || "Телефон, email или аккаунт";
 }
 
 async function initSupportPage() {
@@ -40,6 +100,7 @@ async function initSupportPage() {
     }
 
     updateSupportPageAccess();
+    updateSupportContactPlaceholder();
 }
 
 const supportPageLoginBtn = document.getElementById("supportPageLoginBtn");
@@ -62,7 +123,9 @@ if (supportPageForm) {
         }
 
         try {
+            hideSupportSuccessAnimation();
             setButtonBusy(submitButton, true, "Отправка...");
+            setSupportSendingState(true);
             if (status) {
                 status.textContent = "";
             }
@@ -74,18 +137,24 @@ if (supportPageForm) {
             });
 
             supportPageForm.reset();
+            updateSupportContactPlaceholder();
+            showSupportSuccessAnimation();
             if (status) {
-                status.textContent = "Обращение отправлено. Мы свяжемся с вами.";
+                status.textContent = "";
             }
         } catch (error) {
+            hideSupportSuccessAnimation();
             if (status) {
                 status.textContent = extractErrorMessage(error, "Не удалось отправить обращение.");
             }
         } finally {
-            setButtonBusy(submitButton, false, "Отправка...");
+            setSupportSendingState(false);
+            setButtonBusy(submitButton, false, "Отправить обращение");
         }
     });
 }
+
+document.getElementById("supportPageContactChannel")?.addEventListener("change", updateSupportContactPlaceholder);
 
 window.addEventListener("auth-state-changed", (event) => {
     supportPageUser = event.detail ? event.detail.user || null : null;

@@ -32,10 +32,10 @@ public class AuthService {
     @Transactional
     public AuthUserResponse register(RegisterRequest request) {
         if (credentialRepository.findByEmail(request.email()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Эта почта уже занята. Укажите другую почту.");
         }
         if (userRepository.findByUsername(request.username()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Пользователь с таким логином уже зарегистрирован.");
         }
 
         User user = new User();

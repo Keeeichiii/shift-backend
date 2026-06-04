@@ -63,7 +63,7 @@ class VehicleCardServiceTest {
         saved.setPricePerMinute(new BigDecimal("0.99"));
         saved.setPublished(true);
 
-        when(vehicleCardRepository.findBySlug("  toyota-rav4  ")).thenReturn(Optional.empty());
+        when(vehicleCardRepository.findBySlug("toyota-rav4")).thenReturn(Optional.empty());
         when(vehicleCardRepository.save(any(VehicleCard.class))).thenReturn(saved);
 
         var result = vehicleCardService.create(request);
@@ -78,6 +78,28 @@ class VehicleCardServiceTest {
         assertThat(entity.getBadge()).isNull();
         assertThat(entity.getShortDescription()).isEqualTo("short");
         assertThat(result.id()).isEqualTo(10L);
+    }
+
+    @Test
+    void createChecksConflictUsingTrimmedSlug() {
+        CreateVehicleCardRequest request = new CreateVehicleCardRequest(
+                "Toyota RAV4",
+                "  toyota-rav4  ",
+                "crossover",
+                false,
+                "/images/cars/rav4.png",
+                new BigDecimal("0.99"),
+                null, null, null, null, null, null, null, null, null, null, null,
+                true
+        );
+        VehicleCard existing = new VehicleCard();
+        existing.setId(10L);
+
+        when(vehicleCardRepository.findBySlug("toyota-rav4")).thenReturn(Optional.of(existing));
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> vehicleCardService.create(request));
+        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        verify(vehicleCardRepository, never()).save(any());
     }
 
     @Test

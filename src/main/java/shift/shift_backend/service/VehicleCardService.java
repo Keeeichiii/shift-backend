@@ -35,12 +35,13 @@ public class VehicleCardService {
 
     @Transactional(readOnly = true)
     public VehicleCardDto getBySlug(String slug) {
-        return toDto(getEntityBySlug(slug));
+        return toDto(getEntityBySlug(slug.trim()));
     }
 
     @Transactional
     public VehicleCardDto create(CreateVehicleCardRequest request) {
-        vehicleCardRepository.findBySlug(request.slug()).ifPresent(existing -> {
+        String slug = request.slug().trim();
+        vehicleCardRepository.findBySlug(slug).ifPresent(existing -> {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Карточка с таким slug уже существует.");
         });
 
@@ -52,7 +53,8 @@ public class VehicleCardService {
     @Transactional
     public VehicleCardDto update(Long id, UpdateVehicleCardRequest request) {
         VehicleCard card = getEntityById(id);
-        vehicleCardRepository.findBySlug(request.slug()).ifPresent(existing -> {
+        String slug = request.slug().trim();
+        vehicleCardRepository.findBySlug(slug).ifPresent(existing -> {
             if (!existing.getId().equals(id)) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Карточка с таким slug уже существует.");
             }

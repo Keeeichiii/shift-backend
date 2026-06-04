@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -191,17 +191,23 @@
                     </p>
                     <div class="account-points">
                         <div class="account-point"><strong>Регистрация</strong><span>Вход и проверка данных.</span></div>
-                        <div class="account-point"><strong>Бронирование</strong><span>Выбор авто и активная заявка.</span></div>
-                        <div class="account-point"><strong>История</strong><span>Поездки и платежи.</span></div>
+                        <div class="account-point"><strong>Бронирование</strong><span>Оформление поездок и заявок на долгую аренду.</span></div>
+                        <div class="account-point"><strong>История</strong><span>Статусы заявок на долгое бронирование.</span></div>
                     </div>
                 </div>
                 <div class="account-preview">
                     <div class="account-preview__window">
                         <div class="account-preview__bar"></div>
                         <div class="account-preview__grid">
-                            <div class="account-preview__card"></div>
-                            <div class="account-preview__card"></div>
-                            <div class="account-preview__card wide"></div>
+                            <div class="account-preview__card">
+                                <img src="images/site/account-preview.png" alt="Регистрация и вход в личный кабинет">
+                            </div>
+                            <div class="account-preview__card">
+                                <img src="images/site/booking-preview.png" alt="Заявка на долгое бронирование">
+                            </div>
+                            <div class="account-preview__card wide">
+                                <img src="images/site/long-booking-preview.png" alt="Долгое бронирование автомобиля">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -241,12 +247,25 @@
 </footer>
 
 <div id="loginModal" class="modal hidden">
-    <div class="modal-card">
+    <div class="modal-card auth-modal-card">
         <button id="closeLogin" class="close-btn" type="button">×</button>
-        <h3>Вход</h3>
-        <form id="loginForm" class="form">
-            <input name="email" type="email" placeholder="Email" required>
-            <input name="password" type="password" placeholder="Пароль" required>
+        <div class="auth-modal-head">
+            <span class="auth-modal-icon">▣</span>
+            <div>
+                <p class="auth-modal-kicker">Личный кабинет</p>
+                <h3>Вход</h3>
+                <span>Войдите, чтобы отслеживать заявки и документы.</span>
+            </div>
+        </div>
+        <form id="loginForm" class="form" autocomplete="on">
+            <label class="auth-field">
+                <span>Email</span>
+                <input name="email" type="email" placeholder="you@example.com" autocomplete="username" required>
+            </label>
+            <label class="auth-field">
+                <span>Пароль</span>
+                <input name="password" type="password" placeholder="Введите пароль" autocomplete="current-password" required>
+            </label>
             <button class="btn" type="submit">Войти</button>
         </form>
         <p id="loginStatus" class="auth-status"></p>
@@ -254,15 +273,39 @@
 </div>
 
 <div id="registerModal" class="modal hidden">
-    <div class="modal-card">
+    <div class="modal-card auth-modal-card">
         <button id="closeRegister" class="close-btn" type="button">×</button>
-        <h3>Регистрация</h3>
-        <form id="registerForm" class="form">
-            <input name="username" type="text" placeholder="Логин" required>
-            <input name="email" type="email" placeholder="Email" required>
-            <input name="password" type="password" placeholder="Пароль" required>
-            <input name="firstName" type="text" placeholder="Имя" required>
-            <input name="lastName" type="text" placeholder="Фамилия" required>
+        <div class="auth-modal-head">
+            <span class="auth-modal-icon">✓</span>
+            <div>
+                <p class="auth-modal-kicker">Новый аккаунт</p>
+                <h3>Регистрация</h3>
+                <span>Создайте профиль, затем загрузите документы в кабинете.</span>
+            </div>
+        </div>
+        <form id="registerForm" class="form" autocomplete="on">
+            <label class="auth-field">
+                <span>Логин</span>
+                <input name="username" type="text" placeholder="user_login" autocomplete="nickname" required>
+            </label>
+            <label class="auth-field">
+                <span>Email</span>
+                <input name="email" type="email" placeholder="you@example.com" autocomplete="username" required>
+            </label>
+            <label class="auth-field">
+                <span>Пароль</span>
+                <input name="password" type="password" placeholder="Минимум 6 символов" autocomplete="new-password" required>
+            </label>
+            <div class="auth-form-row">
+                <label class="auth-field">
+                    <span>Имя</span>
+                    <input name="firstName" type="text" placeholder="Иван" autocomplete="given-name" required>
+                </label>
+                <label class="auth-field">
+                    <span>Фамилия</span>
+                    <input name="lastName" type="text" placeholder="Иванов" autocomplete="family-name" required>
+                </label>
+            </div>
             <button class="btn" type="submit">Зарегистрироваться</button>
         </form>
         <p id="registerStatus" class="auth-status"></p>

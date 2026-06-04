@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --dark: #2d2b2b;
     --light: #ffffff;
     --text: #111111;
@@ -460,36 +460,49 @@ h1 {
 }
 
 .account-preview__window {
-    width: min(100%, 470px);
-    padding: 20px;
+    width: min(100%, 560px);
+    padding: 10px;
     border-radius: 24px;
     background: linear-gradient(180deg, #242424 0%, #171717 100%);
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
 }
 
 .account-preview__bar {
-    height: 10px;
+    height: 8px;
     width: 92px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.18);
-    margin-bottom: 18px;
+    margin-bottom: 8px;
 }
 
 .account-preview__grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+    gap: 8px;
 }
 
 .account-preview__card {
-    min-height: 120px;
+    min-height: 44px;
     border-radius: 18px;
     background: linear-gradient(180deg, #fff 0%, #f3f3f3 100%);
+    overflow: hidden;
+}
+
+.account-preview__card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 44px;
+    object-fit: cover;
 }
 
 .account-preview__card.wide {
     grid-column: 1 / -1;
-    min-height: 152px;
+    min-height: 264px;
+}
+
+.account-preview__card.wide img {
+    min-height: 264px;
 }
 
 .contacts-layout {
@@ -667,10 +680,12 @@ h1 {
 .modal {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.58);
+    background: rgba(0, 0, 0, 0.68);
     display: grid;
     place-items: center;
     z-index: 100;
+    padding: 18px;
+    backdrop-filter: blur(5px);
 }
 
 .modal-card {
@@ -681,34 +696,126 @@ h1 {
     position: relative;
 }
 
+.auth-modal-card {
+    color: #f6f6f6;
+    background:
+            radial-gradient(circle at top left, rgba(24, 164, 32, 0.24), transparent 34%),
+            linear-gradient(180deg, #232323 0%, #121212 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 26px 80px rgba(0, 0, 0, 0.42);
+    padding: 28px;
+}
+
 .close-btn {
     position: absolute;
     top: 10px;
     right: 10px;
-    border: 0;
-    background: transparent;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    color: inherit;
     font-size: 28px;
+    line-height: 1;
     cursor: pointer;
+}
+
+.auth-modal-head {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin: 0 42px 22px 0;
+}
+
+.auth-modal-icon {
+    width: 42px;
+    height: 42px;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 14px;
+    background: rgba(24, 164, 32, 0.22);
+    border: 1px solid rgba(142, 243, 148, 0.28);
+    color: #8ef394;
+    font-weight: 800;
+}
+
+.auth-modal-kicker {
+    margin: 0 0 4px;
+    color: #8ef394;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.auth-modal-head h3 {
+    margin: 0 0 6px;
+    font-size: 30px;
+    line-height: 1.1;
+}
+
+.auth-modal-head span:not(.auth-modal-icon) {
+    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.45;
 }
 
 .form {
     display: grid;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 18px;
+}
+
+.auth-form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.auth-field {
+    display: grid;
+    gap: 7px;
+}
+
+.auth-field span {
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 13px;
+    font-weight: 600;
 }
 
 .form input,
 .form select {
-    border: 1px solid #d4d4d8;
-    border-radius: 10px;
-    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    padding: 13px 14px;
     font: inherit;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    outline: none;
+}
+
+.form input::placeholder {
+    color: rgba(255, 255, 255, 0.38);
+}
+
+.form input:focus,
+.form select:focus {
+    border-color: rgba(142, 243, 148, 0.58);
+    box-shadow: 0 0 0 3px rgba(24, 164, 32, 0.16);
+}
+
+.auth-modal-card .btn {
+    width: 100%;
+    margin-top: 6px;
+    padding: 14px 20px;
 }
 
 .auth-status {
     min-height: 20px;
     margin: 0;
-    color: #1f2937;
+    color: rgba(255, 255, 255, 0.82);
+    line-height: 1.45;
 }
 
 .btn-support {

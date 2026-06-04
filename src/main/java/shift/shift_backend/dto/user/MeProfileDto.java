@@ -24,7 +24,6 @@ public record MeProfileDto(
         OffsetDateTime licenseSubmittedAt,
         DocumentStatus docStatus,
         String profileName,
-        String avatarUrl,
         String bio,
         OffsetDateTime lastActivity,
         String phone

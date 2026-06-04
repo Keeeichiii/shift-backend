@@ -9,6 +9,7 @@ public record PanelSupportRequestDto(
         String fullName,
         String email,
         String contactChannel,
+        String contactValue,
         String subject,
         String message,
         OffsetDateTime createdAt

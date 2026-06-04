@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --catalog-bg: #2d2b2b;
     --catalog-surface: #2d2b2b;
     --catalog-card: rgba(255, 255, 255, 0.04);
@@ -155,15 +155,15 @@
 }
 
 .catalog-card__image {
-    height: 126px;
-    width: min(100%, 230px);
+    height: 156px;
+    width: 100%;
     justify-self: center;
     margin: 2px 0 0;
     border-radius: 12px;
     background-color: rgba(255, 255, 255, 0.03);
     background-position: center;
     background-repeat: no-repeat;
-    background-size: contain;
+    background-size: cover;
 }
 
 .catalog-card__name {
@@ -231,7 +231,8 @@
     width: 100%;
     height: 440px;
     border-radius: 22px;
-    object-fit: contain;
+    display: block;
+    object-fit: cover;
     border: 1px solid var(--catalog-line);
     background: rgba(255, 255, 255, 0.03);
 }
@@ -292,12 +293,42 @@
     line-height: 1.55;
 }
 
+.long-booking-order-open {
+    width: fit-content;
+}
+
+.long-booking-modal {
+    place-items: start center;
+    overflow-y: auto;
+    z-index: 3100;
+    padding-top: 86px;
+    background: rgba(0, 0, 0, 0.78);
+}
+
+.long-booking-modal__card {
+    width: min(640px, 94vw);
+    max-height: calc(100vh - 104px);
+    margin: 0 0 18px;
+    padding: 0;
+    overflow: auto;
+    color: #fff;
+    background: transparent;
+    border-radius: 18px;
+}
+
 .long-booking-order-block {
     margin-top: 22px;
     padding: 18px 20px;
     border-radius: 18px;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--catalog-line);
+}
+
+.long-booking-modal .long-booking-order-block {
+    margin-top: 0;
+    padding-right: 52px;
+    background: rgba(34, 34, 34, 0.96);
+    border-color: rgba(255, 255, 255, 0.16);
 }
 
 .long-booking-order-block__title {
@@ -508,6 +539,29 @@
     font-size: 13px;
     line-height: 1.5;
     color: rgba(255, 255, 255, 0.82);
+}
+
+.lb-cal__price-estimate {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(24, 164, 32, 0.35);
+    background: rgba(24, 164, 32, 0.12);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.lb-cal__price-estimate strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #8ef394;
+    font-size: 16px;
+}
+
+.lb-cal__price-estimate span {
+    display: block;
+    color: rgba(255, 255, 255, 0.72);
 }
 
 .long-booking-datetime-grid {

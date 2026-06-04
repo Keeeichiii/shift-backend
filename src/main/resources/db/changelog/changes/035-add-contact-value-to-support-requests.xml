@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="add_contact_value_to_support_requests" author="ea.novak">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="support_requests" columnName="contact_value"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="support_requests">
+            <column name="contact_value" type="varchar(160)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <dropDefaultValue tableName="support_requests" columnName="contact_value"/>
+
+        <rollback>
+            <dropColumn tableName="support_requests" columnName="contact_value"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

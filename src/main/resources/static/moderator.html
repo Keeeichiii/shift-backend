@@ -78,9 +78,54 @@
 
                 <div id="moderatorFlash" class="panel-inline-status hidden"></div>
 
-                <section class="panel-card">
-                    <h2>Очередь модерации</h2>
-                    <div id="reviewList" class="review-list"></div>
+                <section class="panel-grid profile-grid">
+                    <article class="panel-card">
+                        <h2>Очередь модерации</h2>
+                        <p class="upload-copy">Только обычные пользователи, без администраторов и модераторов.</p>
+                        <div class="admin-license-toolbar">
+                            <input id="moderatorLicenseSearch" type="search" placeholder="Поиск по имени, логину или email">
+                            <select id="moderatorLicenseSort">
+                                <option value="priority">Сначала ожидающие</option>
+                                <option value="newest">Сначала новые</option>
+                                <option value="name">По имени</option>
+                            </select>
+                        </div>
+                        <div class="admin-license-tabs">
+                            <button class="panel-tab is-active" type="button" data-moderator-license-tab="queue">На проверку</button>
+                            <button class="panel-tab" type="button" data-moderator-license-tab="approved">Одобренные</button>
+                        </div>
+                        <div id="reviewList" class="review-list"></div>
+                    </article>
+                    <div class="panel-grid">
+                        <article class="panel-card panel-card_light">
+                            <h2>Данные водительских прав</h2>
+                            <form id="moderatorLicenseForm" class="panel-form">
+                                <div class="field"><label for="moderatorSelectedUser">Пользователь</label><input id="moderatorSelectedUser" type="text" readonly></div>
+                                <div class="field"><label for="moderatorDriverLicense">Номер прав</label><input id="moderatorDriverLicense" name="driverLicense" type="text" maxlength="50"></div>
+                                <div class="field"><label for="moderatorLicenseExpiresAt">Права действуют до</label><input id="moderatorLicenseExpiresAt" name="licenseExpiresAt" type="date"></div>
+                                <div class="field"><label for="moderatorDrivingBanUntil">Лишение прав до</label><input id="moderatorDrivingBanUntil" name="drivingBanUntil" type="date"></div>
+                                <div class="field">
+                                    <label for="moderatorDocStatus">Статус документов</label>
+                                    <select id="moderatorDocStatus" name="docStatus">
+                                        <option value="PENDING">Ожидает проверки</option>
+                                        <option value="VERIFIED">Одобрен</option>
+                                        <option value="REJECTED">Отклонён</option>
+                                        <option value="EXPIRED">Истёк срок</option>
+                                    </select>
+                                </div>
+                                <div class="field-wide">
+                                    <div class="panel-actions">
+                                        <button id="moderatorLicenseSubmit" class="btn" type="submit">Сохранить данные</button>
+                                        <span id="moderatorSaveStatus" class="status-text"></span>
+                                    </div>
+                                </div>
+                            </form>
+                        </article>
+                        <article class="panel-card">
+                            <h2>Загруженные документы</h2>
+                            <div id="moderatorLicensePreview" class="license-preview-grid"></div>
+                        </article>
+                    </div>
                 </section>
             </section>
 
@@ -98,7 +143,7 @@
                     </article>
                     <article class="panel-card">
                         <h2>Забронированные авто (парк)</h2>
-                        <p class="upload-copy">Машины флота в статусе BOOKED.</p>
+                        <p class="upload-copy">Забронированные машины флота.</p>
                         <div id="moderatorBookedFleetList" class="trip-list"></div>
                     </article>
                 </section>

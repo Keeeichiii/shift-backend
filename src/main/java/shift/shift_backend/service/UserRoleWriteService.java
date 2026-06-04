@@ -19,4 +19,12 @@ public class UserRoleWriteService {
                 on conflict do nothing
                 """, userId, roleId);
     }
+
+    @Transactional
+    public void replaceRoles(Long userId, Iterable<Long> roleIds) {
+        jdbcTemplate.update("delete from users_roles where user_id = ?", userId);
+        for (Long roleId : roleIds) {
+            assignRole(userId, roleId);
+        }
+    }
 }

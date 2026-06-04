@@ -19,7 +19,7 @@ services:
     environment:
       POSTGRES_DB: shift_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-1221}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD before running docker compose}
     ports:
       - "5432:5432"
     volumes:
@@ -45,7 +45,7 @@ services:
       SERVER_PORT: "8090"
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/shift_db
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-1221}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD before running docker compose}
       APP_VEHICLE_CARD_UPLOAD_DIR: /data/vehicle-card-uploads
       APP_VEHICLE_CARD_BUNDLED_CARS_ROOT: /app/static-images/cars
     volumes:

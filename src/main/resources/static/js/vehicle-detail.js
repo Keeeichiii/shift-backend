@@ -1,4 +1,4 @@
-﻿const VEHICLE_CATEGORY_LABELS = {
+const VEHICLE_CATEGORY_LABELS = {
     standard: "Стандарт",
     crossover: "Кроссовер",
     premium: "Премиум",
@@ -57,9 +57,6 @@ function canSubmitLongBookingOrder(sessionUser) {
     if (sessionUser.licenseExpiresAt && isIsoDateStrictlyBeforeToday(sessionUser.licenseExpiresAt)) {
         return false;
     }
-    if (!sessionUser.driverLicense || !String(sessionUser.driverLicense).trim()) {
-        return false;
-    }
     return true;
 }
 
@@ -76,9 +73,6 @@ function longBookingLicenseNoticeHtml(sessionUser) {
     if (sessionUser.licenseExpiresAt && isIsoDateStrictlyBeforeToday(sessionUser.licenseExpiresAt)) {
         return "Срок действия прав в профиле истёк. Обновите документы в <a href=\"/account.html\">личном кабинете</a>.";
     }
-    if (!sessionUser.driverLicense || !String(sessionUser.driverLicense).trim()) {
-        return "В профиле не указан номер водительского удостоверения. Дождитесь проверки документов в <a href=\"/account.html\">личном кабинете</a>.";
-    }
     return "";
 }
 
@@ -87,6 +81,8 @@ const LB_MIN_DURATION_MS = 60 * 60 * 1000;
 
 const longBookingCalState = {
     slug: "",
+    tariffPackages: [],
+    fallbackPricePerMinute: null,
     viewYear: new Date().getFullYear(),
     viewMonth: new Date().getMonth() + 1,
     busy: [],
@@ -161,6 +157,190 @@ function formatDayTitleLocal(ms) {
     return new Date(ms).toLocaleDateString("ru-RU", {weekday: "long", day: "numeric", month: "long", year: "numeric"});
 }
 
+function formatLongBookingMoney(value) {
+    return new Intl.NumberFormat("ru-RU", {
+        minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+        maximumFractionDigits: 2
+    }).format(value);
+}
+
+function formatLongBookingDuration(totalMinutes) {
+    const minutes = Math.max(0, Math.round(totalMinutes));
+    const days = Math.floor(minutes / (24 * 60));
+    const hours = Math.floor((minutes % (24 * 60)) / 60);
+    const rest = minutes % 60;
+    const parts = [];
+    if (days) {
+        parts.push(`${days} сут.`);
+    }
+    if (hours) {
+        parts.push(`${hours} ч.`);
+    }
+    if (rest) {
+        parts.push(`${rest} мин.`);
+    }
+    return parts.length ? parts.join(" ") : "0 мин.";
+}
+
+function formatLongBookingEndOption(startMs, endMs) {
+    const durationMinutes = Math.ceil((endMs - startMs) / 60000);
+    return `${formatTimeLocal(endMs)} (${formatLongBookingDuration(durationMinutes)})`;
+}
+
+function choosePreferredEndSlot(slots, dayStartMs, startMs) {
+    if (!slots.length) {
+        return null;
+    }
+    const startDate = new Date(startMs);
+    const preferred = new Date(dayStartMs);
+    preferred.setHours(startDate.getHours(), startDate.getMinutes(), 0, 0);
+    const preferredMs = preferred.getTime();
+    return slots.find((slot) => slot === preferredMs)
+            ?? slots.find((slot) => slot > preferredMs)
+            ?? slots[slots.length - 1];
+}
+
+function parseDecimalNumber(value) {
+    const normalized = String(value || "").replace(",", ".");
+    const parsed = Number.parseFloat(normalized);
+    return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseLongBookingPackageLine(line) {
+    const text = String(line || "").trim();
+    const durationMatch = text.match(/(\d+(?:[.,]\d+)?)\s*(ч\.?|час(?:а|ов)?|сут(?:ки|ок)?|д(?:ень|ня|ней)?)/i);
+    if (!durationMatch) {
+        return null;
+    }
+    const amount = parseDecimalNumber(durationMatch[1]);
+    if (!amount || amount <= 0) {
+        return null;
+    }
+    const unit = durationMatch[2].toLowerCase();
+    const durationMinutes = unit.startsWith("ч") ? amount * 60 : amount * 24 * 60;
+    const priceMatch = text.match(/(?:-|—|–|:)\s*(\d+(?:[.,]\d+)?)/) || text.match(/(\d+(?:[.,]\d+)?)\s*BYN/i);
+    const price = priceMatch ? parseDecimalNumber(priceMatch[1]) : null;
+    if (!price || price <= 0) {
+        return null;
+    }
+    return {
+        durationMinutes: Math.round(durationMinutes),
+        priceCents: Math.round(price * 100),
+        label: text
+    };
+}
+
+function parseLongBookingTariffPackages(card) {
+    return [
+        ...parseLines(card.hourPackagesText),
+        ...parseLines(card.dayPackagesText)
+    ]
+        .map(parseLongBookingPackageLine)
+        .filter(Boolean)
+        .sort((left, right) => left.durationMinutes - right.durationMinutes || left.priceCents - right.priceCents);
+}
+
+function calculateLongBookingPrice(startMs, endMs) {
+    if (startMs == null || endMs == null || endMs <= startMs) {
+        return null;
+    }
+    const durationMinutes = Math.ceil((endMs - startMs) / 60000);
+    const packages = longBookingCalState.tariffPackages;
+    if (!packages.length) {
+        const minutePrice = longBookingCalState.fallbackPricePerMinute;
+        if (!Number.isFinite(minutePrice) || minutePrice <= 0) {
+            return null;
+        }
+        return {
+            totalCents: Math.round(durationMinutes * minutePrice * 100),
+            chargedMinutes: durationMinutes,
+            durationMinutes,
+            breakdown: [`${formatLongBookingDuration(durationMinutes)} × ${formatLongBookingMoney(minutePrice)} BYN/мин.`]
+        };
+    }
+
+    const stepMinutes = 30;
+    const durationSteps = Math.ceil(durationMinutes / stepMinutes);
+    const prepared = packages.map((pkg) => ({
+        ...pkg,
+        steps: Math.max(1, Math.ceil(pkg.durationMinutes / stepMinutes))
+    }));
+    const maxPackageSteps = Math.max(...prepared.map((pkg) => pkg.steps));
+    const limit = durationSteps + maxPackageSteps;
+    const dp = Array(limit + 1).fill(Infinity);
+    const previous = Array(limit + 1).fill(null);
+    dp[0] = 0;
+
+    for (let step = 0; step <= limit; step += 1) {
+        if (!Number.isFinite(dp[step])) {
+            continue;
+        }
+        prepared.forEach((pkg, index) => {
+            const nextStep = Math.min(limit, step + pkg.steps);
+            const nextPrice = dp[step] + pkg.priceCents;
+            if (nextPrice < dp[nextStep]) {
+                dp[nextStep] = nextPrice;
+                previous[nextStep] = {step, index};
+            }
+        });
+    }
+
+    let bestStep = durationSteps;
+    for (let step = durationSteps + 1; step <= limit; step += 1) {
+        if (dp[step] < dp[bestStep] || (dp[step] === dp[bestStep] && step < bestStep)) {
+            bestStep = step;
+        }
+    }
+    if (!Number.isFinite(dp[bestStep])) {
+        return null;
+    }
+
+    const selected = [];
+    let cursor = bestStep;
+    while (cursor > 0 && previous[cursor]) {
+        const prev = previous[cursor];
+        selected.push(prepared[prev.index]);
+        cursor = prev.step;
+    }
+    const counts = new Map();
+    selected.forEach((pkg) => {
+        const current = counts.get(pkg.label) || {count: 0, label: pkg.label};
+        current.count += 1;
+        counts.set(pkg.label, current);
+    });
+
+    return {
+        totalCents: dp[bestStep],
+        chargedMinutes: bestStep * stepMinutes,
+        durationMinutes,
+        breakdown: [...counts.values()].map((item) => item.count > 1 ? `${item.count} × ${item.label}` : item.label)
+    };
+}
+
+function renderLongBookingPriceEstimate(previewEndMs = null) {
+    const el = document.getElementById("longBookingPriceEstimate");
+    if (!el) {
+        return;
+    }
+    const {startMs, endMs} = longBookingCalState;
+    const finalEndMs = previewEndMs ?? endMs;
+    const estimate = calculateLongBookingPrice(startMs, finalEndMs);
+    if (!estimate) {
+        el.classList.add("hidden");
+        el.innerHTML = "";
+        return;
+    }
+    const overpayHint = estimate.chargedMinutes > estimate.durationMinutes
+            ? ` Тарификация округлена пакетами до ${formatLongBookingDuration(estimate.chargedMinutes)}.`
+            : "";
+    el.classList.remove("hidden");
+    el.innerHTML = `
+        <strong>Ориентировочная стоимость: ${escapeHtml(formatLongBookingMoney(estimate.totalCents / 100))} BYN</strong>
+        <span>Длительность: ${escapeHtml(formatLongBookingDuration(estimate.durationMinutes))}.${escapeHtml(overpayHint)}</span>
+        <span>Расчёт: ${escapeHtml(estimate.breakdown.join(" + "))}</span>
+    `;
+}
+
 function busyLinesForDay(dayStartMs, dayEndMs, merged) {
     const lines = [];
     for (const b of merged) {
@@ -196,7 +376,7 @@ function collectEndSlotOptions(dayStartMs, dayEndMs, startMs, merged) {
     const minEnd = startMs + LB_MIN_DURATION_MS;
     const slots = [];
     let t = dayStartMs;
-    while (t < dayEndMs && t <= minEnd) {
+    while (t < dayEndMs && t < minEnd) {
         t += LB_STEP_MS;
     }
     for (; t <= dayEndMs; t += LB_STEP_MS) {
@@ -231,13 +411,16 @@ function updateLongBookingRangeSummary() {
     const {startMs, endMs} = longBookingCalState;
     if (startMs == null) {
         el.textContent = "Шаг 1: выберите день начала в календаре.";
+        renderLongBookingPriceEstimate();
         return;
     }
     if (endMs == null) {
-        el.textContent = `Начало: ${formatDayTitleLocal(startMs)} ${formatTimeLocal(startMs)}. Шаг 2: выберите день окончания (не раньше чем через час после начала).`;
+        el.textContent = `Начало: ${formatDayTitleLocal(startMs)} ${formatTimeLocal(startMs)}. Шаг 2: выберите день и время возврата. Для целых суток выбирайте то же время, что и начало.`;
+        renderLongBookingPriceEstimate();
         return;
     }
     el.textContent = `Период: ${formatDayTitleLocal(startMs)} ${formatTimeLocal(startMs)} — ${formatDayTitleLocal(endMs)} ${formatTimeLocal(endMs)}`;
+    renderLongBookingPriceEstimate();
 }
 
 function renderLongBookingCalendarGrid() {
@@ -331,7 +514,8 @@ async function openLongBookingDayPanel(dayKey) {
             ? slots.map((t) => `<option value="${t}">${escapeHtml(formatTimeLocal(t))}</option>`).join("")
             : `<option value="">Нет свободного часа подряд без пересечений с занятыми интервалами</option>`;
         applyBtn.textContent = "Зафиксировать начало";
-        applyBtn.disabled = false;
+        applyBtn.disabled = !slots.length;
+        sel.onchange = null;
     } else {
         const {startMs} = longBookingCalState;
         if (dayEnd <= startMs) {
@@ -339,15 +523,26 @@ async function openLongBookingDayPanel(dayKey) {
             applyBtn.textContent = "Зафиксировать окончание";
             timeLabel.textContent = "Время окончания";
             applyBtn.disabled = true;
+            sel.onchange = null;
             return;
         }
         applyBtn.disabled = false;
         timeLabel.textContent = "Время окончания";
         const slots = collectEndSlotOptions(dayStart, dayEnd, startMs, merged);
         sel.innerHTML = slots.length
-            ? slots.map((t) => `<option value="${t}">${escapeHtml(formatTimeLocal(t))}</option>`).join("")
+            ? slots.map((t) => `<option value="${t}">${escapeHtml(formatLongBookingEndOption(startMs, t))}</option>`).join("")
             : `<option value="">Нет варианта окончания в этот день</option>`;
         applyBtn.textContent = "Зафиксировать окончание";
+        applyBtn.disabled = !slots.length;
+        const preferredEndSlot = choosePreferredEndSlot(slots, dayStart, startMs);
+        if (preferredEndSlot !== null) {
+            sel.value = String(preferredEndSlot);
+        }
+        sel.onchange = () => {
+            const previewEndMs = Number(sel.value);
+            renderLongBookingPriceEstimate(Number.isFinite(previewEndMs) ? previewEndMs : null);
+        };
+        sel.dispatchEvent(new Event("change"));
     }
 }
 
@@ -364,8 +559,11 @@ function resetLongBookingRange() {
     renderLongBookingCalendarGrid();
 }
 
-async function initLongBookingCalendar(slug) {
+async function initLongBookingCalendar(card) {
+    const slug = card.slug;
     longBookingCalState.slug = slug;
+    longBookingCalState.tariffPackages = parseLongBookingTariffPackages(card);
+    longBookingCalState.fallbackPricePerMinute = parseDecimalNumber(card.pricePerMinute);
     longBookingCalState.busy = [];
     const now = new Date();
     longBookingCalState.viewYear = now.getFullYear();
@@ -537,22 +735,62 @@ function fillVehiclePage(card, sessionUser) {
     void setupLongBookingOrderBlock(card, sessionUser);
 }
 
+function bindLongBookingModalHandlers(modal, closeBtn, closeModal) {
+    if (modal.dataset.bound === "true") {
+        return;
+    }
+    modal.dataset.bound = "true";
+    closeBtn?.addEventListener("click", closeModal);
+    modal.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !modal.classList.contains("hidden")) {
+            closeModal();
+        }
+    });
+}
+
 async function setupLongBookingOrderBlock(card, sessionUser) {
     const block = document.getElementById("longBookingOrderBlock");
+    const modal = document.getElementById("longBookingOrderModal");
+    const openBtn = document.getElementById("longBookingOrderOpen");
+    const closeBtn = document.getElementById("longBookingOrderClose");
     const btn = document.getElementById("longBookingOrderSubmit");
     const note = document.getElementById("longBookingOrderNote");
     const status = document.getElementById("longBookingOrderStatus");
     const licenseNotice = document.getElementById("longBookingOrderLicenseNotice");
-    if (!block || !btn || !note || !status) {
+    if (!block || !modal || !openBtn || !btn || !note || !status) {
         return;
     }
     if (!sessionUser || card.category !== "long_booking") {
         block.classList.add("hidden");
+        modal.classList.add("hidden");
+        openBtn.classList.add("hidden");
         return;
     }
     block.classList.remove("hidden");
+    openBtn.classList.remove("hidden");
+
+    function closeModal() {
+        modal.classList.add("hidden");
+    }
+
+    function openModal() {
+        modal.classList.remove("hidden");
+        closeBtn?.focus();
+    }
+
+    const freshOpenBtn = openBtn.cloneNode(true);
+    openBtn.parentNode.replaceChild(freshOpenBtn, openBtn);
+    freshOpenBtn.classList.remove("hidden");
+    freshOpenBtn.addEventListener("click", openModal);
+    bindLongBookingModalHandlers(modal, closeBtn, closeModal);
+
     try {
-        await initLongBookingCalendar(card.slug);
+        await initLongBookingCalendar(card);
     } catch (e) {
         status.textContent = extractErrorMessage(e, "Не удалось загрузить занятость календаря.");
     }
@@ -572,12 +810,14 @@ async function setupLongBookingOrderBlock(card, sessionUser) {
 
     const fresh = btn.cloneNode(true);
     btn.parentNode.replaceChild(fresh, btn);
-    fresh.disabled = false;
+    fresh.disabled = !allowed;
 
     fresh.addEventListener("click", async () => {
         status.textContent = "";
         if (!canSubmitLongBookingOrder(sessionUser)) {
-            status.textContent = "Сначала пройдите проверку документов в личном кабинете.";
+            status.textContent = longBookingLicenseNoticeHtml(sessionUser)
+                    .replace(/<a[^>]*>/g, "")
+                    .replace(/<\/a>/g, "");
             return;
         }
         const {startMs, endMs} = longBookingCalState;
@@ -585,7 +825,7 @@ async function setupLongBookingOrderBlock(card, sessionUser) {
             status.textContent = "Выберите начало и окончание бронирования в календаре.";
             return;
         }
-        if (endMs <= startMs + LB_MIN_DURATION_MS) {
+        if (endMs < startMs + LB_MIN_DURATION_MS) {
             status.textContent = "Окончание должно быть минимум на час позже начала.";
             return;
         }
@@ -619,7 +859,7 @@ async function setupLongBookingOrderBlock(card, sessionUser) {
             status.textContent = "Заявка создана. Смотрите раздел «Заказы» в кабинете.";
             note.value = "";
             longBookingCalState.busy = [];
-            await initLongBookingCalendar(card.slug);
+            await initLongBookingCalendar(card);
         } catch (error) {
             status.textContent = extractErrorMessage(error, "Не удалось отправить заявку.");
         } finally {

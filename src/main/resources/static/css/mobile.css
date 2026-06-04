@@ -155,6 +155,18 @@
         -webkit-overflow-scrolling: touch;
     }
 
+    .auth-modal-card {
+        padding: 22px 18px;
+    }
+
+    .auth-modal-head {
+        margin-right: 38px;
+    }
+
+    .auth-form-row {
+        grid-template-columns: 1fr;
+    }
+
     .hero-copy {
         text-align: left;
     }
@@ -233,6 +245,10 @@
     .panel-banner {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .admin-license-toolbar {
+        grid-template-columns: 1fr;
     }
 
     .stat-card strong {

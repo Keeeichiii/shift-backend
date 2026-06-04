@@ -19,6 +19,7 @@ import shift.shift_backend.dto.panel.ModeratorPanelDto;
 import shift.shift_backend.dto.panel.PanelLongBookingOrderDto;
 import shift.shift_backend.dto.panel.PanelUserReviewDto;
 import shift.shift_backend.dto.support.PanelSupportRequestDto;
+import shift.shift_backend.dto.user.AdminLicenseUpdateRequest;
 import shift.shift_backend.dto.vehicle.VehicleDto;
 import shift.shift_backend.mapper.VehicleMapper;
 import shift.shift_backend.repository.CredentialRepository;
@@ -84,6 +85,18 @@ public class PanelService {
     public PanelUserReviewDto rejectUser(Long userId) {
         User user = getRegularUser(userId);
         user.setDocStatus(DocumentStatus.REJECTED);
+        return toReviewDto(userRepository.save(user), getCredentialByUserId(userId));
+    }
+
+    @Transactional
+    public PanelUserReviewDto updateLicenseData(Long userId, AdminLicenseUpdateRequest request) {
+        User user = getRegularUser(userId);
+        user.setDriverLicense(request.driverLicense());
+        user.setLicenseExpiresAt(request.licenseExpiresAt());
+        user.setDrivingBanUntil(request.drivingBanUntil());
+        if (request.docStatus() != null) {
+            user.setDocStatus(request.docStatus());
+        }
         return toReviewDto(userRepository.save(user), getCredentialByUserId(userId));
     }
 

@@ -47,6 +47,7 @@ class SupportRequestServiceTest {
         saved.setId(11L);
         saved.setUserId(3L);
         saved.setContactChannel("telegram");
+        saved.setContactValue("@user");
         saved.setSubject("Оплата");
         saved.setMessage("Тест");
         saved.setCreatedAt(OffsetDateTime.now());
@@ -54,9 +55,10 @@ class SupportRequestServiceTest {
         when(currentUserService.getCurrentUser(authentication)).thenReturn(user);
         when(supportRequestRepository.save(org.mockito.ArgumentMatchers.any(SupportRequest.class))).thenReturn(saved);
 
-        SupportRequestDto dto = supportRequestService.create(authentication, new CreateSupportRequest(" telegram ", " Оплата ", " Тест "));
+        SupportRequestDto dto = supportRequestService.create(authentication, new CreateSupportRequest(" telegram ", " @user ", " Оплата ", " Тест "));
         assertThat(dto.userId()).isEqualTo(3L);
         assertThat(dto.contactChannel()).isEqualTo("telegram");
+        assertThat(dto.contactValue()).isEqualTo("@user");
         assertThat(dto.subject()).isEqualTo("Оплата");
     }
 
@@ -66,6 +68,7 @@ class SupportRequestServiceTest {
         request.setId(20L);
         request.setUserId(200L);
         request.setContactChannel("email");
+        request.setContactValue("u@x.com");
         request.setSubject("S");
         request.setMessage("M");
         request.setCreatedAt(OffsetDateTime.now());

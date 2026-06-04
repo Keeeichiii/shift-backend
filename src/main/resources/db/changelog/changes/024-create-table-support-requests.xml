@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="create_table_support_requests" author="cursor">
+    <changeSet id="create_table_support_requests" author="ea.novak">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="support_requests"/>

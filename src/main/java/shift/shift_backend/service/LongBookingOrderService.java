@@ -1,10 +1,16 @@
 package shift.shift_backend.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -35,6 +41,13 @@ public class LongBookingOrderService {
     private static final int MAX_BUSY_QUERY_DAYS = 124;
     private static final Duration MIN_BOOKING_DURATION = Duration.ofHours(1);
     private static final Duration MAX_BOOKING_DURATION = Duration.ofDays(90);
+    private static final int PRICE_STEP_MINUTES = 30;
+    private static final Pattern TARIFF_DURATION_PATTERN = Pattern.compile(
+            "(\\d+(?:[.,]\\d+)?)\\s*(ч\\.?|час(?:а|ов)?|сут(?:ки|ок)?|д(?:ень|ня|ней)?)",
+            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
+    );
+    private static final Pattern TARIFF_PRICE_AFTER_SEPARATOR_PATTERN = Pattern.compile("(?:-|—|–|:)\\s*(\\d+(?:[.,]\\d+)?)");
+    private static final Pattern TARIFF_PRICE_BEFORE_BYN_PATTERN = Pattern.compile("(\\d+(?:[.,]\\d+)?)\\s*BYN", Pattern.CASE_INSENSITIVE);
 
     private final LongBookingOrderRepository longBookingOrderRepository;
     private final VehicleCardRepository vehicleCardRepository;
@@ -57,9 +70,8 @@ public class LongBookingOrderService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Календарь занятости доступен только для автомобилей категории «долгое бронирование».");
         }
-        var blockingStatuses = EnumSet.of(LongBookingOrderStatus.PENDING, LongBookingOrderStatus.CONFIRMED);
         return longBookingOrderRepository
-                .findOverlappingForVehicleCard(card.getId(), blockingStatuses, from, to)
+                .findOverlappingForVehicleCard(card.getId(), blockingStatuses(), from, to)
                 .stream()
                 .map(o -> new LongBookingBusyIntervalDto(o.getRequestedStartAt(), o.getRequestedEndAt()))
                 .toList();
@@ -84,7 +96,11 @@ public class LongBookingOrderService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Укажите дату и время начала бронирования в будущем.");
         }
-        if (!requestedEnd.isAfter(requestedStart.plus(MIN_BOOKING_DURATION))) {
+        if (!requestedEnd.isAfter(requestedStart)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Окончание бронирования должно быть позже начала.");
+        }
+        if (requestedEnd.isBefore(requestedStart.plus(MIN_BOOKING_DURATION))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Окончание бронирования должно быть минимум на один час позже начала.");
         }
@@ -94,7 +110,7 @@ public class LongBookingOrderService {
         }
 
         Long userId = user.getId();
-        VehicleCard card = vehicleCardRepository.findBySlug(request.vehicleCardSlug().trim())
+        VehicleCard card = vehicleCardRepository.findBySlugForUpdate(request.vehicleCardSlug().trim())
                 .filter(VehicleCard::isPublished)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Карточка не найдена или снята с публикации."));
         if (!LONG_BOOKING_CATEGORY.equals(card.getCategory())) {
@@ -102,9 +118,8 @@ public class LongBookingOrderService {
                     "Заказ долгого бронирования доступен только для автомобилей категории «долгое бронирование».");
         }
 
-        var blockingStatuses = EnumSet.of(LongBookingOrderStatus.PENDING, LongBookingOrderStatus.CONFIRMED);
         List<LongBookingOrder> overlaps = longBookingOrderRepository.findOverlappingForVehicleCard(
-                card.getId(), blockingStatuses, requestedStart, requestedEnd);
+                card.getId(), blockingStatuses(), requestedStart, requestedEnd);
         if (!overlaps.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Выбранный период пересекается с уже существующей заявкой (ожидающей подтверждения или подтверждённой). Выберите другие даты.");
@@ -137,10 +152,6 @@ public class LongBookingOrderService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Срок действия водительских прав истёк. Обновите данные в личном кабинете.");
         }
-        if (user.getDriverLicense() == null || user.getDriverLicense().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "В профиле не указан номер водительского удостоверения. Дождитесь завершения проверки документов.");
-        }
     }
 
     @Transactional(readOnly = true)
@@ -163,6 +174,21 @@ public class LongBookingOrderService {
         if (order.getStatus() != LongBookingOrderStatus.PENDING) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Подтвердить можно только заявку в статусе «ожидает подтверждения».");
         }
+        User user = userRepository.findById(order.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь заявки не найден."));
+        assertMayCreateLongBookingOrder(user);
+        VehicleCard card = lockVehicleCard(order.getVehicleCard().getId());
+        List<LongBookingOrder> overlaps = longBookingOrderRepository.findOverlappingForVehicleCardExcludingOrder(
+                order.getId(),
+                card.getId(),
+                blockingStatuses(),
+                order.getRequestedStartAt(),
+                order.getRequestedEndAt()
+        );
+        if (!overlaps.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Заявка пересекается с уже подтверждённой или ожидающей заявкой. Подтвердить её нельзя.");
+        }
         order.setStatus(LongBookingOrderStatus.CONFIRMED);
         return toPanelDto(longBookingOrderRepository.save(order));
     }
@@ -182,6 +208,124 @@ public class LongBookingOrderService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Заказ не найден."));
     }
 
+    private VehicleCard lockVehicleCard(Long id) {
+        return vehicleCardRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Карточка машины не найдена."));
+    }
+
+    private EnumSet<LongBookingOrderStatus> blockingStatuses() {
+        return EnumSet.of(LongBookingOrderStatus.PENDING, LongBookingOrderStatus.CONFIRMED);
+    }
+
+    private BigDecimal estimateLongBookingPrice(LongBookingOrder order) {
+        OffsetDateTime start = order.getRequestedStartAt();
+        OffsetDateTime end = order.getRequestedEndAt();
+        if (start == null || end == null || !end.isAfter(start)) {
+            return null;
+        }
+
+        int durationMinutes = (int) Math.ceil(Duration.between(start, end).toMillis() / 60_000.0);
+        VehicleCard card = order.getVehicleCard();
+        List<TariffPackage> packages = parseLongBookingTariffPackages(card);
+        if (packages.isEmpty()) {
+            BigDecimal minutePrice = card.getPricePerMinute();
+            return minutePrice == null
+                    ? null
+                    : minutePrice.multiply(BigDecimal.valueOf(durationMinutes)).setScale(2, RoundingMode.HALF_UP);
+        }
+
+        int durationSteps = ceilDiv(durationMinutes, PRICE_STEP_MINUTES);
+        int maxPackageSteps = packages.stream()
+                .mapToInt(pkg -> ceilDiv(pkg.durationMinutes(), PRICE_STEP_MINUTES))
+                .max()
+                .orElse(1);
+        int limit = durationSteps + maxPackageSteps;
+        int inf = Integer.MAX_VALUE / 4;
+        int[] dp = new int[limit + 1];
+        Arrays.fill(dp, inf);
+        dp[0] = 0;
+
+        for (int step = 0; step <= limit; step++) {
+            if (dp[step] == inf) {
+                continue;
+            }
+            for (TariffPackage pkg : packages) {
+                int nextStep = Math.min(limit, step + ceilDiv(pkg.durationMinutes(), PRICE_STEP_MINUTES));
+                int nextPrice = dp[step] + pkg.priceCents();
+                if (nextPrice < dp[nextStep]) {
+                    dp[nextStep] = nextPrice;
+                }
+            }
+        }
+
+        int bestStep = durationSteps;
+        for (int step = durationSteps + 1; step <= limit; step++) {
+            if (dp[step] < dp[bestStep] || (dp[step] == dp[bestStep] && step < bestStep)) {
+                bestStep = step;
+            }
+        }
+        return dp[bestStep] == inf ? null : BigDecimal.valueOf(dp[bestStep], 2);
+    }
+
+    private List<TariffPackage> parseLongBookingTariffPackages(VehicleCard card) {
+        List<TariffPackage> packages = new ArrayList<>();
+        parseTariffLines(card.getHourPackagesText(), packages);
+        parseTariffLines(card.getDayPackagesText(), packages);
+        return packages;
+    }
+
+    private void parseTariffLines(String text, List<TariffPackage> packages) {
+        if (text == null || text.isBlank()) {
+            return;
+        }
+        for (String rawLine : text.split("\\R")) {
+            TariffPackage tariffPackage = parseTariffPackageLine(rawLine);
+            if (tariffPackage != null) {
+                packages.add(tariffPackage);
+            }
+        }
+    }
+
+    private TariffPackage parseTariffPackageLine(String rawLine) {
+        String line = rawLine == null ? "" : rawLine.trim();
+        Matcher durationMatcher = TARIFF_DURATION_PATTERN.matcher(line);
+        if (!durationMatcher.find()) {
+            return null;
+        }
+        BigDecimal amount = parseDecimal(durationMatcher.group(1));
+        BigDecimal price = parseTariffPrice(line);
+        if (amount == null || price == null || amount.signum() <= 0 || price.signum() <= 0) {
+            return null;
+        }
+
+        String unit = durationMatcher.group(2).toLowerCase();
+        BigDecimal minutesMultiplier = unit.startsWith("ч") ? BigDecimal.valueOf(60) : BigDecimal.valueOf(24 * 60);
+        int durationMinutes = amount.multiply(minutesMultiplier).setScale(0, RoundingMode.HALF_UP).intValue();
+        int priceCents = price.movePointRight(2).setScale(0, RoundingMode.HALF_UP).intValue();
+        return new TariffPackage(durationMinutes, priceCents);
+    }
+
+    private BigDecimal parseTariffPrice(String line) {
+        Matcher afterSeparator = TARIFF_PRICE_AFTER_SEPARATOR_PATTERN.matcher(line);
+        if (afterSeparator.find()) {
+            return parseDecimal(afterSeparator.group(1));
+        }
+        Matcher beforeByn = TARIFF_PRICE_BEFORE_BYN_PATTERN.matcher(line);
+        return beforeByn.find() ? parseDecimal(beforeByn.group(1)) : null;
+    }
+
+    private BigDecimal parseDecimal(String value) {
+        try {
+            return new BigDecimal(value.replace(',', '.'));
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private int ceilDiv(int value, int divisor) {
+        return (value + divisor - 1) / divisor;
+    }
+
     private PanelLongBookingOrderDto toPanelDto(LongBookingOrder order) {
         VehicleCard c = order.getVehicleCard();
         User user = userRepository.findById(order.getUserId()).orElse(null);
@@ -194,6 +338,7 @@ public class LongBookingOrderService {
                 order.getRequestedStartAt(),
                 order.getRequestedEndAt(),
                 order.getCustomerNote(),
+                estimateLongBookingPrice(order),
                 c.getTitle(),
                 c.getSlug(),
                 c.getImagePath(),
@@ -212,10 +357,14 @@ public class LongBookingOrderService {
                 order.getRequestedStartAt(),
                 order.getRequestedEndAt(),
                 order.getCustomerNote(),
+                estimateLongBookingPrice(order),
                 c.getTitle(),
                 c.getSlug(),
                 c.getImagePath(),
                 c.getCategory()
         );
+    }
+
+    private record TariffPackage(int durationMinutes, int priceCents) {
     }
 }

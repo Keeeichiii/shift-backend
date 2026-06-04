@@ -54,9 +54,6 @@ public class CurrentUserService {
         if (request.profileName() != null) {
             user.setProfileName(request.profileName());
         }
-        if (request.avatarUrl() != null) {
-            user.setAvatarUrl(request.avatarUrl());
-        }
         if (request.bio() != null) {
             user.setBio(request.bio());
         }
@@ -131,7 +128,6 @@ public class CurrentUserService {
                 user.getLicenseSubmittedAt(),
                 user.getDocStatus(),
                 user.getProfileName(),
-                user.getAvatarUrl(),
                 user.getBio(),
                 user.getLastActivity(),
                 user.getPhone()

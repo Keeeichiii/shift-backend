@@ -91,6 +91,21 @@
             </section>
 
             <section class="panel-card panel-card_light support-form-card">
+                <div id="supportSubmitSuccess" class="support-submit-success hidden" aria-live="polite" aria-hidden="true">
+                    <div class="support-submit-success__panel">
+                        <div class="support-submit-success__icon" aria-hidden="true">
+                            <span class="support-submit-success__ripple"></span>
+                            <span class="support-submit-success__ripple support-submit-success__ripple--delay"></span>
+                            <svg class="support-submit-success__svg" viewBox="0 0 52 52" role="img" aria-label="Успешно">
+                                <circle class="support-submit-success__circle" cx="26" cy="26" r="23" fill="none"></circle>
+                                <path class="support-submit-success__check" fill="none" d="M14 27 L22 35 L38 17"></path>
+                            </svg>
+                        </div>
+                        <h3 class="support-submit-success__title">Обращение отправлено</h3>
+                        <p class="support-submit-success__text">Спасибо! Мы получили ваше сообщение и свяжемся с вами в ближайшее время.</p>
+                    </div>
+                </div>
+
                 <div class="support-form-card__head">
                     <span class="support-card__icon support-card__icon_image support-card__icon_image_large">
                         <img src="images/site/support-form.png" alt="Форма обращения">
@@ -112,6 +127,10 @@
                             <option value="whatsapp">WhatsApp</option>
                             <option value="email">Email</option>
                         </select>
+                    </div>
+                    <div class="field">
+                        <label for="supportPageContactValue">Контакт для ответа</label>
+                        <input id="supportPageContactValue" name="contactValue" type="text" maxlength="160" required placeholder="+375 29 123-45-67">
                     </div>
                     <div class="field-wide">
                         <label for="supportPageSubject">Тема</label>

@@ -17,7 +17,6 @@ public record UserDto(
         LocalDate drivingBanUntil,
         DocumentStatus docStatus,
         String profileName,
-        String avatarUrl,
         String bio,
         OffsetDateTime lastActivity,
         String phone

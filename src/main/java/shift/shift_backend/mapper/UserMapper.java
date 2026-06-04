@@ -21,7 +21,6 @@ public class UserMapper {
                 user.getDrivingBanUntil(),
                 user.getDocStatus(),
                 user.getProfileName(),
-                user.getAvatarUrl(),
                 user.getBio(),
                 user.getLastActivity(),
                 user.getPhone()

@@ -31,6 +31,7 @@ public class SupportRequestService {
         SupportRequest supportRequest = new SupportRequest();
         supportRequest.setUserId(user.getId());
         supportRequest.setContactChannel(trim(request.contactChannel()));
+        supportRequest.setContactValue(trim(request.contactValue()));
         supportRequest.setSubject(trim(request.subject()));
         supportRequest.setMessage(trim(request.message()));
 
@@ -39,6 +40,7 @@ public class SupportRequestService {
                 saved.getId(),
                 saved.getUserId(),
                 saved.getContactChannel(),
+                saved.getContactValue(),
                 saved.getSubject(),
                 saved.getMessage(),
                 saved.getCreatedAt()
@@ -69,6 +71,7 @@ public class SupportRequestService {
                             fullName.isBlank() ? "Неизвестный пользователь" : fullName,
                             emailsByUserId.get(request.getUserId()),
                             request.getContactChannel(),
+                            request.getContactValue(),
                             request.getSubject(),
                             request.getMessage(),
                             request.getCreatedAt()

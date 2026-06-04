@@ -8,7 +8,6 @@ public record UpdateMeRequest(
         @Size(max = 45) String lastName,
         @Size(max = 14) String personalIdNumber,
         @Size(max = 45) String profileName,
-        @Size(max = 255) String avatarUrl,
         @Size(max = 300) String bio,
         @Size(max = 30) String phone
 ) {

@@ -28,6 +28,9 @@ public class SupportRequest {
     @Column(name = "contact_channel", nullable = false, length = 40)
     private String contactChannel;
 
+    @Column(name = "contact_value", nullable = false, length = 160)
+    private String contactValue;
+
     @Column(nullable = false, length = 160)
     private String subject;
 

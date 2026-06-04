@@ -52,11 +52,13 @@ class AuthControllerTest {
 		when(authService.getByEmail("login@a.com")).thenReturn(fromService);
 
 		MockHttpServletRequest httpRequest = new MockHttpServletRequest();
+		String originalSessionId = httpRequest.getSession(true).getId();
 		AuthUserResponse result = controller.login(login, httpRequest);
 
 		assertThat(result).isEqualTo(fromService);
 		HttpSession session = httpRequest.getSession(false);
 		assertThat(session).isNotNull();
+		assertThat(session.getId()).isNotEqualTo(originalSessionId);
 		assertThat(
 						session.getAttribute(
 								HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY))

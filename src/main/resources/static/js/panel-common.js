@@ -60,6 +60,48 @@ function formatDateTime(value) {
     return new Date(value).toLocaleString("ru-RU");
 }
 
+function formatMoney(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) {
+        return "Не рассчитана";
+    }
+    return `${new Intl.NumberFormat("ru-RU", {
+        minimumFractionDigits: Number.isInteger(number) ? 0 : 2,
+        maximumFractionDigits: 2
+    }).format(number)} BYN`;
+}
+
+function documentStatusLabel(status) {
+    const map = {
+        PENDING: "Ожидает проверки",
+        VERIFIED: "Одобрен",
+        REJECTED: "Отклонён",
+        EXPIRED: "Истёк срок"
+    };
+    return map[status] || status || "—";
+}
+
+function vehicleStatusLabel(status) {
+    const map = {
+        AVAILABLE: "Доступна",
+        BOOKED: "Забронирована",
+        IN_USE: "В поездке",
+        MAINTENANCE: "На обслуживании"
+    };
+    return map[status] || status || "—";
+}
+
+function tripStatusLabel(status) {
+    const map = {
+        RESERVED: "Забронирована",
+        ACTIVE: "Активна",
+        PAUSED: "Пауза",
+        COMPLETED: "Завершена",
+        CANCELED: "Отменена"
+    };
+    return map[status] || status || "—";
+}
+
 function escapeHtml(value) {
     return String(value ?? "")
         .replaceAll("&", "&amp;")
@@ -252,10 +294,13 @@ function setupPageHeader(user) {
     }
     if (logoutButton) {
         logoutButton.classList.remove("hidden");
-        logoutButton.addEventListener("click", async () => {
-            setButtonBusy(logoutButton, true, "Выход...");
-            await performLogout();
-        });
+        if (logoutButton.dataset.bound !== "true") {
+            logoutButton.addEventListener("click", async () => {
+                setButtonBusy(logoutButton, true, "Выход...");
+                await performLogout();
+            });
+            logoutButton.dataset.bound = "true";
+        }
     }
     if (loginButton) {
         loginButton.classList.add("hidden");
@@ -365,6 +410,7 @@ function renderPanelLongBookingStaffSection(prefix, panel, reloadCallback) {
                         <p>Создан: ${escapeHtml(formatDateTime(o.createdAt))}</p>
                         <p>Начало: ${o.requestedStartAt ? escapeHtml(formatDateTime(o.requestedStartAt)) : "—"}</p>
                         <p>Окончание: ${o.requestedEndAt ? escapeHtml(formatDateTime(o.requestedEndAt)) : "—"}</p>
+                        <p>Стоимость: ${escapeHtml(formatMoney(o.estimatedPrice))}</p>
                         <p>Статус: ${escapeHtml(longBookingStaffStatusLabel(o.status))}</p>
                         ${o.customerNote ? `<p>Комментарий: ${escapeHtml(o.customerNote)}</p>` : ""}
                         <p><a class="btn btn-small btn-secondary" href="/vehicle.html?slug=${encodeURIComponent(o.vehicleSlug)}">Страница авто</a></p>
@@ -414,19 +460,20 @@ function renderPanelLongBookingStaffSection(prefix, panel, reloadCallback) {
             <div class="trip-card">
                 <strong>${escapeHtml(o.vehicleTitle)}</strong>
                 <p>${escapeHtml(o.username)} · ${escapeHtml(formatDateTime(o.createdAt))} · ${o.requestedStartAt ? escapeHtml(formatDateTime(o.requestedStartAt)) : "—"} — ${o.requestedEndAt ? escapeHtml(formatDateTime(o.requestedEndAt)) : "—"}</p>
+                <p>Стоимость: ${escapeHtml(formatMoney(o.estimatedPrice))}</p>
                 ${o.customerNote ? `<p>${escapeHtml(o.customerNote)}</p>` : ""}
             </div>
         `).join("");
     }
 
     if (!fleet.length) {
-        fleetEl.innerHTML = `<div class="trip-card"><strong>Нет машин в статусе BOOKED</strong><p>Забронированные авто флота появятся здесь.</p></div>`;
+        fleetEl.innerHTML = `<div class="trip-card"><strong>Нет забронированных машин</strong><p>Забронированные авто флота появятся здесь.</p></div>`;
     } else {
         fleetEl.innerHTML = fleet.map((v) => `
             <div class="trip-card">
                 <strong>#${escapeHtml(v.id)} · ${escapeHtml(v.licensePlate || "—")}</strong>
                 <p>VIN: ${escapeHtml(v.vin || "—")}</p>
-                <p>Статус: ${escapeHtml(v.status)} · бренд ID: ${escapeHtml(String(v.brandId ?? "—"))}</p>
+                <p>Статус: ${escapeHtml(vehicleStatusLabel(v.status))} · бренд ID: ${escapeHtml(String(v.brandId ?? "—"))}</p>
             </div>
         `).join("");
     }

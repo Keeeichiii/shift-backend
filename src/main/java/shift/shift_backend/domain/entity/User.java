@@ -75,9 +75,6 @@ public class User {
     @Column(name = "profile_name", length = 45)
     private String profileName;
 
-    @Column(name = "avatar_url", length = 255)
-    private String avatarUrl;
-
     @Column(length = 300)
     private String bio;
 

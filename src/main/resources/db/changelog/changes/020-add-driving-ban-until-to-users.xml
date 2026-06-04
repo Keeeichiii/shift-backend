@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="add_driving_ban_until_to_users" author="cursor">
+    <changeSet id="add_driving_ban_until_to_users" author="ea.novak">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="users" columnName="driving_ban_until"/>
