@@ -5,10 +5,10 @@ FROM maven:3.9-eclipse-temurin-17-alpine AS build
 WORKDIR /workspace
 
 COPY pom.xml ./
-RUN --mount=type=cache,target=/root/.m2 mvn -q -DskipTests dependency:go-offline
+RUN --mount=type=cache,id=m2,target=/root/.m2 mvn -q -DskipTests dependency:go-offline
 
 COPY src ./src
-RUN --mount=type=cache,target=/root/.m2 mvn -q -DskipTests package
+RUN --mount=type=cache,id=m2,target=/root/.m2 mvn -q -DskipTests package
 
 FROM eclipse-temurin:17-jre-alpine AS runtime
 WORKDIR /app
