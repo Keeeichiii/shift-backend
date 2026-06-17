@@ -1,4 +1,3 @@
-# Multi-stage build: Maven compiles the Spring Boot app, the runtime image keeps only the JRE and app files.
 FROM maven:3.9-eclipse-temurin-17-alpine AS build
 WORKDIR /workspace
 
