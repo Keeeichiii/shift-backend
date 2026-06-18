@@ -1,6 +1,4 @@
-/**
- * Мобильное меню шапки: aria, подложка, закрытие по клику снаружи и при resize.
- */
+
 (function () {
     function qs(id) {
         return document.getElementById(id);

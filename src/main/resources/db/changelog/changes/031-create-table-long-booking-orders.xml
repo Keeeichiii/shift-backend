@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="create_table_long_booking_orders" author="shift-backend">
+    <changeSet id="create_table_long_booking_orders" author="ea.novak">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="long_booking_orders"/>

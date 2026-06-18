@@ -6,10 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * Раздаёт {@code /images/cars/**} с диска (том в Docker или {@code src/main/resources/…} локально),
- * чтобы пути из БД совпадали с файлами вне только встроенного в JAR classpath.
- */
 @Configuration
 public class VehicleCardBundledCarsResourceConfig implements WebMvcConfigurer {
 

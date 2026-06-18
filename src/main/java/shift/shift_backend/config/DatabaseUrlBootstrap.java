@@ -4,11 +4,7 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Railway задаёт {@code DATABASE_URL} в окружении процесса; до старта Spring кладём JDBC-параметры
- * в {@linkplain System#setProperty(String, String) системные свойства}, чтобы они перекрывали
- * {@code application.properties} (иначе остаётся localhost).
- */
+
 public final class DatabaseUrlBootstrap {
 
 	private DatabaseUrlBootstrap() {
@@ -62,7 +58,6 @@ public final class DatabaseUrlBootstrap {
 			System.setProperty("spring.datasource.username", user);
 			System.setProperty("spring.datasource.password", password);
 		} catch (IllegalArgumentException ignored) {
-			// оставляем application.properties
 		}
 	}
 }

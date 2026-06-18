@@ -33,17 +33,13 @@ public class VehicleCardBundledCarsRootResolver {
 		return Optional.empty();
 	}
 
-	/**
-	 * Каталог {@code static/images/cars}, куда можно писать файлы карточек (локальный проект).
-	 */
+
 	public Optional<Path> resolveWritableRoot() {
 		return resolveReadableBundledRoot()
 				.filter(path -> Files.isWritable(path));
 	}
 
-	/**
-	 * Для мгновенной отдачи из classpath при {@code spring-boot:run} без полной пересборки.
-	 */
+
 	public Optional<Path> targetClassesMirrorRoot() {
 		Path classes = Path.of(System.getProperty("user.dir", "."))
 				.resolve("target/classes")

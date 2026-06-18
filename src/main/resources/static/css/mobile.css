@@ -1,8 +1,3 @@
-/*
- * Только мобильные и планшетные варианты (узкая ширина).
- * Подключайте после css/app.css — на ПК эти правила не применяются вне @media.
- */
-
 @media (max-width: 900px) {
     .section {
         padding: 90px 0;
@@ -26,7 +21,6 @@
 }
 
 @media (max-width: 780px) {
-    /* ——— шапка: компактная полоса + боковое меню (бургер вставляет shared-drawers.js) ——— */
     .site-header .header-row,
     .site-header.inner-header .header-row,
     .inner-header .header-row {
@@ -147,7 +141,6 @@
         font-size: clamp(1rem, 4.8vw, 1.35rem);
     }
 
-    /* ——— главная и общие блоки ——— */
     .modal {
         padding: 16px;
         box-sizing: border-box;
@@ -235,7 +228,6 @@
         font-size: 16px;
     }
 
-    /* Панели: кабинет, карта зон (было в panels.css после адаптива) */
     .map-card__header {
         flex-direction: column;
         align-items: flex-start;
@@ -268,7 +260,6 @@
         word-wrap: break-word;
     }
 
-    /* Каталог услуг / карточка авто */
     .catalog-footer {
         align-items: stretch;
         gap: 12px;

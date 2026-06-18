@@ -1,15 +1,3 @@
-# Только «докерные» файлы: скопируйте папку docker/ куда угодно.
-# Нужен уже собранный образ приложения (локально или из registry).
-#
-# Образ: по умолчанию shift-backend:local
-#   docker load -i shift-app.tar
-#   или: SHIFT_BACKEND_IMAGE=registry.example/shift-backend:1.0
-#
-# Запуск из каталога docker/:
-#   docker compose -f compose.image.yaml up -d
-#
-# Сайт: http://localhost:8090
-
 name: shift
 
 services:

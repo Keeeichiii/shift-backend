@@ -6,16 +6,14 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <changeSet id="create_enum_and_domain_types" author="ea.novak">
-        <!-- Файл менялся после применения к БД; допустимые старые суммы из DATABASECHANGELOG.MD5SUM -->
         <validCheckSum>9:a8eca04edf1f43eb741c03c2aa3997ba</validCheckSum>
         <validCheckSum>a8eca04edf1f43eb741c03c2aa3997ba</validCheckSum>
-        <comment>Создание enum типов и geo доменов</comment>
+        <comment>Создание enum типов и geo</comment>
         <sql splitStatements="false"><![CDATA[
             DO $$
             BEGIN
                 CREATE EXTENSION IF NOT EXISTS postgis;
             EXCEPTION WHEN OTHERS THEN
-                -- Образ БД без PostGIS (например managed Postgres на Railway): ниже создаются geo_* на polygon/point.
                 NULL;
             END $$;
 
