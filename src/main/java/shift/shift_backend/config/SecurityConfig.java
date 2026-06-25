@@ -45,6 +45,7 @@ public class 		SecurityConfig {
 						.requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
 						.requestMatchers("/api/auth/me", "/api/auth/logout").authenticated()
 						.requestMatchers("/api/me/**").authenticated()
+						.requestMatchers(HttpMethod.DELETE, "/api/support-requests/**").hasAnyRole("MODERATOR", "ADMIN")
 						.requestMatchers("/api/support-requests/**").authenticated()
 						.requestMatchers("/api/news/**").hasAnyRole("MODERATOR", "ADMIN")
 						.requestMatchers("/api/vehicle-cards/**").hasAnyRole("MODERATOR", "ADMIN")

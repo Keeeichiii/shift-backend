@@ -18,6 +18,12 @@ public interface LongBookingOrderRepository extends JpaRepository<LongBookingOrd
     @EntityGraph(attributePaths = "vehicleCard")
     List<LongBookingOrder> findAllByStatusOrderByCreatedAtDesc(LongBookingOrderStatus status);
 
+    @EntityGraph(attributePaths = "vehicleCard")
+    List<LongBookingOrder> findAllByStatusAndRequestedEndAtAfterOrderByCreatedAtDesc(
+            LongBookingOrderStatus status,
+            OffsetDateTime requestedEndAt
+    );
+
     @Query("""
             SELECT o FROM LongBookingOrder o
             WHERE o.vehicleCard.id = :vehicleCardId

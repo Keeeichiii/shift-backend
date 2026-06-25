@@ -24,6 +24,14 @@ let adminLicenseTab = "queue";
 let adminVehicleCardManager = null;
 let adminNewsManager = null;
 
+function setAdminSupportEmptyState() {
+    const list = document.getElementById("adminSupportRequestList");
+    if (!list) {
+        return;
+    }
+    list.innerHTML = `<div class="support-message-card__empty"><strong>Сообщений пока нет.</strong><p>Новые обращения из формы техподдержки появятся здесь.</p></div>`;
+}
+
 function renderAdminSupportRequests(requests) {
     const list = document.getElementById("adminSupportRequestList");
     if (!list) {
@@ -31,12 +39,12 @@ function renderAdminSupportRequests(requests) {
     }
 
     if (!requests.length) {
-        list.innerHTML = `<div class="support-message-card__empty"><strong>Сообщений пока нет.</strong><p>Новые обращения из формы техподдержки появятся здесь.</p></div>`;
+        setAdminSupportEmptyState();
         return;
     }
 
     list.innerHTML = requests.map((request) => `
-        <article class="support-message-card">
+        <article class="support-message-card" data-support-request-id="${escapeHtml(request.id)}">
             <div class="support-message-card__head">
                 <div>
                     <strong>${escapeHtml(request.subject)}</strong>
@@ -52,8 +60,72 @@ function renderAdminSupportRequests(requests) {
                 <p><strong>Контакт для ответа:</strong> ${escapeHtml(request.contactValue || "Не указан")}</p>
                 <p>${escapeHtml(request.message)}</p>
             </div>
+            <div class="panel-actions">
+                <button type="button" class="btn btn-small btn-secondary admin-support-delete-btn">Удалить сообщение</button>
+            </div>
         </article>
     `).join("");
+
+    list.querySelectorAll(".admin-support-delete-btn").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const requestId = button.closest("[data-support-request-id]")?.dataset.supportRequestId;
+            if (!requestId) {
+                return;
+            }
+            await deleteAdminSupportRequest(requestId, button);
+        });
+    });
+}
+
+async function deleteAdminSupportRequest(requestId, button) {
+    if (!window.confirm("Удалить это сообщение?")) {
+        return;
+    }
+    const status = document.getElementById("adminSupportRequestStatus");
+    try {
+        setButtonBusy(button, true, "Удаление...");
+        if (status) {
+            status.textContent = "";
+        }
+        await pageRequest(`/api/support-requests/${encodeURIComponent(requestId)}`, {method: "DELETE"});
+        button.closest("[data-support-request-id]")?.remove();
+        if (!document.querySelector("#adminSupportRequestList [data-support-request-id]")) {
+            setAdminSupportEmptyState();
+        }
+        if (status) {
+            status.textContent = "Сообщение удалено.";
+        }
+    } catch (error) {
+        if (status) {
+            status.textContent = extractErrorMessage(error, "Не удалось удалить сообщение.");
+        }
+    } finally {
+        setButtonBusy(button, false, "Удалить сообщение");
+    }
+}
+
+async function clearAdminSupportRequests(button = document.getElementById("adminSupportRequestClear")) {
+    if (!window.confirm("Очистить все сообщения?")) {
+        return;
+    }
+    const status = document.getElementById("adminSupportRequestStatus");
+    try {
+        setButtonBusy(button, true, "Очистка...");
+        if (status) {
+            status.textContent = "";
+        }
+        await pageRequest("/api/support-requests", {method: "DELETE"});
+        setAdminSupportEmptyState();
+        if (status) {
+            status.textContent = "Сообщения очищены.";
+        }
+    } catch (error) {
+        if (status) {
+            status.textContent = extractErrorMessage(error, "Не удалось очистить сообщения.");
+        }
+    } finally {
+        setButtonBusy(button, false, "Очистить сообщения");
+    }
 }
 
 function renderLicenseImages(containerId, user) {
@@ -476,6 +548,10 @@ const adminTabs = document.querySelector('[data-panel-tabs="admin"]');
 if (adminTabs) {
     initPanelTabs(adminTabs);
 }
+
+document.getElementById("adminSupportRequestClear")?.addEventListener("click", async () => {
+    await clearAdminSupportRequests();
+});
 
 initAdminLicenseControls();
 

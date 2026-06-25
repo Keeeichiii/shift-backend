@@ -18,7 +18,15 @@ async function pageRequest(url, options = {}) {
         return null;
     }
 
-    return response.json();
+    const contentType = response.headers.get("Content-Type") || "";
+    const text = await response.text();
+    if (!text.trim()) {
+        return null;
+    }
+    if (contentType.includes("application/json")) {
+        return JSON.parse(text);
+    }
+    return text;
 }
 
 function setButtonBusy(button, busy, busyText) {
@@ -58,6 +66,14 @@ function formatDateTime(value) {
         return "Нет активности";
     }
     return new Date(value).toLocaleString("ru-RU");
+}
+
+function isDateTimeAfterNow(value) {
+    if (!value) {
+        return false;
+    }
+    const date = new Date(value);
+    return !Number.isNaN(date.getTime()) && date.getTime() > Date.now();
 }
 
 function formatMoney(value) {
@@ -109,6 +125,78 @@ function escapeHtml(value) {
         .replaceAll(">", "&gt;")
         .replaceAll("\"", "&quot;")
         .replaceAll("'", "&#39;");
+}
+
+function ensureImageLightboxMarkup() {
+    if (document.getElementById("imageLightbox")) {
+        return;
+    }
+    document.body.insertAdjacentHTML("beforeend", `
+        <div id="imageLightbox" class="image-lightbox hidden" aria-hidden="true">
+            <div class="image-lightbox__backdrop" data-image-lightbox-close="true"></div>
+            <div class="image-lightbox__dialog" role="dialog" aria-modal="true" aria-label="Просмотр документа">
+                <button class="image-lightbox__close" type="button" aria-label="Закрыть просмотр" data-image-lightbox-close="true">×</button>
+                <img id="imageLightboxImg" class="image-lightbox__img" alt="">
+                <p id="imageLightboxCaption" class="image-lightbox__caption"></p>
+            </div>
+        </div>
+    `);
+}
+
+function closeImageLightbox() {
+    const root = document.getElementById("imageLightbox");
+    if (!root) {
+        return;
+    }
+    root.classList.add("hidden");
+    root.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("image-lightbox-open");
+}
+
+function openImageLightbox(src, alt = "", caption = "") {
+    ensureImageLightboxMarkup();
+    const root = document.getElementById("imageLightbox");
+    const image = document.getElementById("imageLightboxImg");
+    const captionEl = document.getElementById("imageLightboxCaption");
+    if (!root || !image || !captionEl) {
+        return;
+    }
+    image.src = src;
+    image.alt = alt;
+    captionEl.textContent = caption || alt || "";
+    root.classList.remove("hidden");
+    root.setAttribute("aria-hidden", "false");
+    document.body.classList.add("image-lightbox-open");
+}
+
+function initImageLightbox() {
+    ensureImageLightboxMarkup();
+    if (document.body.dataset.imageLightboxBound === "true") {
+        return;
+    }
+    document.body.dataset.imageLightboxBound = "true";
+
+    document.addEventListener("click", (event) => {
+        const trigger = event.target.closest("[data-image-lightbox-src]");
+        if (trigger) {
+            event.preventDefault();
+            openImageLightbox(
+                trigger.dataset.imageLightboxSrc,
+                trigger.dataset.imageLightboxAlt || "",
+                trigger.dataset.imageLightboxCaption || ""
+            );
+            return;
+        }
+        if (event.target.closest("[data-image-lightbox-close='true']")) {
+            closeImageLightbox();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeImageLightbox();
+        }
+    });
 }
 
 /**
@@ -396,6 +484,7 @@ function renderPanelLongBookingStaffSection(prefix, panel, reloadCallback) {
     const pending = panel.longBookingOrdersPending || [];
     const confirmed = panel.longBookingOrdersConfirmed || [];
     const fleet = panel.bookedFleetVehicles || [];
+    const activeLongBookings = confirmed.filter((order) => !order.requestedEndAt || isDateTimeAfterNow(order.requestedEndAt));
 
     if (!pending.length) {
         pendingEl.innerHTML = `<div class="trip-card"><strong>Нет заявок</strong><p>Новые заявки на долгое бронирование появятся здесь.</p></div>`;
@@ -457,24 +546,57 @@ function renderPanelLongBookingStaffSection(prefix, panel, reloadCallback) {
         confirmedEl.innerHTML = `<div class="trip-card"><strong>Подтверждённых заявок пока нет</strong></div>`;
     } else {
         confirmedEl.innerHTML = confirmed.map((o) => `
-            <div class="trip-card">
+            <div class="trip-card" data-long-booking-order-id="${escapeHtml(o.id)}">
                 <strong>${escapeHtml(o.vehicleTitle)}</strong>
                 <p>${escapeHtml(o.username)} · ${escapeHtml(formatDateTime(o.createdAt))} · ${o.requestedStartAt ? escapeHtml(formatDateTime(o.requestedStartAt)) : "—"} — ${o.requestedEndAt ? escapeHtml(formatDateTime(o.requestedEndAt)) : "—"}</p>
                 <p>Стоимость: ${escapeHtml(formatMoney(o.estimatedPrice))}</p>
                 ${o.customerNote ? `<p>${escapeHtml(o.customerNote)}</p>` : ""}
+                <div class="panel-actions">
+                    <a class="btn btn-small btn-neutral" href="/vehicle.html?slug=${encodeURIComponent(o.vehicleSlug)}">Страница авто</a>
+                    ${isDateTimeAfterNow(o.requestedStartAt)
+                        ? `<button type="button" class="btn btn-small long-booking-confirmed-cancel-btn">Отменить до начала</button>`
+                        : `<span class="status-text">После начала заявки отмена недоступна.</span>`}
+                </div>
             </div>
         `).join("");
+
+        confirmedEl.querySelectorAll(".long-booking-confirmed-cancel-btn").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+                const id = btn.closest("[data-long-booking-order-id]").dataset.longBookingOrderId;
+                try {
+                    setButtonBusy(btn, true, "Отмена...");
+                    await pageRequest(`/api/moderator/long-booking-orders/${encodeURIComponent(id)}/cancel`, {method: "POST"});
+                    await reloadCallback();
+                } catch (error) {
+                    window.alert(extractErrorMessage(error, "Не удалось отменить заявку."));
+                } finally {
+                    setButtonBusy(btn, false, "Отменить до начала");
+                }
+            });
+        });
     }
 
-    if (!fleet.length) {
+    if (!fleet.length && !activeLongBookings.length) {
         fleetEl.innerHTML = `<div class="trip-card"><strong>Нет забронированных машин</strong><p>Забронированные авто флота появятся здесь.</p></div>`;
     } else {
-        fleetEl.innerHTML = fleet.map((v) => `
+        fleetEl.innerHTML = [
+            ...activeLongBookings.map((o) => `
+            <div class="trip-card">
+                <strong>${escapeHtml(o.vehicleTitle)}</strong>
+                <p>Долгое бронирование: ${escapeHtml(o.username)}${o.userEmail ? ` · ${escapeHtml(o.userEmail)}` : ""}</p>
+                <p>Период: ${o.requestedStartAt ? escapeHtml(formatDateTime(o.requestedStartAt)) : "—"} — ${o.requestedEndAt ? escapeHtml(formatDateTime(o.requestedEndAt)) : "—"}</p>
+                <p>Стоимость: ${escapeHtml(formatMoney(o.estimatedPrice))}</p>
+            </div>
+        `),
+            ...fleet.map((v) => `
             <div class="trip-card">
                 <strong>#${escapeHtml(v.id)} · ${escapeHtml(v.licensePlate || "—")}</strong>
                 <p>VIN: ${escapeHtml(v.vin || "—")}</p>
                 <p>Статус: ${escapeHtml(vehicleStatusLabel(v.status))} · бренд ID: ${escapeHtml(String(v.brandId ?? "—"))}</p>
             </div>
-        `).join("");
+        `)
+        ].join("");
     }
 }
+
+initImageLightbox();

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,6 +62,11 @@ public class MeController {
             @Valid @RequestBody CreateLongBookingOrderRequest request
     ) {
         return longBookingOrderService.create(authentication, request);
+    }
+
+    @PostMapping("/long-booking-orders/{id}/cancel")
+    public LongBookingOrderDto cancelLongBookingOrder(Authentication authentication, @PathVariable Long id) {
+        return longBookingOrderService.cancelForCurrentUser(authentication, id);
     }
 
     @GetMapping("/trips")

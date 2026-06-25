@@ -189,7 +189,16 @@ function renderLicensePreview(profile) {
     if (profile.licenseFrontImage) {
         items.push(`
             <figure class="license-shot">
-                <img src="${profile.licenseFrontImage}" alt="Лицевая сторона прав">
+                <button
+                    class="license-shot__trigger"
+                    type="button"
+                    aria-label="Открыть лицевую сторону прав"
+                    data-image-lightbox-src="${escapeHtml(profile.licenseFrontImage)}"
+                    data-image-lightbox-alt="Лицевая сторона прав"
+                    data-image-lightbox-caption="Лицевая сторона прав"
+                >
+                    <img src="${profile.licenseFrontImage}" alt="Лицевая сторона прав">
+                </button>
                 <figcaption>Лицевая сторона</figcaption>
             </figure>
         `);
@@ -197,7 +206,16 @@ function renderLicensePreview(profile) {
     if (profile.licenseBackImage) {
         items.push(`
             <figure class="license-shot">
-                <img src="${profile.licenseBackImage}" alt="Обратная сторона прав">
+                <button
+                    class="license-shot__trigger"
+                    type="button"
+                    aria-label="Открыть обратную сторону прав"
+                    data-image-lightbox-src="${escapeHtml(profile.licenseBackImage)}"
+                    data-image-lightbox-alt="Обратная сторона прав"
+                    data-image-lightbox-caption="Обратная сторона прав"
+                >
+                    <img src="${profile.licenseBackImage}" alt="Обратная сторона прав">
+                </button>
                 <figcaption>Обратная сторона</figcaption>
             </figure>
         `);
@@ -205,7 +223,16 @@ function renderLicensePreview(profile) {
     if (profile.passportMainImage) {
         items.push(`
             <figure class="license-shot">
-                <img src="${profile.passportMainImage}" alt="Главная страница паспорта">
+                <button
+                    class="license-shot__trigger"
+                    type="button"
+                    aria-label="Открыть главную страницу паспорта"
+                    data-image-lightbox-src="${escapeHtml(profile.passportMainImage)}"
+                    data-image-lightbox-alt="Главная страница паспорта"
+                    data-image-lightbox-caption="Главная страница паспорта"
+                >
+                    <img src="${profile.passportMainImage}" alt="Главная страница паспорта">
+                </button>
                 <figcaption>Главная страница паспорта</figcaption>
             </figure>
         `);
@@ -251,7 +278,7 @@ function renderLongBookingOrders(orders) {
     }
 
     list.innerHTML = orders.map((o) => `
-        <div class="trip-card">
+        <div class="trip-card" data-long-booking-order-id="${escapeHtml(o.id)}">
             <strong>${escapeHtml(o.vehicleTitle)}</strong>
             <p>Статус: ${escapeHtml(statusLabels[o.status] || o.status)}</p>
             <p>Создан: ${escapeHtml(formatDateTime(o.createdAt))}</p>
@@ -259,9 +286,35 @@ function renderLongBookingOrders(orders) {
             <p>Окончание: ${o.requestedEndAt ? escapeHtml(formatDateTime(o.requestedEndAt)) : "—"}</p>
             <p>Стоимость: ${escapeHtml(formatMoney(o.estimatedPrice))}</p>
             ${o.customerNote ? `<p>Комментарий: ${escapeHtml(o.customerNote)}</p>` : ""}
-            <p><a class="btn btn-small btn-secondary" href="/vehicle.html?slug=${encodeURIComponent(o.vehicleSlug)}">Карточка авто</a></p>
+            <div class="panel-actions">
+                <a class="btn btn-small btn-secondary" href="/vehicle.html?slug=${encodeURIComponent(o.vehicleSlug)}">Карточка авто</a>
+                ${["PENDING", "CONFIRMED"].includes(o.status) && isDateTimeAfterNow(o.requestedStartAt)
+                    ? `<button type="button" class="btn btn-small long-booking-order-cancel-btn">Отменить до начала</button>`
+                    : ""}
+            </div>
         </div>
     `).join("");
+
+    list.querySelectorAll(".long-booking-order-cancel-btn").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const orderId = button.closest("[data-long-booking-order-id]")?.dataset.longBookingOrderId;
+            if (!orderId) {
+                return;
+            }
+            if (!window.confirm("Отменить заявку до её начала?")) {
+                return;
+            }
+            try {
+                setButtonBusy(button, true, "Отмена...");
+                await pageRequest(`/api/me/long-booking-orders/${encodeURIComponent(orderId)}/cancel`, {method: "POST"});
+                await loadAccountPage();
+            } catch (error) {
+                window.alert(extractErrorMessage(error, "Не удалось отменить заявку."));
+            } finally {
+                setButtonBusy(button, false, "Отменить до начала");
+            }
+        });
+    });
 }
 
 function renderTrips(trips) {

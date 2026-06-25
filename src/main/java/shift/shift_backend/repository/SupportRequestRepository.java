@@ -6,4 +6,6 @@ import shift.shift_backend.domain.entity.SupportRequest;
 
 public interface SupportRequestRepository extends JpaRepository<SupportRequest, Long> {
     List<SupportRequest> findAllByOrderByCreatedAtDesc();
+
+    void deleteById(Long id);
 }

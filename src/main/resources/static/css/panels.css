@@ -930,6 +930,23 @@
     align-items: start;
 }
 
+.long-booking-panel-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+}
+
+.long-booking-panel-layout__column {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+}
+
+.long-booking-panel-layout__confirmed {
+    align-self: start;
+}
+
 .profile-edit-card {
     grid-column: 1 / -1;
     color: var(--panel-text);
@@ -1239,6 +1256,13 @@
     box-shadow: none;
 }
 
+.btn-neutral {
+    background: #111;
+    border: 1px solid #111;
+    color: #fff;
+    box-shadow: none;
+}
+
 .panel-card_light .btn-ghost {
     border-color: #cfcfcf;
     color: #111;
@@ -1318,11 +1342,32 @@
     background: #f6f6f6;
 }
 
+.license-shot__trigger {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+}
+
 .license-shot img {
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
     display: block;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.license-shot__trigger:hover img,
+.license-shot__trigger:focus-visible img {
+    transform: scale(1.02);
+    filter: brightness(1.04);
+}
+
+.license-shot__trigger:focus-visible {
+    outline: 3px solid rgba(24, 164, 32, 0.35);
+    outline-offset: -3px;
 }
 
 .license-shot figcaption {
@@ -1330,6 +1375,71 @@
     font-size: 13px;
     color: inherit;
     opacity: 0.72;
+}
+
+.image-lightbox-open {
+    overflow: hidden;
+}
+
+.image-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.image-lightbox.hidden {
+    display: none;
+}
+
+.image-lightbox__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.84);
+}
+
+.image-lightbox__dialog {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 14px;
+    width: min(100%, 1100px);
+    max-height: min(100vh - 48px, 920px);
+    padding: 22px;
+    border-radius: 24px;
+    background: rgba(20, 20, 20, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+}
+
+.image-lightbox__close {
+    justify-self: end;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.image-lightbox__img {
+    width: 100%;
+    max-height: calc(100vh - 170px);
+    object-fit: contain;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.image-lightbox__caption {
+    margin: 0;
+    text-align: center;
+    color: #d7d7d7;
+    line-height: 1.5;
 }
 
 .map-shell .container {
@@ -1464,7 +1574,8 @@
     .stats-grid,
     .profile-grid,
     .info-grid,
-    .panel-form {
+    .panel-form,
+    .long-booking-panel-layout {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -1508,7 +1619,8 @@
     .stats-grid,
     .profile-grid,
     .info-grid,
-    .panel-form {
+    .panel-form,
+    .long-booking-panel-layout {
         grid-template-columns: 1fr;
     }
 
@@ -1519,6 +1631,21 @@
 
     .license-preview-grid {
         grid-template-columns: 1fr;
+    }
+
+    .image-lightbox {
+        padding: 12px;
+    }
+
+    .image-lightbox__dialog {
+        width: 100%;
+        max-height: calc(100vh - 24px);
+        padding: 16px;
+        border-radius: 18px;
+    }
+
+    .image-lightbox__img {
+        max-height: calc(100vh - 132px);
     }
 
     .auth-block_panel {

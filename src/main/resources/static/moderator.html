@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -130,21 +130,23 @@
             </section>
 
             <section id="moderator-long-booking-section" class="panel-section hidden">
-                <section class="panel-grid profile-grid">
-                    <article class="panel-card">
-                        <h2>Заявки на долгое бронирование</h2>
-                        <p class="upload-copy">Ожидают подтверждения или отклонения.</p>
-                        <div id="moderatorLongBookingPendingList" class="trip-list"></div>
-                    </article>
-                    <article class="panel-card panel-card_light">
+                <section class="long-booking-panel-layout">
+                    <div class="long-booking-panel-layout__column">
+                        <article class="panel-card">
+                            <h2>Заявки на долгое бронирование</h2>
+                            <p class="upload-copy">Ожидают подтверждения или отклонения.</p>
+                            <div id="moderatorLongBookingPendingList" class="trip-list"></div>
+                        </article>
+                        <article class="panel-card">
+                            <h2>Забронированные авто (парк)</h2>
+                            <p class="upload-copy">Активные подтверждённые брони и забронированные машины флота. После времени окончания запись исчезает из списка.</p>
+                            <div id="moderatorBookedFleetList" class="trip-list"></div>
+                        </article>
+                    </div>
+                    <article class="panel-card panel-card_light long-booking-panel-layout__confirmed">
                         <h2>Подтверждённые заявки</h2>
                         <p class="upload-copy">Заказы со статусом «подтверждён».</p>
                         <div id="moderatorLongBookingConfirmedList" class="trip-list"></div>
-                    </article>
-                    <article class="panel-card">
-                        <h2>Забронированные авто (парк)</h2>
-                        <p class="upload-copy">Забронированные машины флота.</p>
-                        <div id="moderatorBookedFleetList" class="trip-list"></div>
                     </article>
                 </section>
             </section>
@@ -257,6 +259,10 @@
             <section id="moderator-support-section" class="panel-section hidden">
                 <section class="panel-card">
                     <h2>Сообщения из формы техподдержки</h2>
+                    <div class="panel-actions">
+                        <button id="moderatorSupportRequestClear" class="btn btn-small btn-secondary" type="button">Очистить сообщения</button>
+                        <span id="moderatorSupportRequestStatus" class="status-text"></span>
+                    </div>
                     <div id="moderatorSupportRequestList" class="support-message-list"></div>
                 </section>
             </section>

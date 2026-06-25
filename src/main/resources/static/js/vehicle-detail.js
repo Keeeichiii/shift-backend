@@ -698,8 +698,9 @@ function fillVehiclePage(card, sessionUser) {
     const isLongBooking = card.category === "long_booking";
     if (isLongBooking) {
         document.getElementById("vehiclePrice").textContent = "Тарифы: часы и сутки";
-        document.getElementById("vehiclePriceHint").textContent =
-            "Для долгого бронирования минутная оплата не используется — смотрите почасовые и суточные пакеты ниже.";
+        document.getElementById("vehiclePriceHint").textContent = !sessionUser
+            ? "Для долгого бронирования минутная оплата не используется. Чтобы оформить заявку, зарегистрируйтесь, войдите в аккаунт и загрузите документы в личном кабинете."
+            : "Для долгого бронирования минутная оплата не используется — смотрите почасовые и суточные пакеты ниже.";
         linesToList("vehicleMinutePackages", "", "Минутный тариф для этой категории не предусмотрен.");
     } else {
         document.getElementById("vehiclePrice").textContent = `от ${card.pricePerMinute} BYN / 1 мин.`;

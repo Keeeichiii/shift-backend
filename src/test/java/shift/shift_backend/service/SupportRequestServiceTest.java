@@ -1,6 +1,9 @@
 package shift.shift_backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.OffsetDateTime;
@@ -11,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.server.ResponseStatusException;
 import shift.shift_backend.domain.entity.Credential;
 import shift.shift_backend.domain.entity.SupportRequest;
 import shift.shift_backend.domain.entity.User;
@@ -47,7 +51,7 @@ class SupportRequestServiceTest {
         saved.setId(11L);
         saved.setUserId(3L);
         saved.setContactChannel("telegram");
-        saved.setContactValue("@user");
+        saved.setContactValue("@user1");
         saved.setSubject("Оплата");
         saved.setMessage("Тест");
         saved.setCreatedAt(OffsetDateTime.now());
@@ -55,11 +59,39 @@ class SupportRequestServiceTest {
         when(currentUserService.getCurrentUser(authentication)).thenReturn(user);
         when(supportRequestRepository.save(org.mockito.ArgumentMatchers.any(SupportRequest.class))).thenReturn(saved);
 
-        SupportRequestDto dto = supportRequestService.create(authentication, new CreateSupportRequest(" telegram ", " @user ", " Оплата ", " Тест "));
+        SupportRequestDto dto = supportRequestService.create(authentication, new CreateSupportRequest(" telegram ", " @user1 ", " Оплата ", " Тест "));
         assertThat(dto.userId()).isEqualTo(3L);
         assertThat(dto.contactChannel()).isEqualTo("telegram");
-        assertThat(dto.contactValue()).isEqualTo("@user");
+        assertThat(dto.contactValue()).isEqualTo("@user1");
         assertThat(dto.subject()).isEqualTo("Оплата");
+    }
+
+    @Test
+    void createRejectsInvalidPhoneContactValue() {
+        User user = new User();
+        user.setId(3L);
+        when(currentUserService.getCurrentUser(authentication)).thenReturn(user);
+
+        assertThatThrownBy(() -> supportRequestService.create(
+                authentication,
+                new CreateSupportRequest("phone", "abc123", "Оплата", "Тест")
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("телефона и WhatsApp");
+    }
+
+    @Test
+    void createRejectsUnsupportedChannel() {
+        User user = new User();
+        user.setId(3L);
+        when(currentUserService.getCurrentUser(authentication)).thenReturn(user);
+
+        assertThatThrownBy(() -> supportRequestService.create(
+                authentication,
+                new CreateSupportRequest("viber", "+375291234567", "Оплата", "Тест")
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("корректный канал");
     }
 
     @Test
@@ -85,6 +117,25 @@ class SupportRequestServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).fullName()).isEqualTo("Неизвестный пользователь");
         assertThat(result.get(0).email()).isEqualTo("u@x.com");
+    }
+
+    @Test
+    void deleteByIdRemovesExistingMessage() {
+        when(supportRequestRepository.existsById(20L)).thenReturn(true);
+        doNothing().when(supportRequestRepository).deleteById(20L);
+
+        supportRequestService.deleteById(20L);
+
+        verify(supportRequestRepository).deleteById(20L);
+    }
+
+    @Test
+    void deleteByIdRejectsMissingMessage() {
+        when(supportRequestRepository.existsById(20L)).thenReturn(false);
+
+        assertThatThrownBy(() -> supportRequestService.deleteById(20L))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Сообщение не найдено");
     }
 }
 

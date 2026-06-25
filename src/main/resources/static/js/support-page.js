@@ -1,5 +1,82 @@
-﻿let supportPageUser = null;
+let supportPageUser = null;
 let supportSuccessHideTimer = null;
+
+function supportChannelConfig(channel) {
+    const config = {
+        phone: {
+            placeholder: "+375 29 123-45-67",
+            inputMode: "tel",
+            type: "tel"
+        },
+        telegram: {
+            placeholder: "@username или ID аккаунта",
+            inputMode: "text",
+            type: "text"
+        },
+        whatsapp: {
+            placeholder: "+375 29 123-45-67",
+            inputMode: "tel",
+            type: "tel"
+        },
+        email: {
+            placeholder: "name@example.com",
+            inputMode: "email",
+            type: "email"
+        }
+    };
+    return config[channel] || config.phone;
+}
+
+function normalizeSupportContactValue(channel, value) {
+    const trimmed = String(value || "").trim();
+    if (channel === "phone" || channel === "whatsapp") {
+        return trimmed.replace(/[^\d+\s()-]/g, "");
+    }
+    return trimmed;
+}
+
+function validateSupportFormData(channel, contactValue, subject, message) {
+    const normalizedChannel = String(channel || "").trim();
+    const normalizedContact = normalizeSupportContactValue(normalizedChannel, contactValue);
+    const normalizedSubject = String(subject || "").trim();
+    const normalizedMessage = String(message || "").trim();
+    const allowedChannels = ["phone", "telegram", "whatsapp", "email"];
+    if (!allowedChannels.includes(normalizedChannel)) {
+        return "Выберите корректный канал для ответа.";
+    }
+    if (!normalizedSubject) {
+        return "Укажите тему обращения.";
+    }
+    if (!normalizedMessage) {
+        return "Введите сообщение.";
+    }
+    if (normalizedChannel === "phone" || normalizedChannel === "whatsapp") {
+        const digits = normalizedContact.replace(/\D/g, "");
+        if (!/^\+?[\d\s()-]+$/.test(normalizedContact) || digits.length < 7 || digits.length > 15) {
+            return "Для телефона и WhatsApp используйте только цифры и телефонные символы.";
+        }
+    }
+    if (normalizedChannel === "telegram" && !/^@?[A-Za-z0-9_]{5,32}$/.test(normalizedContact)) {
+        return "Укажите корректный Telegram: @username или ID без пробелов.";
+    }
+    if (normalizedChannel === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedContact)) {
+        return "Укажите корректный email.";
+    }
+    return "";
+}
+
+function updateSupportValidationState() {
+    const channel = document.getElementById("supportPageContactChannel");
+    const value = document.getElementById("supportPageContactValue");
+    const subject = document.getElementById("supportPageSubject");
+    const message = document.getElementById("supportPageMessage");
+    if (!channel || !value || !subject || !message) {
+        return "";
+    }
+    const validationMessage = validateSupportFormData(channel.value, value.value, subject.value, message.value);
+    value.setCustomValidity(validationMessage);
+    return validationMessage;
+}
 
 function updateSupportPageAccess() {
     const hint = document.getElementById("supportPageHint");
@@ -71,13 +148,12 @@ function updateSupportContactPlaceholder() {
         return;
     }
 
-    const placeholders = {
-        phone: "+375 29 123-45-67",
-        telegram: "@username или ID аккаунта",
-        whatsapp: "+375 29 123-45-67",
-        email: "name@example.com"
-    };
-    value.placeholder = placeholders[channel.value] || "Телефон, email или аккаунт";
+    const config = supportChannelConfig(channel.value);
+    value.placeholder = config.placeholder;
+    value.inputMode = config.inputMode;
+    value.type = config.type;
+    value.value = normalizeSupportContactValue(channel.value, value.value);
+    updateSupportValidationState();
 }
 
 async function initSupportPage() {
@@ -131,6 +207,22 @@ if (supportPageForm) {
             }
 
             const payload = Object.fromEntries(new FormData(supportPageForm).entries());
+            payload.contactValue = normalizeSupportContactValue(payload.contactChannel, payload.contactValue);
+            payload.subject = String(payload.subject || "").trim();
+            payload.message = String(payload.message || "").trim();
+            const validationMessage = validateSupportFormData(
+                payload.contactChannel,
+                payload.contactValue,
+                payload.subject,
+                payload.message
+            );
+            if (validationMessage) {
+                if (status) {
+                    status.textContent = validationMessage;
+                }
+                updateSupportValidationState();
+                return;
+            }
             await pageRequest("/api/support-requests", {
                 method: "POST",
                 body: JSON.stringify(payload)
@@ -155,6 +247,15 @@ if (supportPageForm) {
 }
 
 document.getElementById("supportPageContactChannel")?.addEventListener("change", updateSupportContactPlaceholder);
+document.getElementById("supportPageContactValue")?.addEventListener("input", () => {
+    updateSupportValidationState();
+});
+document.getElementById("supportPageSubject")?.addEventListener("input", () => {
+    updateSupportValidationState();
+});
+document.getElementById("supportPageMessage")?.addEventListener("input", () => {
+    updateSupportValidationState();
+});
 
 window.addEventListener("auth-state-changed", (event) => {
     supportPageUser = event.detail ? event.detail.user || null : null;

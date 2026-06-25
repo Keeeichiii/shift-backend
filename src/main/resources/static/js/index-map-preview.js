@@ -20,13 +20,13 @@ function initPickupMapPreview() {
     }
 
     const map = L.map(mapNode, {
-        zoomControl: false,
+        zoomControl: true,
         attributionControl: false,
         dragging: true,
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-        boxZoom: false,
-        keyboard: false,
+        scrollWheelZoom: true,
+        doubleClickZoom: true,
+        boxZoom: true,
+        keyboard: true,
         tap: false
     }).setView([53.684, 23.835], 12);
 

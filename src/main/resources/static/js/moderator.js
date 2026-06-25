@@ -18,6 +18,14 @@ let moderatorUsers = [];
 let selectedModeratorUserId = null;
 let moderatorLicenseTab = "queue";
 
+function setModeratorSupportEmptyState() {
+    const list = document.getElementById("moderatorSupportRequestList");
+    if (!list) {
+        return;
+    }
+    list.innerHTML = `<div class="support-message-card__empty"><strong>Сообщений пока нет.</strong><p>Новые обращения из формы техподдержки появятся здесь.</p></div>`;
+}
+
 const MODERATOR_TABS = [
     ["moderator-license-section", "Одобрение данных водительских прав"],
     ["moderator-long-booking-section", "Подтверждение заказов"],
@@ -64,12 +72,12 @@ function renderModeratorSupportRequests(requests) {
     }
 
     if (!requests.length) {
-        list.innerHTML = `<div class="support-message-card__empty"><strong>Сообщений пока нет.</strong><p>Новые обращения из формы техподдержки появятся здесь.</p></div>`;
+        setModeratorSupportEmptyState();
         return;
     }
 
     list.innerHTML = requests.map((request) => `
-        <article class="support-message-card">
+        <article class="support-message-card" data-support-request-id="${escapeHtml(request.id)}">
             <div class="support-message-card__head">
                 <div>
                     <strong>${escapeHtml(request.subject)}</strong>
@@ -85,8 +93,72 @@ function renderModeratorSupportRequests(requests) {
                 <p><strong>Контакт для ответа:</strong> ${escapeHtml(request.contactValue || "Не указан")}</p>
                 <p>${escapeHtml(request.message)}</p>
             </div>
+            <div class="panel-actions">
+                <button type="button" class="btn btn-small btn-secondary moderator-support-delete-btn">Удалить сообщение</button>
+            </div>
         </article>
     `).join("");
+
+    list.querySelectorAll(".moderator-support-delete-btn").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const requestId = button.closest("[data-support-request-id]")?.dataset.supportRequestId;
+            if (!requestId) {
+                return;
+            }
+            await deleteModeratorSupportRequest(requestId, button);
+        });
+    });
+}
+
+async function deleteModeratorSupportRequest(requestId, button) {
+    if (!window.confirm("Удалить это сообщение?")) {
+        return;
+    }
+    const status = document.getElementById("moderatorSupportRequestStatus");
+    try {
+        setButtonBusy(button, true, "Удаление...");
+        if (status) {
+            status.textContent = "";
+        }
+        await pageRequest(`/api/support-requests/${encodeURIComponent(requestId)}`, {method: "DELETE"});
+        button.closest("[data-support-request-id]")?.remove();
+        if (!document.querySelector("#moderatorSupportRequestList [data-support-request-id]")) {
+            setModeratorSupportEmptyState();
+        }
+        if (status) {
+            status.textContent = "Сообщение удалено.";
+        }
+    } catch (error) {
+        if (status) {
+            status.textContent = extractErrorMessage(error, "Не удалось удалить сообщение.");
+        }
+    } finally {
+        setButtonBusy(button, false, "Удалить сообщение");
+    }
+}
+
+async function clearModeratorSupportRequests(button = document.getElementById("moderatorSupportRequestClear")) {
+    if (!window.confirm("Очистить все сообщения?")) {
+        return;
+    }
+    const status = document.getElementById("moderatorSupportRequestStatus");
+    try {
+        setButtonBusy(button, true, "Очистка...");
+        if (status) {
+            status.textContent = "";
+        }
+        await pageRequest("/api/support-requests", {method: "DELETE"});
+        setModeratorSupportEmptyState();
+        if (status) {
+            status.textContent = "Сообщения очищены.";
+        }
+    } catch (error) {
+        if (status) {
+            status.textContent = extractErrorMessage(error, "Не удалось очистить сообщения.");
+        }
+    } finally {
+        setButtonBusy(button, false, "Очистить сообщения");
+    }
 }
 
 function renderLicenseImages(containerId, user) {
@@ -99,7 +171,16 @@ function renderLicenseImages(containerId, user) {
     if (user?.licenseFrontImage) {
         items.push(`
             <figure class="license-shot">
-                <img src="${user.licenseFrontImage}" alt="Лицевая сторона прав">
+                <button
+                    class="license-shot__trigger"
+                    type="button"
+                    aria-label="Открыть лицевую сторону прав"
+                    data-image-lightbox-src="${escapeHtml(user.licenseFrontImage)}"
+                    data-image-lightbox-alt="Лицевая сторона прав"
+                    data-image-lightbox-caption="Лицевая сторона прав"
+                >
+                    <img src="${user.licenseFrontImage}" alt="Лицевая сторона прав">
+                </button>
                 <figcaption>Лицевая сторона</figcaption>
             </figure>
         `);
@@ -107,7 +188,16 @@ function renderLicenseImages(containerId, user) {
     if (user?.licenseBackImage) {
         items.push(`
             <figure class="license-shot">
-                <img src="${user.licenseBackImage}" alt="Обратная сторона прав">
+                <button
+                    class="license-shot__trigger"
+                    type="button"
+                    aria-label="Открыть обратную сторону прав"
+                    data-image-lightbox-src="${escapeHtml(user.licenseBackImage)}"
+                    data-image-lightbox-alt="Обратная сторона прав"
+                    data-image-lightbox-caption="Обратная сторона прав"
+                >
+                    <img src="${user.licenseBackImage}" alt="Обратная сторона прав">
+                </button>
                 <figcaption>Обратная сторона</figcaption>
             </figure>
         `);
@@ -115,7 +205,16 @@ function renderLicenseImages(containerId, user) {
     if (user?.passportMainImage) {
         items.push(`
             <figure class="license-shot">
-                <img src="${user.passportMainImage}" alt="Главная страница паспорта">
+                <button
+                    class="license-shot__trigger"
+                    type="button"
+                    aria-label="Открыть главную страницу паспорта"
+                    data-image-lightbox-src="${escapeHtml(user.passportMainImage)}"
+                    data-image-lightbox-alt="Главная страница паспорта"
+                    data-image-lightbox-caption="Главная страница паспорта"
+                >
+                    <img src="${user.passportMainImage}" alt="Главная страница паспорта">
+                </button>
                 <figcaption>Главная страница паспорта</figcaption>
             </figure>
         `);
@@ -283,6 +382,10 @@ const moderatorTabs = ensureModeratorTabs();
 if (moderatorTabs) {
     initPanelTabs(moderatorTabs);
 }
+
+document.getElementById("moderatorSupportRequestClear")?.addEventListener("click", async () => {
+    await clearModeratorSupportRequests();
+});
 
 initModeratorLicenseControls();
 

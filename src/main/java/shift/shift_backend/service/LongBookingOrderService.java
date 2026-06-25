@@ -80,7 +80,9 @@ public class LongBookingOrderService {
     @Transactional(readOnly = true)
     public List<LongBookingOrderDto> listForCurrentUser(Authentication authentication) {
         Long userId = currentUserService.getCurrentUserId(authentication);
+        OffsetDateTime now = OffsetDateTime.now();
         return longBookingOrderRepository.findAllByUserIdOrderByCreatedAtDesc(userId).stream()
+                .filter(order -> shouldExposeOrder(order, now))
                 .map(this::toDto)
                 .toList();
     }
@@ -163,7 +165,12 @@ public class LongBookingOrderService {
 
     @Transactional(readOnly = true)
     public List<PanelLongBookingOrderDto> listConfirmedForStaff() {
-        return longBookingOrderRepository.findAllByStatusOrderByCreatedAtDesc(LongBookingOrderStatus.CONFIRMED).stream()
+        return longBookingOrderRepository
+                .findAllByStatusAndRequestedEndAtAfterOrderByCreatedAtDesc(
+                        LongBookingOrderStatus.CONFIRMED,
+                        OffsetDateTime.now()
+                )
+                .stream()
                 .map(this::toPanelDto)
                 .toList();
     }
@@ -196,11 +203,27 @@ public class LongBookingOrderService {
     @Transactional
     public PanelLongBookingOrderDto cancelByStaff(Long orderId) {
         LongBookingOrder order = getOrderEntity(orderId);
-        if (order.getStatus() != LongBookingOrderStatus.PENDING) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Отменить можно только заявку в статусе «ожидает подтверждения».");
+        if (!mayCancelBeforeStart(order)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Отменить можно заявку в статусе «ожидает подтверждения» или подтверждённую заявку до её начала.");
         }
         order.setStatus(LongBookingOrderStatus.CANCELLED);
         return toPanelDto(longBookingOrderRepository.save(order));
+    }
+
+    @Transactional
+    public LongBookingOrderDto cancelForCurrentUser(Authentication authentication, Long orderId) {
+        LongBookingOrder order = getOrderEntity(orderId);
+        Long currentUserId = currentUserService.getCurrentUserId(authentication);
+        if (!currentUserId.equals(order.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Нельзя отменить чужую заявку.");
+        }
+        if (!mayCancelBeforeStart(order)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Отменить заявку можно только до её начала.");
+        }
+        order.setStatus(LongBookingOrderStatus.CANCELLED);
+        return toDto(longBookingOrderRepository.save(order));
     }
 
     private LongBookingOrder getOrderEntity(Long id) {
@@ -215,6 +238,22 @@ public class LongBookingOrderService {
 
     private EnumSet<LongBookingOrderStatus> blockingStatuses() {
         return EnumSet.of(LongBookingOrderStatus.PENDING, LongBookingOrderStatus.CONFIRMED);
+    }
+
+    private boolean shouldExposeOrder(LongBookingOrder order, OffsetDateTime now) {
+        if (order.getStatus() != LongBookingOrderStatus.CONFIRMED) {
+            return true;
+        }
+        return order.getRequestedEndAt() == null || order.getRequestedEndAt().isAfter(now);
+    }
+
+    private boolean mayCancelBeforeStart(LongBookingOrder order) {
+        if (order.getStatus() == LongBookingOrderStatus.PENDING) {
+            return true;
+        }
+        return order.getStatus() == LongBookingOrderStatus.CONFIRMED
+                && order.getRequestedStartAt() != null
+                && order.getRequestedStartAt().isAfter(OffsetDateTime.now());
     }
 
     private BigDecimal estimateLongBookingPrice(LongBookingOrder order) {

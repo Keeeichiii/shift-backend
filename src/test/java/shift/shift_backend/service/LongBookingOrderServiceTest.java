@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -171,6 +172,59 @@ class LongBookingOrderServiceTest {
         verify(longBookingOrderRepository, never()).save(any());
     }
 
+    @Test
+    void cancelForCurrentUserAllowsConfirmedOrderBeforeStart() {
+        VehicleCard card = longBookingCard();
+        OffsetDateTime start = OffsetDateTime.now().plusDays(2);
+        OffsetDateTime end = start.plusDays(3);
+        LongBookingOrder order = confirmedOrder(30L, card, start, end);
+
+        when(longBookingOrderRepository.findById(30L)).thenReturn(Optional.of(order));
+        when(currentUserService.getCurrentUserId(authentication)).thenReturn(10L);
+        when(longBookingOrderRepository.save(any(LongBookingOrder.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var result = longBookingOrderService.cancelForCurrentUser(authentication, 30L);
+
+        assertThat(result.status()).isEqualTo(LongBookingOrderStatus.CANCELLED);
+        assertThat(order.getStatus()).isEqualTo(LongBookingOrderStatus.CANCELLED);
+    }
+
+    @Test
+    void cancelForCurrentUserRejectsStartedOrder() {
+        VehicleCard card = longBookingCard();
+        OffsetDateTime start = OffsetDateTime.now().minusHours(1);
+        OffsetDateTime end = OffsetDateTime.now().plusHours(2);
+        LongBookingOrder order = confirmedOrder(30L, card, start, end);
+
+        when(longBookingOrderRepository.findById(30L)).thenReturn(Optional.of(order));
+        when(currentUserService.getCurrentUserId(authentication)).thenReturn(10L);
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> longBookingOrderService.cancelForCurrentUser(authentication, 30L)
+        );
+
+        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        verify(longBookingOrderRepository, never()).save(any());
+    }
+
+    @Test
+    void listConfirmedForStaffSkipsFinishedOrdersAtRepositoryLevel() {
+        doReturn(List.of()).when(longBookingOrderRepository)
+                .findAllByStatusAndRequestedEndAtAfterOrderByCreatedAtDesc(
+                        eq(LongBookingOrderStatus.CONFIRMED),
+                        any(OffsetDateTime.class)
+                );
+
+        assertThat(longBookingOrderService.listConfirmedForStaff()).isEmpty();
+
+        verify(longBookingOrderRepository)
+                .findAllByStatusAndRequestedEndAtAfterOrderByCreatedAtDesc(
+                        eq(LongBookingOrderStatus.CONFIRMED),
+                        any(OffsetDateTime.class)
+                );
+    }
+
     private static User verifiedUser() {
         User user = new User();
         user.setId(10L);
@@ -201,6 +255,12 @@ class LongBookingOrderServiceTest {
         order.setStatus(LongBookingOrderStatus.PENDING);
         order.setRequestedStartAt(start);
         order.setRequestedEndAt(end);
+        return order;
+    }
+
+    private static LongBookingOrder confirmedOrder(Long id, VehicleCard card, OffsetDateTime start, OffsetDateTime end) {
+        LongBookingOrder order = pendingOrder(id, card, start, end);
+        order.setStatus(LongBookingOrderStatus.CONFIRMED);
         return order;
     }
 }
