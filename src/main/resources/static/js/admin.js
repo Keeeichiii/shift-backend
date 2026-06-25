@@ -135,7 +135,16 @@ function renderLicenseImages(containerId, user) {
     if (user?.licenseFrontImage) {
         items.push(`
             <figure class="license-shot">
-                <img src="${user.licenseFrontImage}" alt="Лицевая сторона прав">
+                <button
+                    class="license-shot__trigger"
+                    type="button"
+                    aria-label="Открыть лицевую сторону прав"
+                    data-image-lightbox-src="${escapeHtml(user.licenseFrontImage)}"
+                    data-image-lightbox-alt="Лицевая сторона прав"
+                    data-image-lightbox-caption="Лицевая сторона прав"
+                >
+                    <img src="${user.licenseFrontImage}" alt="Лицевая сторона прав">
+                </button>
                 <figcaption>Лицевая сторона</figcaption>
             </figure>
         `);
@@ -143,7 +152,16 @@ function renderLicenseImages(containerId, user) {
     if (user?.licenseBackImage) {
         items.push(`
             <figure class="license-shot">
-                <img src="${user.licenseBackImage}" alt="Обратная сторона прав">
+                <button
+                    class="license-shot__trigger"
+                    type="button"
+                    aria-label="Открыть обратную сторону прав"
+                    data-image-lightbox-src="${escapeHtml(user.licenseBackImage)}"
+                    data-image-lightbox-alt="Обратная сторона прав"
+                    data-image-lightbox-caption="Обратная сторона прав"
+                >
+                    <img src="${user.licenseBackImage}" alt="Обратная сторона прав">
+                </button>
                 <figcaption>Обратная сторона</figcaption>
             </figure>
         `);
@@ -151,7 +169,16 @@ function renderLicenseImages(containerId, user) {
     if (user?.passportMainImage) {
         items.push(`
             <figure class="license-shot">
-                <img src="${user.passportMainImage}" alt="Главная страница паспорта">
+                <button
+                    class="license-shot__trigger"
+                    type="button"
+                    aria-label="Открыть главную страницу паспорта"
+                    data-image-lightbox-src="${escapeHtml(user.passportMainImage)}"
+                    data-image-lightbox-alt="Главная страница паспорта"
+                    data-image-lightbox-caption="Главная страница паспорта"
+                >
+                    <img src="${user.passportMainImage}" alt="Главная страница паспорта">
+                </button>
                 <figcaption>Главная страница паспорта</figcaption>
             </figure>
         `);
